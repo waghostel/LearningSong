@@ -12,9 +12,12 @@ This task list has been refreshed based on the current codebase state. The proje
 
 
 
-- [ ] 1.1 Add Textarea component from shadcn/ui
+
+- [x] 1.1 Add Textarea component from shadcn/ui
+
   - Run: `pnpm dlx shadcn@latest add textarea`
   - _Requirements: US-1_
+
 
 - [ ] 1.2 Add Switch component from shadcn/ui
   - Run: `pnpm dlx shadcn@latest add switch`
@@ -31,6 +34,7 @@ This task list has been refreshed based on the current codebase state. The proje
 ---
 
 - [ ]  2. Setup Firebase Authentication
+
 - [ ] 2.1 Install Firebase SDK
   - Run: `pnpm add firebase`
   - _Requirements: FR-5_
@@ -51,6 +55,7 @@ This task list has been refreshed based on the current codebase state. The proje
 
 ---
 
+
 - [ ]  3. Setup State Management
 - [ ] 3.1 Create text input Zustand store
   - Create `frontend/src/stores/textInputStore.ts`
@@ -60,6 +65,7 @@ This task list has been refreshed based on the current codebase state. The proje
   - _Requirements: US-1, US-2, US-5_
 
 ---
+
 
 - [ ] 4. Setup API Client for Lyrics
 - [ ] 4.1 Create lyrics API module
@@ -84,6 +90,7 @@ This task list has been refreshed based on the current codebase state. The proje
 ---
 
 - [ ]  5. Build Text Input Components
+
 - [ ] 5.1 Create TextInputArea component
   - Create `frontend/src/components/TextInputArea.tsx`
   - Use shadcn/ui Textarea with auto-resize
@@ -127,6 +134,7 @@ This task list has been refreshed based on the current codebase state. The proje
 
 ---
 
+
 - [ ]  6. Build Text Input Page
 - [ ] 6.1 Create TextInputPage component
   - Create `frontend/src/pages/TextInputPage.tsx`
@@ -146,6 +154,7 @@ This task list has been refreshed based on the current codebase state. The proje
 
 ---
 
+
 - [ ]  7. Add Error Handling
 - [ ] 7.1 Create error boundary
   - Create `frontend/src/components/ErrorBoundary.tsx`
@@ -161,7 +170,9 @@ This task list has been refreshed based on the current codebase state. The proje
 
 ---
 
+
 - [ ]  8. Add Accessibility Features
+
 - [ ] 8.1 Implement keyboard navigation
   - Ensure all interactive elements are keyboard accessible
   - Add focus indicators with TailwindCSS
