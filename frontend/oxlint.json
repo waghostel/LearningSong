@@ -1,0 +1,15 @@
+{
+  "rules": {
+    "react": "warn",
+    "typescript": "warn",
+    "import": "warn",
+    "jsx-a11y": "warn"
+  },
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "globals": {
+    "React": "readonly"
+  }
+}

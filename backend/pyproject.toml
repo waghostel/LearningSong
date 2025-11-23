@@ -1,0 +1,46 @@
+[tool.poetry]
+name = "backend"
+version = "0.1.0"
+description = "Backend API for AI Learning Song Creator"
+authors = ["waghostel <waghostel@gmail.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.104.0"
+uvicorn = {extras = ["standard"], version = "^0.24.0"}
+python-dotenv = "^1.0.0"
+pydantic = "^2.5.0"
+pydantic-settings = "^2.1.0"
+langchain = "^1.0.8"
+langgraph = "^1.0.3"
+firebase-admin = "^7.1.0"
+python-socketio = "^5.14.3"
+aiohttp = "^3.13.2"
+httpx = "^0.28.1"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^9.0.1"
+pytest-asyncio = "^1.3.0"
+pytest-cov = "^7.0.0"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=app",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
