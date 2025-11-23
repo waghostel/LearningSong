@@ -89,9 +89,7 @@
   - _Requirements: AC2_
 - [x] 7. Install Backend AI and Service Dependencies
 
-
-
-- [ ] 7. Install Backend AI and Service Dependencies
+- [X] 7. Install Backend AI and Service Dependencies
 
   - Add langchain and langgraph via Poetry
   - Add firebase-admin for Firebase integration
@@ -125,12 +123,9 @@
 
 - [x] 9. Verify Complete Setup
 
-
-
-
   - Run `pnpm install` in frontend and verify success
   - Run `pnpm lint` and verify oxlint works
-  - Run `pnpm lint:eslint` and verify ESLint works
+TIMTIM  - Run `pnpm lint:eslint` and verify ESLint works
   - Run `pnpm dev` and verify frontend dev server starts
   - Run `poetry install` in backend and verify success
   - Run `poetry run uvicorn app.main:app --reload` and verify backend starts
