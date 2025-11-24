@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Oxlint Report Generator",
+  "description": "Runs oxlint on the entire codebase and saves a formatted report to ./report/lint-checking/ with timestamp. The report is formatted as a checklist grouped by file path, with files containing errors prioritized at the top (Urgent) and files with only warnings below (Low Risk).",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "cd frontend && pnpm oxlint-report"
+  }
+}

@@ -21,13 +21,13 @@ const EXAMPLE_ENDPOINTS = {
 export const exampleKeys = {
   all: ['examples'] as const,
   lists: () => [...exampleKeys.all, 'list'] as const,
-  list: (filters?: Record<string, any>) => [...exampleKeys.lists(), filters] as const,
+  list: (filters?: Record<string, unknown>) => [...exampleKeys.lists(), filters] as const,
   details: () => [...exampleKeys.all, 'detail'] as const,
   detail: (id: number) => [...exampleKeys.details(), id] as const,
 }
 
 // Fetch all examples
-export const useExamples = (filters?: Record<string, any>) => {
+export const useExamples = (filters?: Record<string, unknown>) => {
   return useQuery({
     queryKey: exampleKeys.list(filters),
     queryFn: async () => {

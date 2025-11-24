@@ -39,6 +39,10 @@ htmlcov/
 .env.local
 .env.*.local
 
+# Firebase credentials
+firebase-credentials.json
+*-firebase-adminsdk-*.json
+
 # Node.js
 node_modules/
 npm-debug.log*

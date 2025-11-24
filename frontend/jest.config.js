@@ -21,8 +21,16 @@ export default {
       {
         tsconfig: {
           jsx: 'react-jsx',
+          esModuleInterop: true,
         },
       },
     ],
+  },
+  globals: {
+    'import.meta': {
+      env: {
+        VITE_API_URL: 'http://localhost:8000',
+      },
+    },
   },
 };
