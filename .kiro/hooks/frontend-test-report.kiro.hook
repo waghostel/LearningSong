@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Frontend Test Report Generator",
+  "description": "Runs pnpm test in the frontend directory and generates a timestamped test report in ./report/frontend-test with errors organized as a todo list from urgent to low risk",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "node scripts/run-frontend-test-report.js"
+  }
+}

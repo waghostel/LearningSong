@@ -8,8 +8,8 @@ if (!timestamp) {
   process.exit(1);
 }
 
-const tempFile = path.join('temp', `eslint-raw-${timestamp}.json`);
-const reportPath = path.join('report', 'lint-checking', `lint-report-${timestamp}.md`);
+const tempFile = path.join(__dirname, '..', 'temp', `eslint-raw-${timestamp}.json`);
+const reportPath = path.join(__dirname, '..', 'report', 'lint-checking', `lint-report-${timestamp}.md`);
 
 let results = [];
 try {

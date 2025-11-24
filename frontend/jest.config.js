@@ -5,6 +5,7 @@ export default {
   roots: ['<rootDir>/src', '<rootDir>/tests'],
   testMatch: ['**/__tests__/**/*.ts?(x)', '**/?(*.)+(spec|test).ts?(x)'],
   moduleNameMapper: {
+    '^@/api/client$': '<rootDir>/src/api/__mocks__/client.ts',
     '^@/(.*)$': '<rootDir>/src/$1',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
@@ -22,6 +23,10 @@ export default {
         tsconfig: {
           jsx: 'react-jsx',
           esModuleInterop: true,
+          module: 'esnext',
+          moduleResolution: 'bundler',
+          types: ['jest', '@testing-library/jest-dom', 'node'],
+          skipLibCheck: true,
         },
       },
     ],

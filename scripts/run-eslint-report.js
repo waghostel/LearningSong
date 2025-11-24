@@ -21,7 +21,10 @@ console.log('Running ESLint...');
 
 // Run ESLint and save output
 try {
-  execSync(`cd frontend && pnpm lint:eslint --format json --output-file ${path.relative('frontend', tempFile)} . 2>&1`, {
+  const frontendDir = path.join(__dirname, '..', 'frontend');
+  const relativePath = path.relative(frontendDir, tempFile).replace(/\\/g, '/');
+  execSync(`pnpm lint:eslint --format json --output-file "${relativePath}" .`, {
+    cwd: frontendDir,
     stdio: 'inherit'
   });
 } catch (error) {

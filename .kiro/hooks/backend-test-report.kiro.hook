@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Backend Test Report",
+  "description": "Runs the full backend test suite using pytest and generates a comprehensive test report in ./report/backend-test/",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "cd backend && poetry run pytest --cov=app --cov-report=term --cov-report=html -v > ../temp/backend-test-output-$(date +%Y%m%d-%H%M%S).txt 2>&1 && node ../scripts/generate-backend-test-report.js"
+  }
+}

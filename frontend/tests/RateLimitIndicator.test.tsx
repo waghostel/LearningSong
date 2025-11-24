@@ -52,7 +52,9 @@ describe('RateLimitIndicator Component', () => {
     
     const status = screen.getByText(/3\/3 songs remaining today/i)
     expect(status).toBeInTheDocument()
-    expect(status).toHaveClass('text-green-700')
+    // Check for the parent div that contains the color classes
+    const parentDiv = status.closest('div')
+    expect(parentDiv).toHaveClass('text-green-700')
   })
 
   it('displays 2/3 remaining with yellow color', () => {
@@ -66,7 +68,9 @@ describe('RateLimitIndicator Component', () => {
     
     const status = screen.getByText(/2\/3 songs remaining today/i)
     expect(status).toBeInTheDocument()
-    expect(status).toHaveClass('text-yellow-700')
+    // Check for the parent div that contains the color classes
+    const parentDiv = status.closest('div')
+    expect(parentDiv).toHaveClass('text-yellow-700')
   })
 
   it('displays 1/3 remaining with yellow color', () => {
@@ -80,7 +84,9 @@ describe('RateLimitIndicator Component', () => {
     
     const status = screen.getByText(/1\/3 songs remaining today/i)
     expect(status).toBeInTheDocument()
-    expect(status).toHaveClass('text-yellow-700')
+    // Check for the parent div that contains the color classes
+    const parentDiv = status.closest('div')
+    expect(parentDiv).toHaveClass('text-yellow-700')
   })
 
   it('displays 0/3 remaining with red color', () => {
@@ -94,7 +100,9 @@ describe('RateLimitIndicator Component', () => {
     
     const status = screen.getByText(/0\/3 songs remaining today/i)
     expect(status).toBeInTheDocument()
-    expect(status).toHaveClass('text-red-700')
+    // Check for the parent div that contains the color classes
+    const parentDiv = status.closest('div')
+    expect(parentDiv).toHaveClass('text-red-700')
   })
 
   it('shows countdown timer when limit is reached', async () => {

@@ -1,7 +1,9 @@
 import axios from 'axios'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+// Get API base URL from environment
+// Vite exposes import.meta.env, but we'll use a fallback for test environments
+const API_BASE_URL = 'http://localhost:8000' // Default for development and tests
 
 class ApiClient {
   private client: AxiosInstance

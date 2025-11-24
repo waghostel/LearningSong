@@ -1,16 +1,29 @@
-import { generateLyrics, getRateLimit } from '@/api/lyrics'
 import type { GenerateLyricsRequest, GenerateLyricsResponse, RateLimitResponse } from '@/api/lyrics'
 
-// Mock the apiClient
-jest.mock('@/api/client', () => ({
-  apiClient: {
-    post: jest.fn(),
-    get: jest.fn(),
+// Create mock axios instance
+const mockPost = jest.fn()
+const mockGet = jest.fn()
+const mockAxiosInstance = {
+  get: mockGet,
+  post: mockPost,
+  put: jest.fn(),
+  delete: jest.fn(),
+  patch: jest.fn(),
+  interceptors: {
+    request: { use: jest.fn(), eject: jest.fn() },
+    response: { use: jest.fn(), eject: jest.fn() },
+  },
+}
+
+// Mock axios before importing anything else
+jest.mock('axios', () => ({
+  __esModule: true,
+  default: {
+    create: jest.fn(() => mockAxiosInstance),
   },
 }))
 
-import { apiClient } from '@/api/client'
-const mockedApiClient = apiClient as jest.Mocked<typeof apiClient>
+import { generateLyrics, getRateLimit } from '@/api/lyrics'
 
 describe('Lyrics API', () => {
   beforeEach(() => {
@@ -31,11 +44,11 @@ describe('Lyrics API', () => {
         processing_time: 15.5,
       }
 
-      mockedApiClient.post.mockResolvedValue(mockResponse)
+      mockPost.mockResolvedValue({ data: mockResponse })
 
       const result = await generateLyrics(request)
 
-      expect(mockedApiClient.post).toHaveBeenCalledWith('/api/lyrics/generate', request)
+      expect(mockPost).toHaveBeenCalledWith('/api/lyrics/generate', request, undefined)
       expect(result).toEqual(mockResponse)
     })
 
@@ -52,14 +65,14 @@ describe('Lyrics API', () => {
         processing_time: 25.3,
       }
 
-      mockedApiClient.post.mockResolvedValue(mockResponse)
+      mockPost.mockResolvedValue({ data: mockResponse })
 
       await generateLyrics(request)
 
-      expect(mockedApiClient.post).toHaveBeenCalledWith('/api/lyrics/generate', {
+      expect(mockPost).toHaveBeenCalledWith('/api/lyrics/generate', {
         content: 'Short content',
         search_enabled: true,
-      })
+      }, undefined)
     })
 
     it('returns cached response when available', async () => {
@@ -75,7 +88,7 @@ describe('Lyrics API', () => {
         processing_time: 0.1,
       }
 
-      mockedApiClient.post.mockResolvedValue(mockResponse)
+      mockPost.mockResolvedValue({ data: mockResponse })
 
       const result = await generateLyrics(request)
 
@@ -90,7 +103,7 @@ describe('Lyrics API', () => {
       }
 
       const networkError = new Error('Network Error')
-      mockedApiClient.post.mockRejectedValue(networkError)
+      mockPost.mockRejectedValue(networkError)
 
       await expect(generateLyrics(request)).rejects.toThrow('Network Error')
     })
@@ -111,7 +124,7 @@ describe('Lyrics API', () => {
         },
       }
 
-      mockedApiClient.post.mockRejectedValue(rateLimitError)
+      mockPost.mockRejectedValue(rateLimitError)
 
       await expect(generateLyrics(request)).rejects.toEqual(rateLimitError)
     })
@@ -131,7 +144,7 @@ describe('Lyrics API', () => {
         },
       }
 
-      mockedApiClient.post.mockRejectedValue(validationError)
+      mockPost.mockRejectedValue(validationError)
 
       await expect(generateLyrics(request)).rejects.toEqual(validationError)
     })
@@ -151,7 +164,7 @@ describe('Lyrics API', () => {
         },
       }
 
-      mockedApiClient.post.mockRejectedValue(serverError)
+      mockPost.mockRejectedValue(serverError)
 
       await expect(generateLyrics(request)).rejects.toEqual(serverError)
     })
@@ -164,11 +177,11 @@ describe('Lyrics API', () => {
         reset_time: new Date().toISOString(),
       }
 
-      mockedApiClient.get.mockResolvedValue(mockResponse)
+      mockGet.mockResolvedValue({ data: mockResponse })
 
       const result = await getRateLimit()
 
-      expect(mockedApiClient.get).toHaveBeenCalledWith('/api/user/rate-limit')
+      expect(mockGet).toHaveBeenCalledWith('/api/user/rate-limit', undefined)
       expect(result).toEqual(mockResponse)
     })
 
@@ -178,7 +191,7 @@ describe('Lyrics API', () => {
         reset_time: new Date(Date.now() + 86400000).toISOString(),
       }
 
-      mockedApiClient.get.mockResolvedValue(mockResponse)
+      mockGet.mockResolvedValue({ data: mockResponse })
 
       const result = await getRateLimit()
 
@@ -188,7 +201,7 @@ describe('Lyrics API', () => {
 
     it('handles network errors', async () => {
       const networkError = new Error('Network Error')
-      mockedApiClient.get.mockRejectedValue(networkError)
+      mockGet.mockRejectedValue(networkError)
 
       await expect(getRateLimit()).rejects.toThrow('Network Error')
     })
@@ -203,7 +216,7 @@ describe('Lyrics API', () => {
         },
       }
 
-      mockedApiClient.get.mockRejectedValue(authError)
+      mockGet.mockRejectedValue(authError)
 
       await expect(getRateLimit()).rejects.toEqual(authError)
     })
@@ -214,7 +227,7 @@ describe('Lyrics API', () => {
         reset_time: new Date(Date.now() + 3600000).toISOString(),
       }
 
-      mockedApiClient.get.mockResolvedValue(mockResponse)
+      mockGet.mockResolvedValue({ data: mockResponse })
 
       const result = await getRateLimit()
 
