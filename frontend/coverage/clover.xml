@@ -1,42 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1763958873222" clover="3.2.0">
-  <project timestamp="1763958873222" name="All files">
-    <metrics statements="423" coveredstatements="210" conditionals="221" coveredconditionals="100" methods="118" coveredmethods="46" elements="762" coveredelements="356" complexity="0" loc="423" ncloc="423" packages="8" files="25" classes="25"/>
+<coverage generated="1764004122418" clover="3.2.0">
+  <project timestamp="1764004122418" name="All files">
+    <metrics statements="469" coveredstatements="239" conditionals="229" coveredconditionals="95" methods="122" coveredmethods="47" elements="820" coveredelements="381" complexity="0" loc="469" ncloc="469" packages="8" files="28" classes="28"/>
     <package name="src">
-      <metrics statements="7" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+      <metrics statements="8" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
       <file name="App.tsx" path="C:\Users\Cheney\Documents\Github\LearningSong\frontend\src\App.tsx">
-        <metrics statements="7" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <metrics statements="8" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
         <line num="3" count="0" type="stmt"/>
         <line num="4" count="0" type="stmt"/>
         <line num="5" count="0" type="stmt"/>
-        <line num="8" count="0" type="stmt"/>
-        <line num="53" count="0" type="stmt"/>
+        <line num="6" count="0" type="stmt"/>
+        <line num="9" count="0" type="stmt"/>
+        <line num="51" count="0" type="stmt"/>
       </file>
     </package>
     <package name="src.api">
-      <metrics statements="32" coveredstatements="20" conditionals="8" coveredconditionals="5" methods="14" coveredmethods="9"/>
+      <metrics statements="32" coveredstatements="17" conditionals="8" coveredconditionals="0" methods="14" coveredmethods="7"/>
       <file name="client.ts" path="C:\Users\Cheney\Documents\Github\LearningSong\frontend\src\api\client.ts">
-        <metrics statements="26" coveredstatements="14" conditionals="8" coveredconditionals="5" methods="10" coveredmethods="5"/>
+        <metrics statements="26" coveredstatements="11" conditionals="8" coveredconditionals="0" methods="10" coveredmethods="3"/>
         <line num="1" count="4" type="stmt"/>
         <line num="6" count="4" type="stmt"/>
         <line num="12" count="4" type="stmt"/>
         <line num="21" count="4" type="stmt"/>
-        <line num="24" count="12" type="stmt"/>
-        <line num="25" count="12" type="cond" truecount="1" falsecount="1"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="25" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="26" count="0" type="stmt"/>
-        <line num="28" count="12" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
         <line num="31" count="0" type="stmt"/>
         <line num="36" count="4" type="stmt"/>
         <line num="37" count="0" type="stmt"/>
-        <line num="40" count="12" type="cond" truecount="4" falsecount="2"/>
+        <line num="40" count="0" type="cond" truecount="0" falsecount="6"/>
         <line num="42" count="0" type="stmt"/>
-        <line num="44" count="12" type="stmt"/>
+        <line num="44" count="0" type="stmt"/>
         <line num="50" count="5" type="stmt"/>
-        <line num="51" count="0" type="stmt"/>
+        <line num="51" count="3" type="stmt"/>
         <line num="55" count="7" type="stmt"/>
-        <line num="56" count="0" type="stmt"/>
+        <line num="56" count="3" type="stmt"/>
         <line num="60" count="0" type="stmt"/>
         <line num="61" count="0" type="stmt"/>
         <line num="65" count="0" type="stmt"/>
@@ -57,7 +58,7 @@
       </file>
     </package>
     <package name="src.components">
-      <metrics statements="139" coveredstatements="90" conditionals="130" coveredconditionals="77" methods="27" coveredmethods="16"/>
+      <metrics statements="143" coveredstatements="94" conditionals="130" coveredconditionals="77" methods="27" coveredmethods="16"/>
       <file name="ErrorBoundary.tsx" path="C:\Users\Cheney\Documents\Github\LearningSong\frontend\src\components\ErrorBoundary.tsx">
         <metrics statements="16" coveredstatements="0" conditionals="4" coveredconditionals="0" methods="6" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
@@ -86,67 +87,68 @@
         <line num="5" count="2" type="stmt"/>
         <line num="6" count="2" type="stmt"/>
         <line num="8" count="2" type="stmt"/>
-        <line num="9" count="483" type="stmt"/>
-        <line num="10" count="483" type="stmt"/>
-        <line num="11" count="483" type="stmt"/>
-        <line num="14" count="483" type="cond" truecount="2" falsecount="0"/>
-        <line num="18" count="483" type="cond" truecount="5" falsecount="0"/>
-        <line num="24" count="483" type="stmt"/>
-        <line num="26" count="10" type="cond" truecount="1" falsecount="1"/>
+        <line num="9" count="148" type="stmt"/>
+        <line num="10" count="148" type="stmt"/>
+        <line num="11" count="148" type="stmt"/>
+        <line num="14" count="148" type="cond" truecount="2" falsecount="0"/>
+        <line num="18" count="148" type="cond" truecount="5" falsecount="0"/>
+        <line num="24" count="148" type="stmt"/>
+        <line num="26" count="7" type="cond" truecount="1" falsecount="1"/>
         <line num="27" count="0" type="stmt"/>
         <line num="28" count="0" type="stmt"/>
-        <line num="31" count="10" type="cond" truecount="1" falsecount="1"/>
+        <line num="31" count="7" type="cond" truecount="1" falsecount="1"/>
         <line num="32" count="0" type="stmt"/>
         <line num="33" count="0" type="stmt"/>
-        <line num="36" count="10" type="cond" truecount="7" falsecount="3"/>
+        <line num="36" count="7" type="cond" truecount="7" falsecount="3"/>
         <line num="37" count="0" type="cond" truecount="0" falsecount="6"/>
         <line num="38" count="0" type="stmt"/>
-        <line num="41" count="10" type="cond" truecount="1" falsecount="1"/>
-        <line num="43" count="10" type="stmt"/>
-        <line num="50" count="483" type="stmt"/>
-        <line num="51" count="465" type="stmt"/>
-        <line num="52" count="450" type="cond" truecount="6" falsecount="0"/>
+        <line num="41" count="7" type="cond" truecount="1" falsecount="1"/>
+        <line num="43" count="7" type="stmt"/>
+        <line num="50" count="148" type="stmt"/>
+        <line num="51" count="132" type="stmt"/>
+        <line num="52" count="100" type="cond" truecount="6" falsecount="0"/>
         <line num="53" count="3" type="stmt"/>
-        <line num="57" count="465" type="stmt"/>
-        <line num="58" count="465" type="stmt"/>
-        <line num="62" count="483" type="stmt"/>
+        <line num="57" count="132" type="stmt"/>
+        <line num="58" count="132" type="stmt"/>
+        <line num="62" count="148" type="stmt"/>
         <line num="63" count="28" type="stmt"/>
-        <line num="66" count="483" type="stmt"/>
+        <line num="66" count="148" type="stmt"/>
       </file>
       <file name="LoadingProgress.tsx" path="C:\Users\Cheney\Documents\Github\LearningSong\frontend\src\components\LoadingProgress.tsx">
-        <metrics statements="32" coveredstatements="7" conditionals="34" coveredconditionals="0" methods="5" coveredmethods="0"/>
+        <metrics statements="33" coveredstatements="8" conditionals="34" coveredconditionals="0" methods="5" coveredmethods="0"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
         <line num="4" count="1" type="stmt"/>
         <line num="5" count="1" type="stmt"/>
-        <line num="7" count="1" type="stmt"/>
-        <line num="15" count="1" type="stmt"/>
-        <line num="16" count="0" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
         <line num="17" count="0" type="stmt"/>
         <line num="18" count="0" type="stmt"/>
-        <line num="20" count="0" type="stmt"/>
-        <line num="21" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="22" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="22" count="0" type="cond" truecount="0" falsecount="4"/>
         <line num="23" count="0" type="stmt"/>
-        <line num="27" count="0" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
         <line num="28" count="0" type="stmt"/>
-        <line num="29" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="30" count="0" type="stmt"/>
-        <line num="33" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="30" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="31" count="0" type="stmt"/>
         <line num="34" count="0" type="stmt"/>
         <line num="35" count="0" type="stmt"/>
-        <line num="39" count="0" type="stmt"/>
-        <line num="42" count="0" type="stmt"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
         <line num="43" count="0" type="stmt"/>
         <line num="44" count="0" type="stmt"/>
-        <line num="46" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="47" count="0" type="stmt"/>
-        <line num="51" count="0" type="stmt"/>
-        <line num="54" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="55" count="0" type="stmt"/>
-        <line num="58" count="0" type="stmt"/>
-        <line num="60" count="0" type="stmt"/>
+        <line num="45" count="0" type="stmt"/>
+        <line num="47" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="52" count="0" type="stmt"/>
+        <line num="55" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="56" count="0" type="stmt"/>
+        <line num="59" count="0" type="stmt"/>
+        <line num="61" count="0" type="stmt"/>
       </file>
       <file name="RateLimitIndicator.tsx" path="C:\Users\Cheney\Documents\Github\LearningSong\frontend\src\components\RateLimitIndicator.tsx">
         <metrics statements="33" coveredstatements="31" conditionals="25" coveredconditionals="23" methods="5" coveredmethods="5"/>
@@ -154,70 +156,73 @@
         <line num="2" count="2" type="stmt"/>
         <line num="3" count="2" type="stmt"/>
         <line num="5" count="2" type="stmt"/>
-        <line num="6" count="492" type="stmt"/>
-        <line num="7" count="492" type="stmt"/>
-        <line num="10" count="492" type="stmt"/>
-        <line num="11" count="31" type="cond" truecount="6" falsecount="0"/>
-        <line num="13" count="16" type="stmt"/>
-        <line num="14" count="23" type="stmt"/>
-        <line num="15" count="23" type="stmt"/>
-        <line num="16" count="23" type="stmt"/>
-        <line num="18" count="23" type="cond" truecount="1" falsecount="1"/>
+        <line num="6" count="156" type="stmt"/>
+        <line num="7" count="156" type="stmt"/>
+        <line num="10" count="156" type="stmt"/>
+        <line num="11" count="30" type="cond" truecount="6" falsecount="0"/>
+        <line num="13" count="15" type="stmt"/>
+        <line num="14" count="17" type="stmt"/>
+        <line num="15" count="17" type="stmt"/>
+        <line num="16" count="17" type="stmt"/>
+        <line num="18" count="17" type="cond" truecount="1" falsecount="1"/>
         <line num="19" count="0" type="stmt"/>
         <line num="20" count="0" type="stmt"/>
-        <line num="23" count="23" type="stmt"/>
-        <line num="24" count="23" type="stmt"/>
-        <line num="25" count="23" type="stmt"/>
-        <line num="27" count="23" type="stmt"/>
-        <line num="30" count="16" type="stmt"/>
-        <line num="31" count="16" type="stmt"/>
-        <line num="33" count="16" type="stmt"/>
-        <line num="37" count="492" type="stmt"/>
-        <line num="38" count="464" type="cond" truecount="2" falsecount="0"/>
-        <line num="39" count="45" type="cond" truecount="2" falsecount="0"/>
-        <line num="40" count="37" type="stmt"/>
-        <line num="43" count="492" type="cond" truecount="2" falsecount="0"/>
+        <line num="23" count="17" type="stmt"/>
+        <line num="24" count="17" type="stmt"/>
+        <line num="25" count="17" type="stmt"/>
+        <line num="27" count="17" type="stmt"/>
+        <line num="30" count="15" type="stmt"/>
+        <line num="31" count="15" type="stmt"/>
+        <line num="33" count="15" type="stmt"/>
+        <line num="37" count="156" type="stmt"/>
+        <line num="38" count="128" type="cond" truecount="2" falsecount="0"/>
+        <line num="39" count="31" type="cond" truecount="2" falsecount="0"/>
+        <line num="40" count="23" type="stmt"/>
+        <line num="43" count="156" type="cond" truecount="2" falsecount="0"/>
         <line num="44" count="27" type="stmt"/>
-        <line num="56" count="465" type="cond" truecount="2" falsecount="0"/>
+        <line num="56" count="129" type="cond" truecount="2" falsecount="0"/>
         <line num="57" count="1" type="stmt"/>
-        <line num="68" count="464" type="cond" truecount="1" falsecount="1"/>
-        <line num="70" count="464" type="stmt"/>
-        <line num="72" count="464" type="stmt"/>
+        <line num="68" count="128" type="cond" truecount="1" falsecount="1"/>
+        <line num="70" count="128" type="stmt"/>
+        <line num="72" count="128" type="stmt"/>
       </file>
       <file name="SearchToggle.tsx" path="C:\Users\Cheney\Documents\Github\LearningSong\frontend\src\components\SearchToggle.tsx">
-        <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
-        <line num="1" count="2" type="stmt"/>
-        <line num="2" count="2" type="stmt"/>
-        <line num="4" count="2" type="stmt"/>
-        <line num="5" count="462" type="stmt"/>
-        <line num="7" count="462" type="stmt"/>
-      </file>
-      <file name="TextInputArea.tsx" path="C:\Users\Cheney\Documents\Github\LearningSong\frontend\src\components\TextInputArea.tsx">
-        <metrics statements="20" coveredstatements="20" conditionals="20" coveredconditionals="19" methods="4" coveredmethods="4"/>
+        <metrics statements="7" coveredstatements="7" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
         <line num="1" count="2" type="stmt"/>
         <line num="2" count="2" type="stmt"/>
         <line num="3" count="2" type="stmt"/>
         <line num="4" count="2" type="stmt"/>
         <line num="6" count="2" type="stmt"/>
-        <line num="7" count="463" type="stmt"/>
-        <line num="8" count="463" type="stmt"/>
-        <line num="11" count="463" type="cond" truecount="2" falsecount="0"/>
-        <line num="14" count="463" type="stmt"/>
-        <line num="15" count="463" type="cond" truecount="2" falsecount="0"/>
-        <line num="16" count="462" type="cond" truecount="2" falsecount="0"/>
-        <line num="17" count="461" type="stmt"/>
-        <line num="20" count="463" type="stmt"/>
-        <line num="23" count="463" type="stmt"/>
-        <line num="24" count="449" type="stmt"/>
-        <line num="25" count="449" type="cond" truecount="1" falsecount="1"/>
-        <line num="26" count="449" type="stmt"/>
-        <line num="27" count="449" type="stmt"/>
-        <line num="31" count="463" type="stmt"/>
-        <line num="36" count="440" type="stmt"/>
+        <line num="7" count="131" type="stmt"/>
+        <line num="9" count="131" type="stmt"/>
+      </file>
+      <file name="TextInputArea.tsx" path="C:\Users\Cheney\Documents\Github\LearningSong\frontend\src\components\TextInputArea.tsx">
+        <metrics statements="21" coveredstatements="21" conditionals="20" coveredconditionals="19" methods="4" coveredmethods="4"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="4" count="2" type="stmt"/>
+        <line num="5" count="2" type="stmt"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="8" count="132" type="stmt"/>
+        <line num="9" count="132" type="stmt"/>
+        <line num="12" count="132" type="cond" truecount="2" falsecount="0"/>
+        <line num="15" count="132" type="stmt"/>
+        <line num="16" count="132" type="cond" truecount="2" falsecount="0"/>
+        <line num="17" count="114" type="cond" truecount="2" falsecount="0"/>
+        <line num="18" count="113" type="stmt"/>
+        <line num="21" count="132" type="stmt"/>
+        <line num="24" count="132" type="stmt"/>
+        <line num="25" count="119" type="stmt"/>
+        <line num="26" count="119" type="cond" truecount="1" falsecount="1"/>
+        <line num="27" count="119" type="stmt"/>
+        <line num="28" count="119" type="stmt"/>
+        <line num="32" count="132" type="stmt"/>
+        <line num="38" count="110" type="stmt"/>
       </file>
     </package>
     <package name="src.components.ui">
-      <metrics statements="65" coveredstatements="32" conditionals="5" coveredconditionals="2" methods="12" coveredmethods="3"/>
+      <metrics statements="97" coveredstatements="58" conditionals="9" coveredconditionals="2" methods="16" coveredmethods="6"/>
       <file name="button-variants.ts" path="C:\Users\Cheney\Documents\Github\LearningSong\frontend\src\components\ui\button-variants.ts">
         <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="1" count="3" type="stmt"/>
@@ -230,35 +235,35 @@
         <line num="5" count="3" type="stmt"/>
         <line num="6" count="3" type="stmt"/>
         <line num="14" count="3" type="stmt"/>
-        <line num="15" count="487" type="cond" truecount="1" falsecount="0"/>
-        <line num="16" count="487" type="cond" truecount="1" falsecount="1"/>
-        <line num="17" count="487" type="stmt"/>
+        <line num="15" count="153" type="cond" truecount="1" falsecount="0"/>
+        <line num="16" count="153" type="cond" truecount="1" falsecount="1"/>
+        <line num="17" count="153" type="stmt"/>
         <line num="26" count="3" type="stmt"/>
         <line num="28" count="3" type="stmt"/>
       </file>
       <file name="card.tsx" path="C:\Users\Cheney\Documents\Github\LearningSong\frontend\src\components\ui\card.tsx">
-        <metrics statements="21" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="6" coveredmethods="0"/>
-        <line num="1" count="0" type="stmt"/>
-        <line num="3" count="0" type="stmt"/>
-        <line num="5" count="0" type="stmt"/>
-        <line num="8" count="0" type="stmt"/>
-        <line num="18" count="0" type="stmt"/>
-        <line num="20" count="0" type="stmt"/>
+        <metrics statements="21" coveredstatements="17" conditionals="0" coveredconditionals="0" methods="6" coveredmethods="2"/>
+        <line num="1" count="3" type="stmt"/>
+        <line num="3" count="3" type="stmt"/>
+        <line num="5" count="3" type="stmt"/>
+        <line num="8" count="263" type="stmt"/>
+        <line num="18" count="3" type="stmt"/>
+        <line num="20" count="3" type="stmt"/>
         <line num="23" count="0" type="stmt"/>
-        <line num="30" count="0" type="stmt"/>
-        <line num="32" count="0" type="stmt"/>
+        <line num="30" count="3" type="stmt"/>
+        <line num="32" count="3" type="stmt"/>
         <line num="35" count="0" type="stmt"/>
-        <line num="42" count="0" type="stmt"/>
-        <line num="44" count="0" type="stmt"/>
+        <line num="42" count="3" type="stmt"/>
+        <line num="44" count="3" type="stmt"/>
         <line num="47" count="0" type="stmt"/>
-        <line num="54" count="0" type="stmt"/>
-        <line num="56" count="0" type="stmt"/>
-        <line num="59" count="0" type="stmt"/>
-        <line num="62" count="0" type="stmt"/>
-        <line num="64" count="0" type="stmt"/>
+        <line num="54" count="3" type="stmt"/>
+        <line num="56" count="3" type="stmt"/>
+        <line num="59" count="263" type="stmt"/>
+        <line num="62" count="3" type="stmt"/>
+        <line num="64" count="3" type="stmt"/>
         <line num="67" count="0" type="stmt"/>
-        <line num="74" count="0" type="stmt"/>
-        <line num="76" count="0" type="stmt"/>
+        <line num="74" count="3" type="stmt"/>
+        <line num="76" count="3" type="stmt"/>
       </file>
       <file name="input.tsx" path="C:\Users\Cheney\Documents\Github\LearningSong\frontend\src\components\ui\input.tsx">
         <metrics statements="7" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
@@ -269,6 +274,18 @@
         <line num="7" count="0" type="stmt"/>
         <line num="20" count="0" type="stmt"/>
         <line num="22" count="0" type="stmt"/>
+      </file>
+      <file name="label.tsx" path="C:\Users\Cheney\Documents\Github\LearningSong\frontend\src\components\ui\label.tsx">
+        <metrics statements="9" coveredstatements="9" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="5" count="2" type="stmt"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="11" count="2" type="stmt"/>
+        <line num="15" count="131" type="stmt"/>
+        <line num="22" count="2" type="stmt"/>
+        <line num="24" count="2" type="stmt"/>
       </file>
       <file name="progress.tsx" path="C:\Users\Cheney\Documents\Github\LearningSong\frontend\src\components\ui\progress.tsx">
         <metrics statements="7" coveredstatements="6" conditionals="2" coveredconditionals="0" methods="1" coveredmethods="0"/>
@@ -293,7 +310,7 @@
         <line num="2" count="2" type="stmt"/>
         <line num="4" count="2" type="stmt"/>
         <line num="6" count="2" type="stmt"/>
-        <line num="9" count="462" type="stmt"/>
+        <line num="9" count="131" type="stmt"/>
         <line num="25" count="2" type="stmt"/>
         <line num="27" count="2" type="stmt"/>
       </file>
@@ -302,47 +319,84 @@
         <line num="1" count="2" type="stmt"/>
         <line num="3" count="2" type="stmt"/>
         <line num="5" count="2" type="stmt"/>
-        <line num="8" count="463" type="stmt"/>
-        <line num="9" count="463" type="stmt"/>
+        <line num="8" count="132" type="stmt"/>
+        <line num="9" count="132" type="stmt"/>
         <line num="20" count="2" type="stmt"/>
         <line num="22" count="2" type="stmt"/>
       </file>
+      <file name="toggle-group.tsx" path="C:\Users\Cheney\Documents\Github\LearningSong\frontend\src\components\ui\toggle-group.tsx">
+        <metrics statements="14" coveredstatements="0" conditionals="4" coveredconditionals="0" methods="2" coveredmethods="0"/>
+        <line num="1" count="0" type="stmt"/>
+        <line num="2" count="0" type="stmt"/>
+        <line num="5" count="0" type="stmt"/>
+        <line num="6" count="0" type="stmt"/>
+        <line num="8" count="0" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="31" count="0" type="stmt"/>
+        <line num="33" count="0" type="stmt"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="57" count="0" type="stmt"/>
+        <line num="59" count="0" type="stmt"/>
+      </file>
+      <file name="toggle.tsx" path="C:\Users\Cheney\Documents\Github\LearningSong\frontend\src\components\ui\toggle.tsx">
+        <metrics statements="9" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <line num="1" count="0" type="stmt"/>
+        <line num="2" count="0" type="stmt"/>
+        <line num="3" count="0" type="stmt"/>
+        <line num="5" count="0" type="stmt"/>
+        <line num="7" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="33" count="0" type="stmt"/>
+        <line num="41" count="0" type="stmt"/>
+        <line num="43" count="0" type="stmt"/>
+      </file>
     </package>
     <package name="src.hooks">
-      <metrics statements="87" coveredstatements="17" conditionals="4" coveredconditionals="1" methods="37" coveredmethods="4"/>
+      <metrics statements="95" coveredstatements="18" conditionals="8" coveredconditionals="1" methods="37" coveredmethods="4"/>
       <file name="useAuth.ts" path="C:\Users\Cheney\Documents\Github\LearningSong\frontend\src\hooks\useAuth.ts">
-        <metrics statements="31" coveredstatements="5" conditionals="2" coveredconditionals="0" methods="7" coveredmethods="0"/>
+        <metrics statements="39" coveredstatements="6" conditionals="6" coveredconditionals="0" methods="7" coveredmethods="0"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
         <line num="5" count="1" type="stmt"/>
-        <line num="19" count="1" type="stmt"/>
-        <line num="20" count="0" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
         <line num="22" count="0" type="stmt"/>
         <line num="24" count="0" type="stmt"/>
-        <line num="25" count="0" type="stmt"/>
+        <line num="26" count="0" type="stmt"/>
         <line num="27" count="0" type="stmt"/>
-        <line num="30" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="31" count="0" type="cond" truecount="0" falsecount="4"/>
         <line num="32" count="0" type="stmt"/>
         <line num="33" count="0" type="stmt"/>
-        <line num="34" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
         <line num="36" count="0" type="stmt"/>
         <line num="37" count="0" type="stmt"/>
-        <line num="38" count="0" type="stmt"/>
-        <line num="39" count="0" type="stmt"/>
         <line num="42" count="0" type="stmt"/>
-        <line num="43" count="0" type="stmt"/>
         <line num="44" count="0" type="stmt"/>
         <line num="45" count="0" type="stmt"/>
-        <line num="46" count="0" type="stmt"/>
+        <line num="46" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="48" count="0" type="stmt"/>
         <line num="49" count="0" type="stmt"/>
         <line num="50" count="0" type="stmt"/>
         <line num="51" count="0" type="stmt"/>
+        <line num="54" count="0" type="stmt"/>
         <line num="55" count="0" type="stmt"/>
         <line num="56" count="0" type="stmt"/>
         <line num="57" count="0" type="stmt"/>
+        <line num="58" count="0" type="stmt"/>
+        <line num="61" count="0" type="stmt"/>
         <line num="62" count="0" type="stmt"/>
-        <line num="65" count="0" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="67" count="0" type="stmt"/>
+        <line num="68" count="0" type="stmt"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="74" count="0" type="stmt"/>
+        <line num="77" count="0" type="stmt"/>
       </file>
       <file name="useExample.ts" path="C:\Users\Cheney\Documents\Github\LearningSong\frontend\src\hooks\useExample.ts">
         <metrics statements="43" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="25" coveredmethods="0"/>
@@ -396,15 +450,15 @@
         <line num="2" count="3" type="stmt"/>
         <line num="4" count="3" type="stmt"/>
         <line num="7" count="3" type="stmt"/>
-        <line num="8" count="925" type="stmt"/>
-        <line num="10" count="925" type="stmt"/>
-        <line num="13" count="4" type="stmt"/>
-        <line num="18" count="4" type="stmt"/>
-        <line num="21" count="2" type="stmt"/>
-        <line num="23" count="2" type="stmt"/>
+        <line num="8" count="259" type="stmt"/>
+        <line num="10" count="259" type="stmt"/>
+        <line num="13" count="2" type="stmt"/>
+        <line num="18" count="2" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+        <line num="23" count="1" type="stmt"/>
         <line num="26" count="0" type="stmt"/>
         <line num="34" count="3" type="stmt"/>
-        <line num="35" count="943" type="stmt"/>
+        <line num="35" count="272" type="stmt"/>
       </file>
     </package>
     <package name="src.lib">
@@ -434,13 +488,13 @@
         <line num="64" count="2" type="stmt"/>
         <line num="65" count="0" type="stmt"/>
         <line num="74" count="2" type="stmt"/>
-        <line num="75" count="2" type="stmt"/>
+        <line num="75" count="1" type="stmt"/>
         <line num="84" count="2" type="stmt"/>
-        <line num="85" count="4" type="stmt"/>
+        <line num="85" count="2" type="stmt"/>
         <line num="94" count="2" type="stmt"/>
         <line num="95" count="0" type="stmt"/>
         <line num="104" count="2" type="stmt"/>
-        <line num="105" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="105" count="1" type="cond" truecount="1" falsecount="1"/>
         <line num="106" count="0" type="cond" truecount="0" falsecount="4"/>
         <line num="107" count="0" type="cond" truecount="0" falsecount="8"/>
         <line num="109" count="0" type="cond" truecount="0" falsecount="7"/>
@@ -455,8 +509,8 @@
         <line num="134" count="0" type="stmt"/>
         <line num="135" count="0" type="stmt"/>
         <line num="139" count="0" type="stmt"/>
-        <line num="141" count="2" type="cond" truecount="1" falsecount="1"/>
-        <line num="142" count="2" type="stmt"/>
+        <line num="141" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="142" count="1" type="stmt"/>
         <line num="144" count="0" type="stmt"/>
       </file>
       <file name="utils.ts" path="C:\Users\Cheney\Documents\Github\LearningSong\frontend\src\lib\utils.ts">
@@ -464,13 +518,13 @@
         <line num="1" count="6" type="stmt"/>
         <line num="2" count="6" type="stmt"/>
         <line num="4" count="6" type="stmt"/>
-        <line num="5" count="3264" type="stmt"/>
+        <line num="5" count="1596" type="stmt"/>
       </file>
     </package>
     <package name="src.pages">
-      <metrics statements="23" coveredstatements="22" conditionals="18" coveredconditionals="13" methods="3" coveredmethods="2"/>
+      <metrics statements="24" coveredstatements="23" conditionals="18" coveredconditionals="13" methods="3" coveredmethods="2"/>
       <file name="TextInputPage.tsx" path="C:\Users\Cheney\Documents\Github\LearningSong\frontend\src\pages\TextInputPage.tsx">
-        <metrics statements="23" coveredstatements="22" conditionals="18" coveredconditionals="13" methods="3" coveredmethods="2"/>
+        <metrics statements="24" coveredstatements="23" conditionals="18" coveredconditionals="13" methods="3" coveredmethods="2"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
@@ -481,19 +535,20 @@
         <line num="8" count="1" type="stmt"/>
         <line num="9" count="1" type="stmt"/>
         <line num="10" count="1" type="stmt"/>
-        <line num="12" count="1" type="stmt"/>
-        <line num="13" count="457" type="stmt"/>
-        <line num="14" count="457" type="stmt"/>
-        <line num="15" count="457" type="stmt"/>
-        <line num="16" count="457" type="stmt"/>
-        <line num="19" count="457" type="stmt"/>
-        <line num="20" count="15" type="cond" truecount="2" falsecount="2"/>
-        <line num="27" count="457" type="cond" truecount="2" falsecount="0"/>
-        <line num="28" count="1" type="stmt"/>
-        <line num="39" count="456" type="cond" truecount="4" falsecount="0"/>
-        <line num="40" count="1" type="stmt"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="13" count="1" type="stmt"/>
+        <line num="14" count="126" type="stmt"/>
+        <line num="15" count="126" type="stmt"/>
+        <line num="16" count="126" type="stmt"/>
+        <line num="17" count="126" type="stmt"/>
+        <line num="20" count="126" type="stmt"/>
+        <line num="21" count="15" type="cond" truecount="2" falsecount="2"/>
+        <line num="28" count="126" type="cond" truecount="2" falsecount="0"/>
+        <line num="29" count="1" type="stmt"/>
+        <line num="40" count="125" type="cond" truecount="4" falsecount="0"/>
+        <line num="41" count="1" type="stmt"/>
         <line num="49" count="0" type="stmt"/>
-        <line num="59" count="455" type="stmt"/>
+        <line num="57" count="124" type="stmt"/>
       </file>
     </package>
     <package name="src.stores">
@@ -516,12 +571,12 @@
         <line num="24" count="5" type="stmt"/>
         <line num="31" count="5" type="stmt"/>
         <line num="33" count="5" type="stmt"/>
-        <line num="36" count="432" type="stmt"/>
-        <line num="38" count="5" type="stmt"/>
+        <line num="36" count="102" type="stmt"/>
+        <line num="38" count="4" type="stmt"/>
         <line num="40" count="17" type="stmt"/>
         <line num="42" count="10" type="stmt"/>
         <line num="44" count="1" type="stmt"/>
-        <line num="49" count="465" type="stmt"/>
+        <line num="49" count="134" type="stmt"/>
       </file>
     </package>
   </project>

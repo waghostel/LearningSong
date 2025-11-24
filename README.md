@@ -143,6 +143,30 @@ Create music based on learning material
 
 ## Development Workflow
 
+### Quick Start (Recommended)
+
+Use the provided scripts to start both servers at once:
+
+**PowerShell (Recommended):**
+```powershell
+.\start-dev.ps1
+```
+
+**Command Prompt:**
+```cmd
+start-dev.bat
+```
+
+This will:
+- Check prerequisites (pnpm, poetry)
+- Create `.env` files if missing
+- Install dependencies
+- Start both frontend and backend servers
+
+See [DEV-SCRIPTS.md](DEV-SCRIPTS.md) for more details.
+
+### Manual Start
+
 1. Start the backend server first (port 8000)
 2. Start the frontend dev server (port 5173 by default)
 3. Frontend will proxy API requests to backend during development
@@ -170,6 +194,78 @@ poetry run pytest --cov=app                  # Run tests with coverage
 poetry add <package>                         # Add dependency
 poetry add --group dev <package>             # Add dev dependency
 ```
+
+## Testing the Application
+
+### Quick Start Testing
+
+To quickly test the Text Input Page (Page A):
+
+```bash
+cd frontend
+pnpm dev
+```
+
+Then open http://localhost:5173 in your browser.
+
+**📚 Detailed Testing Guides:**
+- **[Quick Start Guide](docs/quick-start-guide.md)** - Get up and running in 2 minutes
+- **[Text Input Page Testing](docs/testing-text-input-page.md)** - Comprehensive testing scenarios
+- **[Visual Testing Checklist](docs/visual-testing-checklist.md)** - Systematic UI/UX testing
+
+### What's Implemented
+
+✅ **Text Input Page (Page A)** - Fully implemented and tested
+- Text input area with word counter (max 10,000 words)
+- Google Search grounding toggle
+- Rate limit indicator (3 songs/day)
+- Generate lyrics button with validation
+- Responsive design and accessibility features
+- 78 automated tests (all passing)
+
+🚧 **Lyrics Editing Page (Page B)** - Coming soon
+
+🚧 **Song Generation Page (Page C)** - Coming soon
+
+### Running Tests
+
+**Frontend Tests:**
+```bash
+cd frontend
+pnpm test              # Run all tests
+pnpm test:watch        # Watch mode
+pnpm test:coverage     # With coverage report
+```
+
+**Test Results:**
+- Total Test Suites: 8 passed ✅
+- Total Tests: 78 passed ✅
+- Coverage Report: `frontend/coverage/lcov-report/index.html`
+
+**Backend Tests:**
+```bash
+cd backend
+poetry run pytest                           # Run all tests
+poetry run pytest --cov=app                 # With coverage
+poetry run pytest --cov=app --cov-report=html  # HTML report
+```
+
+## Documentation
+
+📚 **[Documentation Index](docs/README.md)** - Complete documentation overview
+
+**Quick Links:**
+- **[Quick Start Guide](docs/quick-start-guide.md)** - Start the app and run basic tests (2 min)
+- **[Testing Text Input Page](docs/testing-text-input-page.md)** - Detailed testing scenarios (15 min)
+- **[Visual Testing Checklist](docs/visual-testing-checklist.md)** - UI/UX testing checklist (15 min)
+- **[Troubleshooting Guide](docs/troubleshooting.md)** - Common issues and solutions
+- **[Suno API Documentation](docs/suno-api/)** - Suno API integration details
+- **[Product Requirements](user-need/)** - Product specifications
+
+## Specifications
+
+Feature specifications are located in `.kiro/specs/`:
+- **[Text Input Page](/.kiro/specs/page-a-text-input/)** - Requirements, design, and tasks
 
 ## Contributing
 

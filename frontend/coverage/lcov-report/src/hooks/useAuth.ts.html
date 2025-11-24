@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">18.18% </span>
+                <span class="strong">17.07% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>6/33</span>
+                <span class='fraction'>7/41</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>0/6</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">16.12% </span>
+                <span class="strong">15.38% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>5/31</span>
+                <span class='fraction'>6/39</span>
             </div>
         
             
@@ -129,11 +129,25 @@
 <a name='L64'></a><a href='#L64'>64</a>
 <a name='L65'></a><a href='#L65'>65</a>
 <a name='L66'></a><a href='#L66'>66</a>
-<a name='L67'></a><a href='#L67'>67</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -156,6 +170,16 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -197,9 +221,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { useState, useEffect } from 'react';
 import { type User, onAuthStateChanged } from 'firebase/auth';
-import { auth, signInAnonymously } from '@/lib/firebase';
+import { auth, signInAnonymously, isDevelopmentMode } from '@/lib/firebase';
 &nbsp;
 const USER_ID_KEY = 'learningsong_user_id';
+const DEV_USER_ID = 'dev-user-local';
 &nbsp;
 interface UseAuthReturn {
   userId: string | null;
@@ -212,6 +237,7 @@ interface UseAuthReturn {
  * - Automatically signs in anonymously on mount
  * - Stores user ID in localStorage for persistence
  * - Handles auth state changes
+ * - In development mode (without Firebase), uses a mock user ID
  */
 export const useAuth = <span class="fstat-no" title="function not covered" >(): UseAuthReturn =</span>&gt; {
   const [userId, setUserId] = <span class="cstat-no" title="statement not covered" >useState&lt;string | null&gt;(<span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
@@ -222,7 +248,17 @@ export const useAuth = <span class="fstat-no" title="function not covered" >(): 
   const [error, setError] = <span class="cstat-no" title="statement not covered" >useState&lt;Error | null&gt;(null);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
+    // Development mode: use mock authentication
+<span class="cstat-no" title="statement not covered" >    if (isDevelopmentMode || !auth) {</span>
+<span class="cstat-no" title="statement not covered" >      console.log('🔧 Using mock authentication for development');</span>
+      const mockUserId = <span class="cstat-no" title="statement not covered" >DEV_USER_ID;</span>
+<span class="cstat-no" title="statement not covered" >      setUserId(mockUserId);</span>
+<span class="cstat-no" title="statement not covered" >      localStorage.setItem(USER_ID_KEY, mockUserId);</span>
+<span class="cstat-no" title="statement not covered" >      setLoading(false);</span>
+<span class="cstat-no" title="statement not covered" >      return;</span>
+    }
 &nbsp;
+    // Production mode: use Firebase authentication
     // Listen to auth state changes
     const unsubscribe = <span class="cstat-no" title="statement not covered" >onAuthStateChanged(</span>
       auth,
@@ -268,7 +304,7 @@ export const useAuth = <span class="fstat-no" title="function not covered" >(): 
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-11-24T04:34:33.121Z
+                at 2025-11-24T17:08:41.483Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

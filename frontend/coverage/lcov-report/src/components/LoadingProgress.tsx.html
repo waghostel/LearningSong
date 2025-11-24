@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">20.58% </span>
+                <span class="strong">22.85% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>7/34</span>
+                <span class='fraction'>8/35</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">21.87% </span>
+                <span class="strong">24.24% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>7/32</span>
+                <span class='fraction'>8/33</span>
             </div>
         
             
@@ -204,11 +204,15 @@
 <a name='L139'></a><a href='#L139'>139</a>
 <a name='L140'></a><a href='#L140'>140</a>
 <a name='L141'></a><a href='#L141'>141</a>
-<a name='L142'></a><a href='#L142'>142</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L142'></a><a href='#L142'>142</a>
+<a name='L143'></a><a href='#L143'>143</a>
+<a name='L144'></a><a href='#L144'>144</a>
+<a name='L145'></a><a href='#L145'>145</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -264,6 +268,8 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -348,6 +354,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { useEffect, useRef, useState } from 'react'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { useTextInputStore, type PipelineStage } from '@/stores/textInputStore'
 import { X } from 'lucide-react'
 &nbsp;
@@ -405,85 +412,87 @@ export function <span class="fstat-no" title="function not covered" >LoadingProg
   const stageInfo = <span class="cstat-no" title="statement not covered" >STAGE_INFO[currentStage]</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  return (</span>
-    &lt;div 
-      className="space-y-4 rounded-lg border p-4 bg-muted/50"
+    &lt;Card 
+      className="bg-muted/50"
       role="status"
       aria-live="polite"
       aria-atomic="true"
       aria-label="Lyrics generation progress"
     &gt;
-      &lt;div className="flex items-center justify-between"&gt;
-        &lt;div className="space-y-1"&gt;
-          &lt;p className="text-sm font-medium" aria-live="polite"&gt;
-            {stageInfo.label}
-          &lt;/p&gt;
-          &lt;p className="text-xs text-muted-foreground" aria-live="polite"&gt;
-            Estimated time remaining: {timeRemaining} seconds
-          &lt;/p&gt;
-        &lt;/div&gt;
-        &lt;Button
-          variant="ghost"
-          size="icon"
-          onClick={<span class="fstat-no" title="function not covered" >() =</span>&gt; {
-            // TODO: Implement cancel functionality
-          }}
-          className="h-8 w-8"
-          aria-label="Cancel lyrics generation"
-        &gt;
-          &lt;X className="h-4 w-4" aria-hidden="true" /&gt;
-        &lt;/Button&gt;
-      &lt;/div&gt;
-&nbsp;
-      &lt;Progress 
-        value={stageInfo.progress} 
-        className="h-2"
-        aria-label={`Generation progress: ${stageInfo.progress}%`}
-      /&gt;
-&nbsp;
-      &lt;div 
-        className="flex justify-between text-xs text-muted-foreground"
-        role="list"
-        aria-label="Pipeline stages"
-      &gt;
-        &lt;span 
-          className={currentStage === 'cleaning' ? 'font-medium text-foreground' : ''}
-          role="listitem"
-          aria-current={currentStage === 'cleaning' ? 'step' : undefined}
-        &gt;
-          Clean
-        &lt;/span&gt;
-        {searchEnabled &amp;&amp; (
-          &lt;span 
-            className={currentStage === 'searching' ? 'font-medium text-foreground' : ''}
-            role="listitem"
-            aria-current={currentStage === 'searching' ? 'step' : undefined}
+      &lt;CardContent className="pt-6 space-y-4"&gt;
+        &lt;div className="flex items-center justify-between"&gt;
+          &lt;div className="space-y-1"&gt;
+            &lt;p className="text-sm font-medium" aria-live="polite"&gt;
+              {stageInfo.label}
+            &lt;/p&gt;
+            &lt;p className="text-xs text-muted-foreground" aria-live="polite"&gt;
+              Estimated time remaining: {timeRemaining} seconds
+            &lt;/p&gt;
+          &lt;/div&gt;
+          &lt;Button
+            variant="ghost"
+            size="icon"
+            onClick={<span class="fstat-no" title="function not covered" >() =</span>&gt; {
+              // TODO: Implement cancel functionality
+            }}
+            className="h-8 w-8"
+            aria-label="Cancel lyrics generation"
           &gt;
-            Search
+            &lt;X className="h-4 w-4" aria-hidden="true" /&gt;
+          &lt;/Button&gt;
+        &lt;/div&gt;
+&nbsp;
+        &lt;Progress 
+          value={stageInfo.progress} 
+          className="h-2"
+          aria-label={`Generation progress: ${stageInfo.progress}%`}
+        /&gt;
+&nbsp;
+        &lt;div 
+          className="flex justify-between text-xs text-muted-foreground"
+          role="list"
+          aria-label="Pipeline stages"
+        &gt;
+          &lt;span 
+            className={currentStage === 'cleaning' ? 'font-medium text-foreground' : ''}
+            role="listitem"
+            aria-current={currentStage === 'cleaning' ? 'step' : undefined}
+          &gt;
+            Clean
           &lt;/span&gt;
-        )}
-        &lt;span 
-          className={currentStage === 'summarizing' ? 'font-medium text-foreground' : ''}
-          role="listitem"
-          aria-current={currentStage === 'summarizing' ? 'step' : undefined}
-        &gt;
-          Summarize
-        &lt;/span&gt;
-        &lt;span 
-          className={currentStage === 'validating' ? 'font-medium text-foreground' : ''}
-          role="listitem"
-          aria-current={currentStage === 'validating' ? 'step' : undefined}
-        &gt;
-          Validate
-        &lt;/span&gt;
-        &lt;span 
-          className={currentStage === 'converting' ? 'font-medium text-foreground' : ''}
-          role="listitem"
-          aria-current={currentStage === 'converting' ? 'step' : undefined}
-        &gt;
-          Convert
-        &lt;/span&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
+          {searchEnabled &amp;&amp; (
+            &lt;span 
+              className={currentStage === 'searching' ? 'font-medium text-foreground' : ''}
+              role="listitem"
+              aria-current={currentStage === 'searching' ? 'step' : undefined}
+            &gt;
+              Search
+            &lt;/span&gt;
+          )}
+          &lt;span 
+            className={currentStage === 'summarizing' ? 'font-medium text-foreground' : ''}
+            role="listitem"
+            aria-current={currentStage === 'summarizing' ? 'step' : undefined}
+          &gt;
+            Summarize
+          &lt;/span&gt;
+          &lt;span 
+            className={currentStage === 'validating' ? 'font-medium text-foreground' : ''}
+            role="listitem"
+            aria-current={currentStage === 'validating' ? 'step' : undefined}
+          &gt;
+            Validate
+          &lt;/span&gt;
+          &lt;span 
+            className={currentStage === 'converting' ? 'font-medium text-foreground' : ''}
+            role="listitem"
+            aria-current={currentStage === 'converting' ? 'step' : undefined}
+          &gt;
+            Convert
+          &lt;/span&gt;
+        &lt;/div&gt;
+      &lt;/CardContent&gt;
+    &lt;/Card&gt;
   )
 }
 &nbsp;</pre></td></tr></table></pre>
@@ -493,7 +502,7 @@ export function <span class="fstat-no" title="function not covered" >LoadingProg
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-11-24T04:34:33.121Z
+                at 2025-11-24T17:08:41.483Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

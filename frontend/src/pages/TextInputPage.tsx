@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useGenerateLyrics } from '@/hooks/useLyrics'
+import { Button } from '@/components/ui/button'
 import { TextInputArea } from '@/components/TextInputArea'
 import { SearchToggle } from '@/components/SearchToggle'
 import { RateLimitIndicator } from '@/components/RateLimitIndicator'
@@ -45,12 +46,9 @@ export function TextInputPage() {
           <p className="text-muted-foreground">
             {authError?.message || 'Unable to authenticate. Please refresh the page.'}
           </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-          >
+          <Button onClick={() => window.location.reload()}>
             Refresh Page
-          </button>
+          </Button>
         </div>
       </div>
     )
@@ -70,7 +68,7 @@ export function TextInputPage() {
       <header className="border-b" role="banner">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
-            <div>
+            <div className="text-left">
               <h1 className="text-3xl font-bold tracking-tight">LearningSong</h1>
               <p className="text-muted-foreground mt-1">
                 Transform your learning materials into memorable songs
@@ -85,7 +83,7 @@ export function TextInputPage() {
       <main id="main-content" className="container mx-auto px-4 py-8" role="main">
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Page Title and Description */}
-          <div className="space-y-2">
+          <div className="space-y-2 text-left">
             <h2 className="text-2xl font-semibold">Create Your Learning Song</h2>
             <p className="text-muted-foreground">
               Paste your educational content below and let AI transform it into engaging song lyrics.
@@ -116,7 +114,7 @@ export function TextInputPage() {
 
           {/* Help Text */}
           <aside 
-            className="text-sm text-muted-foreground space-y-2 pt-4 border-t"
+            className="text-sm text-muted-foreground space-y-2 pt-4 border-t text-left"
             aria-labelledby="tips-heading"
           >
             <p id="tips-heading" className="font-medium">Tips:</p>

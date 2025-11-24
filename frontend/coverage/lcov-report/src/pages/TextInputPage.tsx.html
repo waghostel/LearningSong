@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">95.65% </span>
+                <span class="strong">95.83% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>22/23</span>
+                <span class='fraction'>23/24</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">95.65% </span>
+                <span class="strong">95.83% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>22/23</span>
+                <span class='fraction'>23/24</span>
             </div>
         
             
@@ -204,9 +204,8 @@
 <a name='L139'></a><a href='#L139'>139</a>
 <a name='L140'></a><a href='#L140'>140</a>
 <a name='L141'></a><a href='#L141'>141</a>
-<a name='L142'></a><a href='#L142'>142</a>
-<a name='L143'></a><a href='#L143'>143</a>
-<a name='L144'></a><a href='#L144'>144</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L142'></a><a href='#L142'>142</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -218,13 +217,13 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">457x</span>
-<span class="cline-any cline-yes">457x</span>
-<span class="cline-any cline-yes">457x</span>
-<span class="cline-any cline-yes">457x</span>
+<span class="cline-any cline-yes">126x</span>
+<span class="cline-any cline-yes">126x</span>
+<span class="cline-any cline-yes">126x</span>
+<span class="cline-any cline-yes">126x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">457x</span>
+<span class="cline-any cline-yes">126x</span>
 <span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -232,7 +231,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">457x</span>
+<span class="cline-any cline-yes">126x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -244,9 +243,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">456x</span>
+<span class="cline-any cline-yes">125x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -262,9 +260,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">455x</span>
+<span class="cline-any cline-yes">124x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -353,6 +349,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useGenerateLyrics } from '@/hooks/useLyrics'
+import { Button } from '@/components/ui/button'
 import { TextInputArea } from '@/components/TextInputArea'
 import { SearchToggle } from '@/components/SearchToggle'
 import { RateLimitIndicator } from '@/components/RateLimitIndicator'
@@ -396,12 +393,9 @@ export function TextInputPage() {
           &lt;p className="text-muted-foreground"&gt;
             {authError<span class="branch-0 cbranch-no" title="branch not covered" >?.m</span>essage || <span class="branch-1 cbranch-no" title="branch not covered" >'Unable to authenticate. Please refresh the page.'}</span>
           &lt;/p&gt;
-          &lt;button
-            onClick={<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >window.location.reload()}</span>
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-          &gt;
+          &lt;Button onClick={<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >window.location.reload()}</span>&gt;
             Refresh Page
-          &lt;/button&gt;
+          &lt;/Button&gt;
         &lt;/div&gt;
       &lt;/div&gt;
     )
@@ -421,7 +415,7 @@ export function TextInputPage() {
       &lt;header className="border-b" role="banner"&gt;
         &lt;div className="container mx-auto px-4 py-6"&gt;
           &lt;div className="flex items-center justify-between"&gt;
-            &lt;div&gt;
+            &lt;div className="text-left"&gt;
               &lt;h1 className="text-3xl font-bold tracking-tight"&gt;LearningSong&lt;/h1&gt;
               &lt;p className="text-muted-foreground mt-1"&gt;
                 Transform your learning materials into memorable songs
@@ -436,7 +430,7 @@ export function TextInputPage() {
       &lt;main id="main-content" className="container mx-auto px-4 py-8" role="main"&gt;
         &lt;div className="max-w-4xl mx-auto space-y-6"&gt;
           {/* Page Title and Description */}
-          &lt;div className="space-y-2"&gt;
+          &lt;div className="space-y-2 text-left"&gt;
             &lt;h2 className="text-2xl font-semibold"&gt;Create Your Learning Song&lt;/h2&gt;
             &lt;p className="text-muted-foreground"&gt;
               Paste your educational content below and let AI transform it into engaging song lyrics.
@@ -467,7 +461,7 @@ export function TextInputPage() {
 &nbsp;
           {/* Help Text */}
           &lt;aside 
-            className="text-sm text-muted-foreground space-y-2 pt-4 border-t"
+            className="text-sm text-muted-foreground space-y-2 pt-4 border-t text-left"
             aria-labelledby="tips-heading"
           &gt;
             &lt;p id="tips-heading" className="font-medium"&gt;Tips:&lt;/p&gt;
@@ -499,7 +493,7 @@ export function TextInputPage() {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-11-24T04:34:33.121Z
+                at 2025-11-24T17:08:41.483Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
