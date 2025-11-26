@@ -1,9 +1,111 @@
 import axios from 'axios'
-import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
+import { classifyError, getErrorInfo, ErrorType, type ErrorInfo } from '@/lib/error-utils'
 
 // Get API base URL from environment
 // Vite exposes import.meta.env, but we'll use a fallback for test environments
 const API_BASE_URL = 'http://localhost:8000' // Default for development and tests
+
+// Custom error class for API errors with enhanced error information
+export class ApiError extends Error {
+  public errorInfo: ErrorInfo
+
+  constructor(
+    message: string,
+    public statusCode?: number,
+    public errorCode?: string,
+    public retryable: boolean = false,
+    public serverDetail?: string
+  ) {
+    super(message)
+    this.name = 'ApiError'
+    this.errorInfo = getErrorInfo(statusCode, message, serverDetail)
+  }
+
+  /**
+   * Get the error type for categorization
+   */
+  get type(): ErrorType {
+    return this.errorInfo.type
+  }
+
+  /**
+   * Get user-friendly error message
+   */
+  get userMessage(): string {
+    return this.errorInfo.userMessage
+  }
+
+  /**
+   * Check if this is a timeout error
+   */
+  get isTimeout(): boolean {
+    return this.errorInfo.type === ErrorType.TIMEOUT
+  }
+
+  /**
+   * Check if this is a rate limit error
+   */
+  get isRateLimit(): boolean {
+    return this.errorInfo.type === ErrorType.RATE_LIMIT
+  }
+
+  /**
+   * Check if this is a server error
+   */
+  get isServerError(): boolean {
+    return this.errorInfo.type === ErrorType.SERVER_ERROR
+  }
+
+  /**
+   * Check if this is an invalid lyrics error
+   */
+  get isInvalidLyrics(): boolean {
+    return this.errorInfo.type === ErrorType.INVALID_LYRICS
+  }
+}
+
+// Helper to create user-friendly error messages using error utilities
+function getUserFriendlyErrorMessage(error: AxiosError): { 
+  message: string
+  retryable: boolean
+  serverDetail?: string
+} {
+  const status = error.response?.status
+  const data = error.response?.data as { detail?: string; error?: string; reset_time?: string } | undefined
+  
+  // Get server detail for more specific error messages
+  const serverDetail = data?.detail || data?.error
+
+  // Network errors (no response)
+  if (!error.response) {
+    const errorType = classifyError(undefined, error.message || error.code)
+    const errorInfo = getErrorInfo(undefined, error.message || error.code)
+    
+    return {
+      message: errorInfo.userMessage,
+      retryable: errorInfo.retryable,
+    }
+  }
+
+  // Use error utilities to classify and get error info
+  const errorInfo = getErrorInfo(status, error.message, serverDetail)
+
+  // Add reset time for rate limit errors
+  if (errorInfo.type === ErrorType.RATE_LIMIT && data?.reset_time) {
+    return {
+      message: `${errorInfo.userMessage} Reset time: ${data.reset_time}`,
+      retryable: errorInfo.retryable,
+      serverDetail: `Reset time: ${data.reset_time}`,
+    }
+  }
+
+  return {
+    message: errorInfo.userMessage,
+    retryable: errorInfo.retryable,
+    serverDetail,
+  }
+}
 
 class ApiClient {
   private client: AxiosInstance
@@ -11,7 +113,7 @@ class ApiClient {
   constructor() {
     this.client = axios.create({
       baseURL: API_BASE_URL,
-      timeout: 30000,
+      timeout: 90000, // 90 seconds for song generation
       headers: {
         'Content-Type': 'application/json',
       },
@@ -35,13 +137,36 @@ class ApiClient {
     // Response interceptor
     this.client.interceptors.response.use(
       (response) => response,
-      (error) => {
+      (error: AxiosError) => {
         // Handle common errors
         if (error.response?.status === 401) {
           // Handle unauthorized
           localStorage.removeItem('authToken')
         }
-        return Promise.reject(error)
+
+        // Transform error into user-friendly ApiError with enhanced error info
+        const { message, retryable, serverDetail } = getUserFriendlyErrorMessage(error)
+        const apiError = new ApiError(
+          message,
+          error.response?.status,
+          error.code,
+          retryable,
+          serverDetail
+        )
+
+        // Log error for debugging (in development)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('API Error:', {
+            type: apiError.type,
+            statusCode: apiError.statusCode,
+            message: apiError.message,
+            userMessage: apiError.userMessage,
+            retryable: apiError.retryable,
+            serverDetail: apiError.serverDetail,
+          })
+        }
+
+        return Promise.reject(apiError)
       }
     )
   }

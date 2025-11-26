@@ -136,6 +136,11 @@
     @apply outline-2 outline-offset-2 outline-ring;
   }
 
+  /* Enhanced focus ring for better visibility */
+  .focus-ring {
+    @apply focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
   /* Screen reader only utility (already used for skip link) */
   .sr-only {
     position: absolute;
@@ -158,5 +163,91 @@
     overflow: visible;
     clip: auto;
     white-space: normal;
+  }
+}
+
+/* High contrast mode support for WCAG 2.1 AAA compliance */
+@media (prefers-contrast: more) {
+  :root {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0 0 0);
+    --primary: oklch(0 0 0);
+    --primary-foreground: oklch(1 0 0);
+    --muted-foreground: oklch(0.25 0 0);
+    --border: oklch(0 0 0);
+    --ring: oklch(0 0 0);
+    --destructive: oklch(0.35 0.3 25);
+  }
+
+  .dark {
+    --background: oklch(0 0 0);
+    --foreground: oklch(1 0 0);
+    --primary: oklch(1 0 0);
+    --primary-foreground: oklch(0 0 0);
+    --muted-foreground: oklch(0.85 0 0);
+    --border: oklch(1 0 0);
+    --ring: oklch(1 0 0);
+    --destructive: oklch(0.75 0.3 25);
+  }
+
+  /* Ensure focus indicators are highly visible in high contrast mode */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  [role="button"]:focus-visible,
+  [role="link"]:focus-visible,
+  [tabindex]:not([tabindex="-1"]):focus-visible {
+    outline-width: 3px !important;
+    outline-style: solid !important;
+    outline-color: currentColor !important;
+  }
+
+  /* Ensure warning/error states are visible - WCAG AA compliant colors */
+  .text-amber-700,
+  .text-yellow-600,
+  .text-yellow-700 {
+    color: oklch(0.45 0.15 75) !important;
+    font-weight: 700 !important;
+  }
+
+  .text-red-600,
+  .text-red-700 {
+    color: oklch(0.35 0.25 25) !important;
+    font-weight: 700 !important;
+  }
+
+  .text-green-600,
+  .text-green-700 {
+    color: oklch(0.3 0.15 145) !important;
+    font-weight: 700 !important;
+  }
+
+  .text-blue-600,
+  .text-blue-700 {
+    color: oklch(0.35 0.2 260) !important;
+    font-weight: 700 !important;
+  }
+
+  .border-amber-600,
+  .border-yellow-500 {
+    border-color: oklch(0.45 0.15 75) !important;
+    border-width: 2px !important;
+  }
+
+  .border-red-500,
+  .border-red-600 {
+    border-color: oklch(0.35 0.25 25) !important;
+    border-width: 2px !important;
+  }
+
+  /* Ensure disabled states are clearly distinguishable */
+  button:disabled,
+  input:disabled,
+  textarea:disabled,
+  select:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
   }
 }

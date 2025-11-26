@@ -24,7 +24,7 @@ export default {
           jsx: 'react-jsx',
           esModuleInterop: true,
           module: 'esnext',
-          moduleResolution: 'bundler',
+          moduleResolution: 'node',
           types: ['jest', '@testing-library/jest-dom', 'node'],
           skipLibCheck: true,
         },
@@ -35,6 +35,7 @@ export default {
     'import.meta': {
       env: {
         VITE_API_URL: 'http://localhost:8000',
+        VITE_WS_URL: 'http://localhost:8000',
       },
     },
   },

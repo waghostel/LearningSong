@@ -125,3 +125,49 @@ async def get_optional_user(
     
     # If credentials are provided, verify them
     return await get_current_user(credentials)
+
+
+async def verify_websocket_token(token: str) -> Optional[str]:
+    """
+    Verify Firebase ID token for WebSocket connections.
+    
+    This function is used to authenticate WebSocket connections by verifying
+    the Firebase ID token passed during the connection handshake or subscription.
+    
+    Args:
+        token: Firebase ID token string
+        
+    Returns:
+        str: The authenticated user's Firebase UID if valid
+        None: If token is invalid or verification fails
+        
+    Note:
+        Unlike get_current_user, this function returns None instead of raising
+        exceptions to allow graceful handling in WebSocket contexts.
+        
+    Requirements: FR-4 (WebSocket authentication)
+    """
+    if not token:
+        return None
+    
+    try:
+        # Verify the Firebase ID token
+        decoded_token = auth.verify_id_token(token)
+        
+        # Extract user ID from the decoded token
+        user_id = decoded_token.get("uid")
+        
+        return user_id if user_id else None
+    
+    except auth.ExpiredIdTokenError:
+        # Token has expired
+        return None
+    except auth.InvalidIdTokenError:
+        # Token is invalid
+        return None
+    except auth.CertificateFetchError:
+        # Unable to fetch certificates for verification
+        return None
+    except Exception:
+        # Any other unexpected error
+        return None

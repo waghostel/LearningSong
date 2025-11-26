@@ -19,8 +19,12 @@ export function TextInputPage() {
   // Navigate to lyrics editing page on successful generation
   useEffect(() => {
     if (isSuccess && lyricsData) {
-      // TODO: Navigate to lyrics editing page with generated lyrics
-      // navigate('/lyrics-edit', { state: { lyrics: lyricsData } })
+      navigate('/lyrics-edit', { 
+        state: { 
+          lyrics: lyricsData.lyrics,
+          contentHash: lyricsData.content_hash
+        } 
+      })
     }
   }, [isSuccess, lyricsData, navigate])
 

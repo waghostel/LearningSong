@@ -275,3 +275,261 @@ class TestStoreLyricsCache:
         # Verify correct collection and document ID
         mock_firestore_client.collection.assert_called_with('cached_songs')
         mock_firestore_client.collection.return_value.document.assert_called_with(content_hash)
+
+
+class TestCheckSongCache:
+    """Tests for check_song_cache function."""
+    
+    @pytest.mark.asyncio
+    @patch('app.services.cache.get_firestore_client')
+    async def test_cache_miss_returns_none(
+        self, mock_get_client, mock_firestore_client, mock_cache_ref
+    ):
+        """Test that cache miss returns None."""
+        from app.services.cache import check_song_cache
+        
+        mock_get_client.return_value = mock_firestore_client
+        
+        # Mock non-existent cache entry
+        mock_doc = MagicMock()
+        mock_doc.exists = False
+        mock_cache_ref.get.return_value = mock_doc
+        
+        result = await check_song_cache("test_hash_123", "pop")
+        
+        assert result is None
+    
+    @pytest.mark.asyncio
+    @patch('app.services.cache.get_firestore_client')
+    async def test_cache_key_format(
+        self, mock_get_client, mock_firestore_client
+    ):
+        """Test that cache key is generated as content_hash_style."""
+        from app.services.cache import check_song_cache
+        
+        mock_get_client.return_value = mock_firestore_client
+        
+        # Mock non-existent cache entry
+        mock_doc = MagicMock()
+        mock_doc.exists = False
+        mock_firestore_client.collection.return_value.document.return_value.get.return_value = mock_doc
+        
+        await check_song_cache("abc123", "rock")
+        
+        # Verify correct cache key format
+        mock_firestore_client.collection.assert_called_with('cached_songs')
+        mock_firestore_client.collection.return_value.document.assert_called_with("abc123_rock")
+    
+    @pytest.mark.asyncio
+    @patch('app.services.cache.get_firestore_client')
+    @patch('app.services.cache.datetime')
+    async def test_cache_hit_returns_song_data(
+        self, mock_datetime, mock_get_client, mock_firestore_client, mock_cache_ref
+    ):
+        """Test that cache hit returns song data."""
+        from app.services.cache import check_song_cache
+        
+        mock_get_client.return_value = mock_firestore_client
+        current_time = datetime(2024, 1, 15, 14, 30, 0, tzinfo=timezone.utc)
+        mock_datetime.now.return_value = current_time
+        
+        # Mock existing cache entry
+        mock_doc = MagicMock()
+        mock_doc.exists = True
+        mock_doc.to_dict.return_value = {
+            'content_hash': 'test_hash_123',
+            'style': 'pop',
+            'task_id': 'suno_task_456',
+            'song_url': 'https://suno.ai/songs/abc123.mp3',
+            'hit_count': 5,
+            'created_at': datetime(2024, 1, 10, 0, 0, 0, tzinfo=timezone.utc),
+            'last_accessed': datetime(2024, 1, 14, 0, 0, 0, tzinfo=timezone.utc)
+        }
+        mock_cache_ref.get.return_value = mock_doc
+        
+        result = await check_song_cache("test_hash_123", "pop")
+        
+        assert result is not None
+        assert result['task_id'] == 'suno_task_456'
+        assert result['song_url'] == 'https://suno.ai/songs/abc123.mp3'
+        assert result['estimated_time'] == 0
+        assert result['cached'] is True
+        assert result['hit_count'] == 6  # Incremented from 5
+    
+    @pytest.mark.asyncio
+    @patch('app.services.cache.get_firestore_client')
+    @patch('app.services.cache.datetime')
+    async def test_cache_hit_updates_statistics(
+        self, mock_datetime, mock_get_client, mock_firestore_client, mock_cache_ref
+    ):
+        """Test that cache hit updates hit_count and last_accessed."""
+        from app.services.cache import check_song_cache
+        
+        mock_get_client.return_value = mock_firestore_client
+        current_time = datetime(2024, 1, 15, 14, 30, 0, tzinfo=timezone.utc)
+        mock_datetime.now.return_value = current_time
+        
+        # Mock existing cache entry
+        mock_doc = MagicMock()
+        mock_doc.exists = True
+        mock_doc.to_dict.return_value = {
+            'task_id': 'suno_task_456',
+            'song_url': 'https://suno.ai/songs/abc123.mp3',
+            'hit_count': 3,
+        }
+        mock_cache_ref.get.return_value = mock_doc
+        
+        await check_song_cache("test_hash_123", "pop")
+        
+        # Verify update was called with incremented hit_count and new timestamp
+        mock_cache_ref.update.assert_called_once()
+        call_args = mock_cache_ref.update.call_args[0][0]
+        assert call_args['hit_count'] == 4
+        assert call_args['last_accessed'] == current_time
+    
+    @pytest.mark.asyncio
+    @patch('app.services.cache.get_firestore_client')
+    async def test_returns_none_for_invalid_cache_entry(
+        self, mock_get_client, mock_firestore_client, mock_cache_ref
+    ):
+        """Test that returns None if cache entry is missing task_id or song_url."""
+        from app.services.cache import check_song_cache
+        
+        mock_get_client.return_value = mock_firestore_client
+        
+        # Mock cache entry without task_id and song_url (lyrics cache entry)
+        mock_doc = MagicMock()
+        mock_doc.exists = True
+        mock_doc.to_dict.return_value = {
+            'lyrics': 'Some lyrics',
+            'content_hash': 'test_hash_123',
+            'hit_count': 5,
+        }
+        mock_cache_ref.get.return_value = mock_doc
+        
+        result = await check_song_cache("test_hash_123", "pop")
+        
+        assert result is None
+    
+    @pytest.mark.asyncio
+    @patch('app.services.cache.get_firestore_client')
+    async def test_cache_hit_handles_missing_hit_count(
+        self, mock_get_client, mock_firestore_client, mock_cache_ref
+    ):
+        """Test that cache hit handles missing hit_count gracefully."""
+        from app.services.cache import check_song_cache
+        
+        mock_get_client.return_value = mock_firestore_client
+        
+        # Mock existing cache entry without hit_count
+        mock_doc = MagicMock()
+        mock_doc.exists = True
+        mock_doc.to_dict.return_value = {
+            'task_id': 'suno_task_456',
+            'song_url': 'https://suno.ai/songs/abc123.mp3',
+            # No hit_count field
+        }
+        mock_cache_ref.get.return_value = mock_doc
+        
+        result = await check_song_cache("test_hash_123", "pop")
+        
+        # Should default to 0 and increment to 1
+        assert result['hit_count'] == 1
+
+
+class TestStoreSongCache:
+    """Tests for store_song_cache function."""
+    
+    @pytest.mark.asyncio
+    @patch('app.services.cache.get_firestore_client')
+    @patch('app.services.cache.datetime')
+    async def test_stores_song_in_cache(
+        self, mock_datetime, mock_get_client, mock_firestore_client, mock_cache_ref
+    ):
+        """Test that song is stored in cache with correct structure."""
+        from app.services.cache import store_song_cache
+        
+        mock_get_client.return_value = mock_firestore_client
+        current_time = datetime(2024, 1, 15, 14, 30, 0, tzinfo=timezone.utc)
+        mock_datetime.now.return_value = current_time
+        
+        content_hash = "test_hash_123"
+        style = "pop"
+        task_id = "suno_task_456"
+        song_url = "https://suno.ai/songs/abc123.mp3"
+        
+        await store_song_cache(content_hash, style, task_id, song_url)
+        
+        # Verify cache entry was created
+        mock_cache_ref.set.assert_called_once()
+        call_args = mock_cache_ref.set.call_args[0][0]
+        
+        assert call_args['content_hash'] == content_hash
+        assert call_args['style'] == style
+        assert call_args['task_id'] == task_id
+        assert call_args['song_url'] == song_url
+        assert call_args['created_at'] == current_time
+        assert call_args['last_accessed'] == current_time
+        assert call_args['hit_count'] == 0
+    
+    @pytest.mark.asyncio
+    @patch('app.services.cache.get_firestore_client')
+    async def test_uses_correct_cache_key_format(
+        self, mock_get_client, mock_firestore_client
+    ):
+        """Test that cache key is generated as content_hash_style."""
+        from app.services.cache import store_song_cache
+        
+        mock_get_client.return_value = mock_firestore_client
+        
+        content_hash = "abc123"
+        style = "rock"
+        task_id = "suno_task_456"
+        song_url = "https://suno.ai/songs/abc123.mp3"
+        
+        await store_song_cache(content_hash, style, task_id, song_url)
+        
+        # Verify correct cache key format
+        mock_firestore_client.collection.assert_called_with('cached_songs')
+        mock_firestore_client.collection.return_value.document.assert_called_with("abc123_rock")
+    
+    @pytest.mark.asyncio
+    @patch('app.services.cache.get_firestore_client')
+    async def test_stores_different_styles_separately(
+        self, mock_get_client, mock_firestore_client
+    ):
+        """Test that different styles for same content use different cache keys."""
+        from app.services.cache import store_song_cache
+        
+        mock_get_client.return_value = mock_firestore_client
+        
+        content_hash = "same_hash"
+        task_id = "suno_task_456"
+        song_url = "https://suno.ai/songs/abc123.mp3"
+        
+        # Store with pop style
+        await store_song_cache(content_hash, "pop", task_id, song_url)
+        
+        # Verify pop cache key
+        mock_firestore_client.collection.return_value.document.assert_called_with("same_hash_pop")
+        
+        # Store with rock style
+        await store_song_cache(content_hash, "rock", task_id, song_url)
+        
+        # Verify rock cache key
+        mock_firestore_client.collection.return_value.document.assert_called_with("same_hash_rock")
+    
+    @pytest.mark.asyncio
+    @patch('app.services.cache.get_firestore_client')
+    async def test_uses_correct_firestore_collection(
+        self, mock_get_client, mock_firestore_client, mock_cache_ref
+    ):
+        """Test that correct Firestore collection is used."""
+        from app.services.cache import store_song_cache
+        
+        mock_get_client.return_value = mock_firestore_client
+        
+        await store_song_cache("test_hash", "jazz", "task_123", "https://example.com/song.mp3")
+        
+        # Verify correct collection
+        mock_firestore_client.collection.assert_called_with('cached_songs')
