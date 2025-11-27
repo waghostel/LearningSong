@@ -6,7 +6,7 @@
         "chrome-devtools-mcp@latest",
         "--browserUrl=http://127.0.0.1:9222"
       ],
-      "disabled": true,
+      "disabled": false,
       "autoApprove": [
         "inspect_element",
         "get_page_state",
@@ -14,7 +14,18 @@
         "list_network_requests",
         "get_network_request",
         "new_page",
-        "list_pages"
+        "list_pages",
+        "navigate_page",
+        "take_snapshot",
+        "fill",
+        "list_console_messages",
+        "evaluate_script",
+        "wait_for",
+        "get_console_message",
+        "click",
+        "press_key",
+        "emulate",
+        "resize_page"
       ]
     }
   }

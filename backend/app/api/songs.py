@@ -50,6 +50,54 @@ async def songs_health():
     return {"status": "healthy", "service": "songs"}
 
 
+@router.post("/generate-timeout-test", response_model=GenerateSongResponse)
+async def generate_song_timeout_test(
+    request: GenerateSongRequest
+) -> GenerateSongResponse:
+    """
+    TEST ENDPOINT: Simulate Suno API timeout for debugging.
+    
+    This endpoint simulates a 90+ second timeout scenario to test
+    frontend timeout handling. Only for development/testing.
+    NO AUTH REQUIRED for testing purposes.
+    
+    Args:
+        request: Song generation request with lyrics and style
+        
+    Returns:
+        Never returns - times out after 90 seconds
+        
+    Raises:
+        HTTPException: 504 Gateway Timeout after 90 seconds
+    """
+    import asyncio
+    
+    logger.warning(
+        f"TIMEOUT TEST: Simulating 95s delay (should timeout at 90s)",
+        extra={
+            'extra_fields': {
+                'test_endpoint': True,
+                'operation': 'timeout_test',
+                'lyrics_length': len(request.lyrics),
+                'style': request.style.value
+            }
+        }
+    )
+    
+    # Wait for 95 seconds to simulate timeout
+    # The frontend has 90s timeout, so this should trigger it
+    await asyncio.sleep(95)
+    
+    # This should never be reached due to frontend timeout
+    raise HTTPException(
+        status_code=504,
+        detail={
+            'error': 'Gateway Timeout',
+            'message': 'Song generation service timed out after 90 seconds. Please try again.'
+        }
+    )
+
+
 
 
 

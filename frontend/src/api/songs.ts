@@ -72,3 +72,15 @@ export const getSongStatus = async (
     apiClient.get<SongStatusUpdate>(`/api/songs/${taskId}`)
   )
 }
+
+/**
+ * TEST FUNCTION: Generate song with simulated timeout
+ * This calls a special backend endpoint that simulates a 90+ second timeout
+ * for testing timeout handling in the frontend.
+ */
+export const generateSongWithTimeout = async (
+  request: GenerateSongRequest
+): Promise<GenerateSongResponse> => {
+  // No retry for timeout test - we want to see the timeout behavior
+  return apiClient.post<GenerateSongResponse>('/api/songs/generate-timeout-test', request)
+}
