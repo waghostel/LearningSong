@@ -8,6 +8,7 @@ Requirements: FR-3, Task 17
 """
 
 import logging
+import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
@@ -21,8 +22,14 @@ logger = logging.getLogger(__name__)
 # Collection name for songs
 SONGS_COLLECTION = "songs"
 
+# Collection name for share links
+SHARE_LINKS_COLLECTION = "share_links"
+
 # TTL for anonymous user data (48 hours)
 ANONYMOUS_TTL_HOURS = 48
+
+# TTL for share links (48 hours)
+SHARE_LINK_TTL_HOURS = 48
 
 
 async def store_song_task(
@@ -320,3 +327,188 @@ async def extend_task_ttl(task_id: str, hours: int = ANONYMOUS_TTL_HOURS) -> boo
             },
         )
         return False
+
+
+# ============================================================================
+# Share Link Functions
+# Requirements: 5.1, 5.3, 5.4
+# ============================================================================
+
+
+async def create_share_link(song_id: str, user_id: str) -> dict:
+    """
+    Create a shareable link for a song.
+    
+    Generates a unique token and stores the share link in Firestore
+    with a 48-hour expiration.
+    
+    Args:
+        song_id: The song/task ID to share
+        user_id: Firebase user ID who is creating the share
+        
+    Returns:
+        dict: Share link data including share_token, song_id, expires_at
+        
+    Requirements: 5.1
+    """
+    firestore_client = get_firestore_client()
+    
+    # Generate a unique share token (URL-safe)
+    share_token = secrets.token_urlsafe(32)
+    
+    current_time = datetime.now(timezone.utc)
+    expires_at = current_time + timedelta(hours=SHARE_LINK_TTL_HOURS)
+    
+    share_doc = {
+        "share_token": share_token,
+        "song_id": song_id,
+        "created_by": user_id,
+        "created_at": current_time,
+        "expires_at": expires_at,
+    }
+    
+    # Store share link document using share_token as document ID
+    share_ref = firestore_client.collection(SHARE_LINKS_COLLECTION).document(share_token)
+    share_ref.set(share_doc)
+    
+    logger.info(
+        f"Share link created for song: {song_id}",
+        extra={
+            "extra_fields": {
+                "song_id": song_id,
+                "user_id": user_id,
+                "share_token": share_token[:8] + "...",
+                "expires_at": expires_at.isoformat(),
+                "operation": "create_share_link",
+            }
+        },
+    )
+    
+    return share_doc
+
+
+async def get_song_by_share_token(share_token: str) -> Optional[dict]:
+    """
+    Retrieve song data via share token.
+    
+    Looks up the share link, validates it hasn't expired, and returns
+    the associated song data.
+    
+    Args:
+        share_token: The unique share token
+        
+    Returns:
+        dict: Song data if found and valid, None if share link not found
+        
+    Raises:
+        ValueError: If share link has expired
+        
+    Requirements: 5.3, 5.4
+    """
+    firestore_client = get_firestore_client()
+    
+    # Look up share link
+    share_ref = firestore_client.collection(SHARE_LINKS_COLLECTION).document(share_token)
+    share_doc = share_ref.get()
+    
+    if not share_doc.exists:
+        logger.debug(f"Share link not found: {share_token[:8]}...")
+        return None
+    
+    share_data = share_doc.to_dict()
+    
+    # Check if share link has expired
+    expires_at = share_data.get("expires_at")
+    if expires_at:
+        # Handle both datetime objects and Firestore timestamps
+        if hasattr(expires_at, "timestamp"):
+            expires_at_dt = datetime.fromtimestamp(expires_at.timestamp(), tz=timezone.utc)
+        elif isinstance(expires_at, datetime):
+            expires_at_dt = expires_at if expires_at.tzinfo else expires_at.replace(tzinfo=timezone.utc)
+        else:
+            expires_at_dt = datetime.fromisoformat(str(expires_at).replace("Z", "+00:00"))
+        
+        if datetime.now(timezone.utc) > expires_at_dt:
+            logger.info(
+                f"Share link expired: {share_token[:8]}...",
+                extra={
+                    "extra_fields": {
+                        "share_token": share_token[:8] + "...",
+                        "expires_at": expires_at_dt.isoformat(),
+                        "operation": "get_song_by_share_token",
+                    }
+                },
+            )
+            raise ValueError("Share link has expired")
+    
+    # Get the associated song
+    song_id = share_data.get("song_id")
+    song_data = await get_task_from_firestore(song_id)
+    
+    if song_data is None:
+        logger.warning(
+            f"Song not found for share link: {share_token[:8]}...",
+            extra={
+                "extra_fields": {
+                    "share_token": share_token[:8] + "...",
+                    "song_id": song_id,
+                    "operation": "get_song_by_share_token",
+                }
+            },
+        )
+        return None
+    
+    logger.info(
+        f"Song retrieved via share link: {song_id}",
+        extra={
+            "extra_fields": {
+                "share_token": share_token[:8] + "...",
+                "song_id": song_id,
+                "operation": "get_song_by_share_token",
+            }
+        },
+    )
+    
+    return song_data
+
+
+async def validate_share_link(share_token: str) -> bool:
+    """
+    Validate that a share link exists and has not expired.
+    
+    Args:
+        share_token: The unique share token to validate
+        
+    Returns:
+        bool: True if share link is valid, False otherwise
+        
+    Requirements: 5.4
+    """
+    firestore_client = get_firestore_client()
+    
+    # Look up share link
+    share_ref = firestore_client.collection(SHARE_LINKS_COLLECTION).document(share_token)
+    share_doc = share_ref.get()
+    
+    if not share_doc.exists:
+        logger.debug(f"Share link not found for validation: {share_token[:8]}...")
+        return False
+    
+    share_data = share_doc.to_dict()
+    
+    # Check expiration
+    expires_at = share_data.get("expires_at")
+    if expires_at:
+        # Handle both datetime objects and Firestore timestamps
+        if hasattr(expires_at, "timestamp"):
+            expires_at_dt = datetime.fromtimestamp(expires_at.timestamp(), tz=timezone.utc)
+        elif isinstance(expires_at, datetime):
+            expires_at_dt = expires_at if expires_at.tzinfo else expires_at.replace(tzinfo=timezone.utc)
+        else:
+            expires_at_dt = datetime.fromisoformat(str(expires_at).replace("Z", "+00:00"))
+        
+        if datetime.now(timezone.utc) > expires_at_dt:
+            logger.debug(f"Share link expired during validation: {share_token[:8]}...")
+            return False
+    
+    return True

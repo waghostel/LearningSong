@@ -1,5 +1,6 @@
 """Pydantic models for song generation."""
 
+from datetime import datetime
 from enum import Enum
 from typing import Optional
 
@@ -106,3 +107,71 @@ class SongStatusUpdate(BaseModel):
         default=None,
         description="Error message (when failed)"
     )
+
+
+class SongDetails(BaseModel):
+    """Complete song details for playback page.
+    
+    Requirements: 8.1, 8.4
+    """
+    
+    song_id: str = Field(
+        ...,
+        description="Unique identifier for the song"
+    )
+    song_url: str = Field(
+        ...,
+        description="URL of the generated song audio file"
+    )
+    lyrics: str = Field(
+        ...,
+        description="Song lyrics text"
+    )
+    style: MusicStyle = Field(
+        ...,
+        description="Music style of the song"
+    )
+    created_at: datetime = Field(
+        ...,
+        description="Timestamp when the song was created"
+    )
+    expires_at: datetime = Field(
+        ...,
+        description="Timestamp when the song will expire"
+    )
+    is_owner: bool = Field(
+        ...,
+        description="True if the requesting user owns the song"
+    )
+    
+    model_config = {
+        "json_encoders": {
+            datetime: lambda v: v.isoformat()
+        }
+    }
+
+
+class ShareLinkResponse(BaseModel):
+    """Response for share link creation.
+    
+    Requirements: 5.1, 5.2
+    """
+    
+    share_url: str = Field(
+        ...,
+        description="Full URL for sharing the song"
+    )
+    share_token: str = Field(
+        ...,
+        description="Unique token for the share link"
+    )
+    expires_at: datetime = Field(
+        ...,
+        description="Timestamp when the share link will expire"
+    )
+    
+    model_config = {
+        "json_encoders": {
+            datetime: lambda v: v.isoformat()
+        }
+    }

@@ -2,7 +2,6 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { ProgressTracker } from '@/components/ProgressTracker'
 import { useLyricsEditingStore } from '@/stores/lyricsEditingStore'
 import { ErrorType } from '@/lib/error-utils'
-import { beforeEach } from 'node:test'
 
 // Mock the store
 jest.mock('@/stores/lyricsEditingStore')

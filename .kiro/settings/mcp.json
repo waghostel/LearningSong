@@ -6,7 +6,7 @@
         "chrome-devtools-mcp@latest",
         "--browserUrl=http://127.0.0.1:9222"
       ],
-      "disabled": false,
+      "disabled": true,
       "autoApprove": [
         "inspect_element",
         "get_page_state",

@@ -20,6 +20,7 @@ interface LyricsEditingState {
   // Generation state
   isGenerating: boolean
   taskId: string | null
+  songId: string | null  // Same as taskId, exposed for navigation to playback page
   generationStatus: GenerationStatus
   progress: number
   songUrl: string | null
@@ -49,6 +50,7 @@ const initialState = {
   contentHash: '',
   isGenerating: false,
   taskId: null as string | null,
+  songId: null as string | null,
   generationStatus: 'idle' as GenerationStatus,
   progress: 0,
   songUrl: null as string | null,
@@ -79,7 +81,8 @@ export const useLyricsEditingStore = create<LyricsEditingState>()(
         const state = get()
         set({ 
           isGenerating: true, 
-          taskId, 
+          taskId,
+          songId: taskId,  // songId is the same as taskId
           generationStatus: 'queued',
           progress: 0,
           songUrl: null,

@@ -16,6 +16,8 @@ from app.models.songs import (
     GenerateSongResponse,
     SongStatusUpdate,
     GenerationStatus,
+    SongDetails,
+    ShareLinkResponse,
 )
 from app.core.auth import get_current_user
 from app.services.cache import check_song_cache
@@ -31,6 +33,9 @@ from app.services.song_storage import (
     store_song_task,
     get_task_from_firestore,
     update_task_status,
+    create_share_link,
+    get_song_by_share_token,
+    verify_task_ownership,
 )
 
 
@@ -48,6 +53,512 @@ router = APIRouter(
 async def songs_health():
     """Health check endpoint for songs service."""
     return {"status": "healthy", "service": "songs"}
+
+
+@router.get("/{song_id}/details", response_model=SongDetails)
+async def get_song_details(
+    song_id: str,
+    user_id: str = Depends(get_current_user)
+) -> SongDetails:
+    """
+    Get complete song details for playback page.
+    
+    This endpoint:
+    1. Queries Firestore for the song by song_id
+    2. Verifies user ownership or returns 403
+    3. Checks expiration and returns 410 if expired
+    4. Returns SongDetails with all required fields
+    
+    Args:
+        song_id: The song/task ID
+        user_id: Authenticated user ID from Firebase token
+        
+    Returns:
+        SongDetails with song_url, lyrics, style, created_at, expires_at, is_owner
+        
+    Raises:
+        HTTPException: 404 if song not found
+        HTTPException: 403 if user doesn't own the song
+        HTTPException: 410 if song has expired
+        
+    Requirements: 8.1, 8.2, 8.3
+    """
+    from datetime import datetime, timezone
+    
+    logger.info(
+        f"Song details request for song: {song_id}",
+        extra={
+            'extra_fields': {
+                'user_id': user_id,
+                'song_id': song_id,
+                'operation': 'get_song_details'
+            }
+        }
+    )
+    
+    # Step 1: Query Firestore for song data
+    try:
+        song_data = await get_task_from_firestore(song_id)
+    except Exception as e:
+        logger.error(
+            f"Failed to query Firestore for song: {song_id}",
+            extra={
+                'extra_fields': {
+                    'song_id': song_id,
+                    'error': str(e),
+                    'operation': 'get_song_details'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=500,
+            detail={
+                'error': 'Internal error',
+                'message': 'Failed to retrieve song data. Please try again.'
+            }
+        )
+    
+    # Step 2: Check if song exists
+    if song_data is None:
+        logger.warning(
+            f"Song not found: {song_id}",
+            extra={
+                'extra_fields': {
+                    'song_id': song_id,
+                    'user_id': user_id,
+                    'operation': 'get_song_details'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=404,
+            detail={
+                'error': 'Song not found',
+                'message': 'The requested song could not be found.'
+            }
+        )
+    
+    # Step 3: Verify user ownership
+    is_owner = song_data.get('user_id') == user_id
+    if not is_owner:
+        logger.warning(
+            f"Unauthorized access attempt to song: {song_id}",
+            extra={
+                'extra_fields': {
+                    'song_id': song_id,
+                    'requesting_user': user_id,
+                    'song_owner': song_data.get('user_id'),
+                    'operation': 'get_song_details'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=403,
+            detail={
+                'error': 'Forbidden',
+                'message': 'You do not have permission to access this song.'
+            }
+        )
+    
+    # Step 4: Check if song has expired
+    expires_at = song_data.get('expires_at')
+    if expires_at:
+        # Handle both datetime objects and Firestore timestamps
+        if hasattr(expires_at, 'timestamp'):
+            # Firestore timestamp
+            expires_at_dt = datetime.fromtimestamp(expires_at.timestamp(), tz=timezone.utc)
+        elif isinstance(expires_at, datetime):
+            expires_at_dt = expires_at if expires_at.tzinfo else expires_at.replace(tzinfo=timezone.utc)
+        else:
+            expires_at_dt = datetime.fromisoformat(str(expires_at).replace('Z', '+00:00'))
+        
+        if datetime.now(timezone.utc) > expires_at_dt:
+            logger.info(
+                f"Song has expired: {song_id}",
+                extra={
+                    'extra_fields': {
+                        'song_id': song_id,
+                        'expires_at': expires_at_dt.isoformat(),
+                        'operation': 'get_song_details'
+                    }
+                }
+            )
+            raise HTTPException(
+                status_code=410,
+                detail={
+                    'error': 'Song expired',
+                    'message': 'This song has expired and is no longer available.'
+                }
+            )
+    
+    # Step 5: Check if song generation is complete
+    song_url = song_data.get('song_url')
+    if not song_url:
+        logger.warning(
+            f"Song not yet generated: {song_id}",
+            extra={
+                'extra_fields': {
+                    'song_id': song_id,
+                    'status': song_data.get('status'),
+                    'operation': 'get_song_details'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=404,
+            detail={
+                'error': 'Song not ready',
+                'message': 'The song is still being generated. Please wait.'
+            }
+        )
+    
+    # Step 6: Parse datetime fields
+    created_at = song_data.get('created_at')
+    if hasattr(created_at, 'timestamp'):
+        created_at_dt = datetime.fromtimestamp(created_at.timestamp(), tz=timezone.utc)
+    elif isinstance(created_at, datetime):
+        created_at_dt = created_at if created_at.tzinfo else created_at.replace(tzinfo=timezone.utc)
+    else:
+        created_at_dt = datetime.fromisoformat(str(created_at).replace('Z', '+00:00'))
+    
+    # Step 7: Return SongDetails
+    from app.models.songs import MusicStyle
+    
+    return SongDetails(
+        song_id=song_id,
+        song_url=song_url,
+        lyrics=song_data.get('lyrics', ''),
+        style=MusicStyle(song_data.get('style', 'pop')),
+        created_at=created_at_dt,
+        expires_at=expires_at_dt,
+        is_owner=is_owner,
+    )
+
+
+@router.post("/{song_id}/share", response_model=ShareLinkResponse)
+async def create_song_share_link(
+    song_id: str,
+    user_id: str = Depends(get_current_user)
+) -> ShareLinkResponse:
+    """
+    Generate a shareable link for a song.
+    
+    This endpoint:
+    1. Verifies user owns the song
+    2. Generates a unique share token
+    3. Stores share link with 48-hour expiration
+    4. Returns ShareLinkResponse with full URL
+    
+    Args:
+        song_id: The song/task ID to share
+        user_id: Authenticated user ID from Firebase token
+        
+    Returns:
+        ShareLinkResponse with share_url, share_token, and expires_at
+        
+    Raises:
+        HTTPException: 404 if song not found
+        HTTPException: 403 if user doesn't own the song
+        
+    Requirements: 5.1, 5.2
+    """
+    logger.info(
+        f"Share link request for song: {song_id}",
+        extra={
+            'extra_fields': {
+                'user_id': user_id,
+                'song_id': song_id,
+                'operation': 'create_share_link'
+            }
+        }
+    )
+    
+    # Step 1: Verify song exists
+    try:
+        song_data = await get_task_from_firestore(song_id)
+    except Exception as e:
+        logger.error(
+            f"Failed to query Firestore for song: {song_id}",
+            extra={
+                'extra_fields': {
+                    'song_id': song_id,
+                    'error': str(e),
+                    'operation': 'create_share_link'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=500,
+            detail={
+                'error': 'Internal error',
+                'message': 'Failed to retrieve song data. Please try again.'
+            }
+        )
+    
+    if song_data is None:
+        logger.warning(
+            f"Song not found for share: {song_id}",
+            extra={
+                'extra_fields': {
+                    'song_id': song_id,
+                    'user_id': user_id,
+                    'operation': 'create_share_link'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=404,
+            detail={
+                'error': 'Song not found',
+                'message': 'The requested song could not be found.'
+            }
+        )
+    
+    # Step 2: Verify user ownership
+    if song_data.get('user_id') != user_id:
+        logger.warning(
+            f"Unauthorized share attempt for song: {song_id}",
+            extra={
+                'extra_fields': {
+                    'song_id': song_id,
+                    'requesting_user': user_id,
+                    'song_owner': song_data.get('user_id'),
+                    'operation': 'create_share_link'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=403,
+            detail={
+                'error': 'Forbidden',
+                'message': 'You do not have permission to share this song.'
+            }
+        )
+    
+    # Step 3: Create share link
+    try:
+        share_data = await create_share_link(song_id, user_id)
+    except Exception as e:
+        logger.error(
+            f"Failed to create share link for song: {song_id}",
+            extra={
+                'extra_fields': {
+                    'song_id': song_id,
+                    'error': str(e),
+                    'operation': 'create_share_link'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=500,
+            detail={
+                'error': 'Internal error',
+                'message': 'Failed to create share link. Please try again.'
+            }
+        )
+    
+    # Step 4: Build full share URL
+    # Use environment variable for base URL, default to localhost for development
+    base_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    share_url = f"{base_url}/shared/{share_data['share_token']}"
+    
+    logger.info(
+        f"Share link created successfully for song: {song_id}",
+        extra={
+            'extra_fields': {
+                'song_id': song_id,
+                'user_id': user_id,
+                'share_token': share_data['share_token'][:8] + '...',
+                'operation': 'create_share_link'
+            }
+        }
+    )
+    
+    return ShareLinkResponse(
+        share_url=share_url,
+        share_token=share_data['share_token'],
+        expires_at=share_data['expires_at'],
+    )
+
+
+@router.get("/shared/{share_token}", response_model=SongDetails)
+async def get_shared_song(share_token: str) -> SongDetails:
+    """
+    Get song details via share token (no auth required).
+    
+    This endpoint:
+    1. Looks up share token in Firestore
+    2. Checks if share link has expired
+    3. Returns SongDetails for the shared song
+    
+    Args:
+        share_token: The unique share token
+        
+    Returns:
+        SongDetails for the shared song
+        
+    Raises:
+        HTTPException: 404 if share token not found
+        HTTPException: 410 if share link has expired
+        
+    Requirements: 5.3, 5.4
+    """
+    from datetime import datetime, timezone
+    
+    logger.info(
+        f"Shared song request with token: {share_token[:8]}...",
+        extra={
+            'extra_fields': {
+                'share_token': share_token[:8] + '...',
+                'operation': 'get_shared_song'
+            }
+        }
+    )
+    
+    # Step 1: Get song via share token
+    try:
+        song_data = await get_song_by_share_token(share_token)
+    except ValueError as e:
+        # Share link has expired
+        logger.info(
+            f"Expired share link accessed: {share_token[:8]}...",
+            extra={
+                'extra_fields': {
+                    'share_token': share_token[:8] + '...',
+                    'error': str(e),
+                    'operation': 'get_shared_song'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=410,
+            detail={
+                'error': 'Link expired',
+                'message': 'This share link has expired. Ask the owner to create a new one.'
+            }
+        )
+    except Exception as e:
+        logger.error(
+            f"Failed to retrieve shared song: {share_token[:8]}...",
+            extra={
+                'extra_fields': {
+                    'share_token': share_token[:8] + '...',
+                    'error': str(e),
+                    'operation': 'get_shared_song'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=500,
+            detail={
+                'error': 'Internal error',
+                'message': 'Failed to retrieve song data. Please try again.'
+            }
+        )
+    
+    # Step 2: Check if song was found
+    if song_data is None:
+        logger.warning(
+            f"Share token not found: {share_token[:8]}...",
+            extra={
+                'extra_fields': {
+                    'share_token': share_token[:8] + '...',
+                    'operation': 'get_shared_song'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=404,
+            detail={
+                'error': 'Not found',
+                'message': 'This share link is invalid or the song no longer exists.'
+            }
+        )
+    
+    # Step 3: Check if song has a URL (generation complete)
+    song_url = song_data.get('song_url')
+    if not song_url:
+        logger.warning(
+            f"Shared song not yet generated: {share_token[:8]}...",
+            extra={
+                'extra_fields': {
+                    'share_token': share_token[:8] + '...',
+                    'status': song_data.get('status'),
+                    'operation': 'get_shared_song'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=404,
+            detail={
+                'error': 'Song not ready',
+                'message': 'The song is still being generated. Please wait.'
+            }
+        )
+    
+    # Step 4: Check if song has expired
+    expires_at = song_data.get('expires_at')
+    if expires_at:
+        if hasattr(expires_at, 'timestamp'):
+            expires_at_dt = datetime.fromtimestamp(expires_at.timestamp(), tz=timezone.utc)
+        elif isinstance(expires_at, datetime):
+            expires_at_dt = expires_at if expires_at.tzinfo else expires_at.replace(tzinfo=timezone.utc)
+        else:
+            expires_at_dt = datetime.fromisoformat(str(expires_at).replace('Z', '+00:00'))
+        
+        if datetime.now(timezone.utc) > expires_at_dt:
+            logger.info(
+                f"Shared song has expired: {share_token[:8]}...",
+                extra={
+                    'extra_fields': {
+                        'share_token': share_token[:8] + '...',
+                        'expires_at': expires_at_dt.isoformat(),
+                        'operation': 'get_shared_song'
+                    }
+                }
+            )
+            raise HTTPException(
+                status_code=410,
+                detail={
+                    'error': 'Song expired',
+                    'message': 'This song has expired and is no longer available.'
+                }
+            )
+    
+    # Step 5: Parse datetime fields
+    created_at = song_data.get('created_at')
+    if hasattr(created_at, 'timestamp'):
+        created_at_dt = datetime.fromtimestamp(created_at.timestamp(), tz=timezone.utc)
+    elif isinstance(created_at, datetime):
+        created_at_dt = created_at if created_at.tzinfo else created_at.replace(tzinfo=timezone.utc)
+    else:
+        created_at_dt = datetime.fromisoformat(str(created_at).replace('Z', '+00:00'))
+    
+    # Step 6: Return SongDetails (is_owner is False for shared songs)
+    from app.models.songs import MusicStyle
+    
+    song_id = song_data.get('task_id', share_token)
+    
+    logger.info(
+        f"Shared song retrieved successfully: {share_token[:8]}...",
+        extra={
+            'extra_fields': {
+                'share_token': share_token[:8] + '...',
+                'song_id': song_id,
+                'operation': 'get_shared_song'
+            }
+        }
+    )
+    
+    return SongDetails(
+        song_id=song_id,
+        song_url=song_url,
+        lyrics=song_data.get('lyrics', ''),
+        style=MusicStyle(song_data.get('style', 'pop')),
+        created_at=created_at_dt,
+        expires_at=expires_at_dt,
+        is_owner=False,  # Shared songs are never owned by the viewer
+    )
 
 
 @router.post("/generate-timeout-test", response_model=GenerateSongResponse)

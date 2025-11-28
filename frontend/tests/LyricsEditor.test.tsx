@@ -2,7 +2,6 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { LyricsEditor } from '@/components/LyricsEditor'
 import { useLyricsEditingStore } from '@/stores/lyricsEditingStore'
-import { beforeEach } from 'node:test'
 
 // Mock the store
 jest.mock('@/stores/lyricsEditingStore')

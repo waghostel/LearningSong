@@ -2,68 +2,109 @@
 
 ## Backend Implementation
 
-- [ ] 1. Create song details data models and API endpoint
-  - [ ] 1.1 Add SongDetails and ShareLinkResponse models to backend/app/models/songs.py
+- [x] 1. Create song details data models and API endpoint
+
+
+
+
+
+  - [x] 1.1 Add SongDetails and ShareLinkResponse models to backend/app/models/songs.py
+
+
     - Add SongDetails model with song_id, song_url, lyrics, style, created_at, expires_at, is_owner fields
     - Add ShareLinkResponse model with share_url, share_token, expires_at fields
     - Add JSON serialization config for datetime fields
     - _Requirements: 8.1, 8.4_
-  - [ ] 1.2 Write property test for song serialization round trip
+
+  - [x] 1.2 Write property test for song serialization round trip
+
     - **Property 6: Song Serialization Round Trip**
     - **Validates: Requirements 8.4**
-  - [ ] 1.3 Implement GET /api/songs/{song_id}/details endpoint in backend/app/api/songs.py
+  - [x] 1.3 Implement GET /api/songs/{song_id}/details endpoint in backend/app/api/songs.py
+
+
     - Query Firestore for song by song_id
     - Verify user ownership or return 403
     - Check expiration and return 410 if expired
     - Return SongDetails with all required fields
     - _Requirements: 8.1, 8.2, 8.3_
-  - [ ] 1.4 Write property test for song details API response completeness
+
+  - [x] 1.4 Write property test for song details API response completeness
+
     - **Property 5: Song Details API Response Completeness**
     - **Validates: Requirements 8.1**
-  - [ ] 1.5 Write unit tests for song details endpoint
+
+  - [x] 1.5 Write unit tests for song details endpoint
+
     - Test successful retrieval
     - Test 404 for non-existent song
     - Test 410 for expired song
     - Test 403 for unauthorized access
     - _Requirements: 8.1, 8.2, 8.3_
 
-- [ ] 2. Implement share link functionality
-  - [ ] 2.1 Add share link storage functions to backend/app/services/song_storage.py
+- [x] 2. Implement share link functionality
+
+
+
+
+
+  - [x] 2.1 Add share link storage functions to backend/app/services/song_storage.py
+
+
     - Add create_share_link function to generate unique token and store in Firestore
     - Add get_song_by_share_token function to retrieve song via share token
     - Add validate_share_link function to check expiration
     - _Requirements: 5.1, 5.3, 5.4_
-  - [ ] 2.2 Implement POST /api/songs/{song_id}/share endpoint
+  - [x] 2.2 Implement POST /api/songs/{song_id}/share endpoint
+
+
     - Verify user owns the song
     - Generate unique share token
     - Store share link with 48-hour expiration
     - Return ShareLinkResponse with full URL
     - _Requirements: 5.1, 5.2_
-  - [ ] 2.3 Implement GET /api/songs/shared/{share_token} endpoint (no auth required)
+  - [x] 2.3 Implement GET /api/songs/shared/{share_token} endpoint (no auth required)
+
     - Look up share token in Firestore
     - Check if share link has expired
     - Return SongDetails for the shared song
     - _Requirements: 5.3, 5.4_
-  - [ ] 2.4 Write unit tests for share link endpoints
+  - [x] 2.4 Write unit tests for share link endpoints
+
+
     - Test share link creation
     - Test shared song access
     - Test expired share link handling
     - _Requirements: 5.1, 5.3, 5.4_
 
-- [ ] 3. Checkpoint - Backend tests passing
+- [x] 3. Checkpoint - Backend tests passing
+
+
+
+
+
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Frontend Implementation
 
-- [ ] 4. Create song playback store and API functions
-  - [ ] 4.1 Add song details and share API functions to frontend/src/api/songs.ts
+- [x] 4. Create song playback store and API functions
+
+
+
+
+
+  - [x] 4.1 Add song details and share API functions to frontend/src/api/songs.ts
+
+
     - Add SongDetails interface
     - Add ShareLinkResponse interface
     - Add getSongDetails(songId) function
     - Add getSharedSong(shareToken) function
     - Add createShareLink(songId) function
     - _Requirements: 8.1, 5.1, 5.3_
-  - [ ] 4.2 Create songPlaybackStore in frontend/src/stores/songPlaybackStore.ts
+
+  - [x] 4.2 Create songPlaybackStore in frontend/src/stores/songPlaybackStore.ts
+
     - Define state interface with song data, playback state, and share state
     - Implement loadSong action to fetch song details
     - Implement loadSharedSong action for shared links
@@ -71,14 +112,23 @@
     - Implement createShareLink action
     - Use sessionStorage persistence
     - _Requirements: 1.1, 5.1_
-  - [ ] 4.3 Write unit tests for songPlaybackStore
+
+  - [x] 4.3 Write unit tests for songPlaybackStore
+
     - Test loadSong action
     - Test playback state management
     - Test share link creation
     - _Requirements: 1.1, 5.1_
 
-- [ ] 5. Implement AudioPlayer component
-  - [ ] 5.1 Create AudioPlayer component in frontend/src/components/AudioPlayer.tsx
+- [x] 5. Implement AudioPlayer component
+
+
+
+
+
+  - [x] 5.1 Create AudioPlayer component in frontend/src/components/AudioPlayer.tsx
+
+
     - Use HTML5 audio element with ref
     - Implement play/pause button with state toggle
     - Implement seek bar with range input
@@ -87,13 +137,19 @@
     - Handle audio load errors
     - Support disabled state for expired songs
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 3.1, 3.2, 6.3_
-  - [ ] 5.2 Write property test for time display format
+  - [x] 5.2 Write property test for time display format
+
+
     - **Property 1: Time Display Format Consistency**
     - **Validates: Requirements 1.5**
-  - [ ] 5.3 Write property test for download filename
+  - [x] 5.3 Write property test for download filename
+
+
     - **Property 3: Download Filename Contains Style**
     - **Validates: Requirements 3.2**
-  - [ ] 5.4 Write unit tests for AudioPlayer component
+  - [x] 5.4 Write unit tests for AudioPlayer component
+
+
     - Test play/pause functionality
     - Test seek bar interaction
     - Test time display updates
@@ -101,61 +157,103 @@
     - Test disabled state
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 3.1_
 
-- [ ] 6. Implement LyricsDisplay component
-  - [ ] 6.1 Create LyricsDisplay component in frontend/src/components/LyricsDisplay.tsx
+- [x] 6. Implement LyricsDisplay component
+
+
+
+
+
+  - [x] 6.1 Create LyricsDisplay component in frontend/src/components/LyricsDisplay.tsx
+
+
     - Parse lyrics into sections (by line breaks or verse markers)
     - Calculate current section based on playback time and duration
     - Highlight current section with visual styling
     - Implement auto-scroll to current section
     - Detect manual scroll and disable auto-scroll for 5 seconds
     - _Requirements: 2.1, 2.2, 2.3_
-  - [ ] 6.2 Write property test for lyrics section highlighting
+  - [x] 6.2 Write property test for lyrics section highlighting
+
+
     - **Property 2: Lyrics Section Highlighting Progression**
     - **Validates: Requirements 2.2**
-  - [ ] 6.3 Write unit tests for LyricsDisplay component
+  - [x] 6.3 Write unit tests for LyricsDisplay component
+
+
     - Test lyrics rendering
     - Test section highlighting
     - Test auto-scroll behavior
     - Test manual scroll detection
     - _Requirements: 2.1, 2.2, 2.3_
 
-- [ ] 7. Implement SongMetadata component
-  - [ ] 7.1 Create SongMetadata component in frontend/src/components/SongMetadata.tsx
+
+- [x] 7. Implement SongMetadata component
+
+
+
+  - [x] 7.1 Create SongMetadata component in frontend/src/components/SongMetadata.tsx
+
+
     - Display song style with icon/badge
     - Display generation date in user-friendly format
     - Display expiration time with countdown
     - Show warning indicator when expiration is within 6 hours
     - Show expired notice when song has expired
     - _Requirements: 6.1, 6.2, 6.3_
-  - [ ] 7.2 Write property test for expiration warning threshold
+  - [x] 7.2 Write property test for expiration warning threshold
+
+
     - **Property 4: Expiration Warning Threshold**
     - **Validates: Requirements 6.2**
-  - [ ] 7.3 Write unit tests for SongMetadata component
+  - [x] 7.3 Write unit tests for SongMetadata component
+
+
     - Test metadata display
     - Test expiration warning
     - Test expired state
     - _Requirements: 6.1, 6.2, 6.3_
 
-- [ ] 8. Implement ShareButton component
-  - [ ] 8.1 Create ShareButton component in frontend/src/components/ShareButton.tsx
+- [x] 8. Implement ShareButton component
+
+
+
+
+
+
+  - [x] 8.1 Create ShareButton component in frontend/src/components/ShareButton.tsx
+
     - Implement share button with loading state
     - Call createShareLink API on click
     - Copy share URL to clipboard using navigator.clipboard
     - Show success toast notification
     - Handle errors with user-friendly messages
     - _Requirements: 5.1, 5.2_
-  - [ ] 8.2 Write unit tests for ShareButton component
+
+  - [x] 8.2 Write unit tests for ShareButton component
+
     - Test share link creation
     - Test clipboard copy
     - Test success notification
     - Test error handling
     - _Requirements: 5.1, 5.2_
 
-- [ ] 9. Checkpoint - Component tests passing
+-
+
+
+- [x] 9. Checkpoint - Component tests passing
+
+
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 10. Implement SongPlaybackPage
-  - [ ] 10.1 Create SongPlaybackPage in frontend/src/pages/SongPlaybackPage.tsx
+
+- [x] 10. Implement SongPlaybackPage
+
+
+
+
+  - [x] 10.1 Create SongPlaybackPage in frontend/src/pages/SongPlaybackPage.tsx
+
+
     - Handle route params for songId and shareToken
     - Load song data on mount using store actions
     - Compose AudioPlayer, LyricsDisplay, SongMetadata, ShareButton
@@ -166,10 +264,14 @@
     - Handle loading and error states
     - Support offline indicator
     - _Requirements: 1.1, 2.1, 4.1, 4.2, 4.3, 5.3, 6.1, 7.1, 9.1, 9.2_
-  - [ ] 10.2 Write property test for error message user-friendliness
+  - [x] 10.2 Write property test for error message user-friendliness
+
+
     - **Property 7: Error Message User-Friendliness**
     - **Validates: Requirements 9.3**
-  - [ ] 10.3 Write integration tests for SongPlaybackPage
+  - [x] 10.3 Write integration tests for SongPlaybackPage
+
+
     - Test page load with valid song
     - Test page load with shared link
     - Test expired song handling
@@ -177,15 +279,26 @@
     - Test offline handling
     - _Requirements: 1.1, 5.3, 5.4, 6.3, 9.2_
 
-- [ ] 11. Add routing and navigation
-  - [ ] 11.1 Add routes for SongPlaybackPage in frontend/src/App.tsx
+- [x] 11. Add routing and navigation
+
+
+  - [x] 11.1 Add routes for SongPlaybackPage in frontend/src/App.tsx
     - Add route /playback/:songId for direct song access
     - Add route /shared/:shareToken for shared link access
     - _Requirements: 5.3_
-  - [ ] 11.2 Update LyricsEditingPage to navigate to playback page on completion
+  - [x] 11.2 Update LyricsEditingPage to navigate to playback page on completion
+
     - Navigate to /playback/:songId when song generation completes
     - Pass song data via navigation state as backup
     - _Requirements: 1.1_
 
-- [ ] 12. Final Checkpoint - All tests passing
+
+
+- [x] 12. Final Checkpoint - All tests passing
+
+
+
+
+
+
   - Ensure all tests pass, ask the user if questions arise.

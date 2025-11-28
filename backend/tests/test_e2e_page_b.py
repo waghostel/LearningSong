@@ -167,7 +167,7 @@ class TestE2EGenerateSongHappyPath:
     @pytest.mark.asyncio
     async def test_generate_song_complete_flow(self):
         """
-        Test complete flow: submit lyrics → generate song → get status.
+        Test complete flow: submit lyrics -> generate song -> get status.
         
         Validates: US-1, US-3, US-4, US-5, FR-3
         """
@@ -286,7 +286,7 @@ class TestE2ERateLimitScenario:
     @pytest.mark.asyncio
     async def test_rate_limit_blocks_fourth_song(self):
         """
-        Test that 4th song generation is blocked after 3 songs.
+        Test that fourth song generation is blocked after 3 songs.
         
         Validates: US-4, FR-6
         """
@@ -356,18 +356,13 @@ class TestE2ECacheScenario:
 
 
 
-class TestE2EErrorScenarios:
-    """Test
-
-
-c
-lass TestE2EGenerateSongHappyPath:
+class TestE2EGenerateSongHappyPath:
     """Test 20.1: Complete happy path for song generation."""
 
     @pytest.mark.asyncio
     async def test_generate_song_complete_flow(self):
         """
-        Test complete flow: generate song → track status → completion.
+        Test complete flow: generate song -> track status -> completion.
         
         Validates: US-4, US-5, FR-3
         """
@@ -530,7 +525,7 @@ class TestE2ERateLimitScenario:
     @pytest.mark.asyncio
     async def test_rate_limit_blocks_fourth_song(self):
         """
-        Test that 4th song generation is blocked after 3 songs.
+        Test that fourth song generation is blocked after 3 songs.
         
         Validates: US-4, FR-6
         """
@@ -706,12 +701,12 @@ class TestE2EErrorScenarios:
     @pytest.mark.asyncio
     async def test_task_not_found(self):
         """
-        Test handling when task doesn't exist.
+        Test handling when task does not exist.
         
         Validates: US-7
         """
         _test_firestore_client.setup_user(TEST_USER_ID, songs_generated=0)
-        # Don't setup the task - it won't exist
+        # Do not setup the task - it will not exist
         
         transport = ASGITransport(app=app)
         async with AsyncClient(transport=transport, base_url="http://test") as client:
@@ -728,7 +723,7 @@ class TestE2EErrorScenarios:
     @pytest.mark.asyncio
     async def test_unauthorized_task_access(self):
         """
-        Test that users cannot access other users' tasks.
+        Test that users cannot access other users tasks.
         
         Validates: US-7
         """
@@ -786,7 +781,7 @@ class TestE2EHealthCheck:
         transport = ASGITransport(app=app)
         async with AsyncClient(transport=transport, base_url="http://test") as client:
             response = await client.get("/api/songs/health")
-            
+
             assert response.status_code == 200
             data = response.json()
             assert data["status"] == "healthy"

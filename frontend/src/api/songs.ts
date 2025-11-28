@@ -84,3 +84,56 @@ export const generateSongWithTimeout = async (
   // No retry for timeout test - we want to see the timeout behavior
   return apiClient.post<GenerateSongResponse>('/api/songs/generate-timeout-test', request)
 }
+
+// Song Details interfaces for playback page
+export interface SongDetails {
+  song_id: string
+  song_url: string
+  lyrics: string
+  style: MusicStyle
+  created_at: string  // ISO datetime
+  expires_at: string  // ISO datetime
+  is_owner: boolean
+}
+
+export interface ShareLinkResponse {
+  share_url: string
+  share_token: string
+  expires_at: string  // ISO datetime
+}
+
+/**
+ * Get complete song details for playback page
+ * @param songId - The ID of the song to retrieve
+ * @returns SongDetails with song_url, lyrics, style, metadata, and expiration info
+ * @throws ApiError with 404 if song not found, 410 if expired, 403 if unauthorized
+ */
+export const getSongDetails = async (songId: string): Promise<SongDetails> => {
+  return retryWithBackoff(() =>
+    apiClient.get<SongDetails>(`/api/songs/${songId}/details`)
+  )
+}
+
+/**
+ * Get song details via share token (no auth required)
+ * @param shareToken - The share token from the shared link
+ * @returns SongDetails for the shared song
+ * @throws ApiError with 404 if share token not found, 410 if share link expired
+ */
+export const getSharedSong = async (shareToken: string): Promise<SongDetails> => {
+  return retryWithBackoff(() =>
+    apiClient.get<SongDetails>(`/api/songs/shared/${shareToken}`)
+  )
+}
+
+/**
+ * Generate a shareable link for a song
+ * @param songId - The ID of the song to share
+ * @returns ShareLinkResponse with share_url and expires_at
+ * @throws ApiError with 403 if user doesn't own the song, 404 if song not found
+ */
+export const createShareLink = async (songId: string): Promise<ShareLinkResponse> => {
+  return retryWithBackoff(() =>
+    apiClient.post<ShareLinkResponse>(`/api/songs/${songId}/share`)
+  )
+}

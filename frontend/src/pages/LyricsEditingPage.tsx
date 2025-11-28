@@ -33,6 +33,7 @@ export function LyricsEditingPage() {
     setOriginalLyrics,
     setContentHash,
     generationStatus,
+    songId,
     songUrl,
     reset
   } = useLyricsEditingStore()
@@ -71,17 +72,24 @@ export function LyricsEditingPage() {
 
   // Handle song generation completion
   useEffect(() => {
-    if (generationStatus === 'completed' && songUrl) {
+    if (generationStatus === 'completed' && songUrl && songId) {
       // Send browser notification
       sendNotification('Your song is ready!', {
         body: 'Click to listen to your learning song',
         icon: '/logo.png'
       })
       
-      // TODO: Navigate to Page C (playback page) when it's implemented
-      // navigate('/playback', { state: { songUrl } })
+      // Navigate to Page C (playback page) with songId
+      // Pass song data via navigation state as backup
+      navigate(`/playback/${songId}`, {
+        state: {
+          songUrl,
+          lyrics: editedLyrics,
+          style: selectedStyle,
+        }
+      })
     }
-  }, [generationStatus, songUrl, sendNotification])
+  }, [generationStatus, songUrl, songId, sendNotification, navigate, editedLyrics, selectedStyle])
 
   const handleGenerateSong = () => {
     generate({
