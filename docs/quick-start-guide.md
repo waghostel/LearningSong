@@ -129,11 +129,37 @@ poetry install                              # Install all dependencies
 
 **See detailed testing guide:** `docs/testing-text-input-page.md`
 
-### Lyrics Editing Page (Page B) 🚧 Coming Soon
+### Lyrics Editing Page (Page B) ✅ Implemented
 
 **URL:** http://localhost:5173/lyrics-edit
 
-Currently shows placeholder: "Coming soon..."
+**Features to Test:**
+1. **Lyrics Editor**: Edit AI-generated lyrics (50-3000 chars)
+2. **Character Counter**: Real-time count with visual states
+3. **Style Selector**: Choose from 8 music styles
+4. **Generate Button**: Create song from lyrics
+5. **Progress Tracker**: Real-time generation progress
+6. **WebSocket Updates**: Live status updates
+7. **Error Handling**: Retry on failure
+8. **Offline Detection**: Shows offline indicator
+9. **Responsive**: Test on different screen sizes
+10. **Accessibility**: Test keyboard navigation
+
+### Song Playback Page (Page C) ✅ Implemented
+
+**URL:** http://localhost:5173/playback/:songId
+
+**Features to Test:**
+1. **Audio Player**: Play/pause/seek controls
+2. **Lyrics Display**: View song lyrics
+3. **Song Metadata**: Style, creation time, expiration
+4. **Share Button**: Share song with others
+5. **Regenerate**: Create new version of song
+6. **Error Handling**: User-friendly error messages
+7. **Offline Detection**: Shows offline indicator
+8. **Rate Limit**: Respects daily limit
+9. **Responsive**: Test on different screen sizes
+10. **Accessibility**: Test keyboard navigation
 
 ---
 
@@ -301,10 +327,10 @@ Follow the detailed guide: `docs/testing-text-input-page.md`
 ## Next Steps
 
 1. ✅ **Test Text Input Page**: Follow `docs/testing-text-input-page.md`
-2. 🚧 **Implement Backend**: Complete AI pipeline and API endpoints
-3. 🚧 **Build Page B**: Lyrics editing page
-4. 🚧 **Build Page C**: Song generation page
-5. 🚧 **Integration**: Connect all pages with real data flow
+2. ✅ **Test Lyrics Editing Page**: Test all features on Page B
+3. ✅ **Test Song Playback Page**: Test all features on Page C
+4. ✅ **Full Integration Testing**: Test complete user flow
+5. 🚧 **Production Deployment**: Set up monitoring and backups
 
 ---
 
@@ -352,3 +378,8 @@ Both frontend and backend support hot reload:
 ---
 
 **Happy Testing! 🎵**
+
+---
+
+**Last Updated:** November 29, 2025  
+**Status:** ✅ All 3 Pages Complete

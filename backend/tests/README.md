@@ -195,9 +195,49 @@ CI configuration:
 - [Python unittest.mock](https://docs.python.org/3/library/unittest.mock.html)
 - [Pytest-asyncio](https://pytest-asyncio.readthedocs.io/)
 
+## E2E Testing with Chrome DevTools MCP
+
+### 📖 Documentation Index
+
+**See [E2E_DOCUMENTATION_INDEX.md](E2E_DOCUMENTATION_INDEX.md) for complete documentation navigation**
+
+### Quick Start
+
+1. **Prerequisites:** See `E2E_PREREQUISITES_CHECKLIST.md`
+2. **Setup:** Follow `E2E_CHROME_SETUP.md`
+3. **Execution:** Refer to `E2E_TEST_EXECUTION_GUIDE.md`
+4. **Troubleshooting:** Check `E2E_TROUBLESHOOTING_QUICK_REFERENCE.md`
+
+### E2E Documentation
+
+- **`E2E_TEST_EXECUTION_GUIDE.md`** - Complete test execution guide
+- **`E2E_PREREQUISITES_CHECKLIST.md`** - Prerequisites verification checklist
+- **`E2E_CHROME_SETUP.md`** - Chrome and MCP setup instructions
+- **`E2E_TROUBLESHOOTING_QUICK_REFERENCE.md`** - Quick troubleshooting guide
+- **`MOCK_DATA_CUSTOMIZATION_GUIDE.md`** - Mock data configuration guide
+
+### Page-Specific Guides
+
+- **`PAGE_A_TEST_GUIDE.md`** - Text Input page testing
+- **`PAGE_B_TEST_GUIDE.md`** - Lyrics Editing page testing
+- **`WEBSOCKET_TEST_GUIDE.md`** - WebSocket connectivity testing
+- **`ERROR_HANDLING_TEST_GUIDE.md`** - Error scenario testing
+- **`USER_JOURNEY_TEST_GUIDE.md`** - Complete user journey testing
+
+### Technical Guides
+
+- **`NETWORK_MOCK_GUIDE.md`** - Network interception details
+- **`WEBSOCKET_MOCK_GUIDE.md`** - WebSocket mocking details
+- **`SCREENSHOT_SYSTEM_GUIDE.md`** - Screenshot capture system
+- **`TEST_REPORT_GUIDE.md`** - Report generation details
+- **`BROWSER_CONNECTION_GUIDE.md`** - Browser connection utilities
+- **`CONSOLE_MONITOR_GUIDE.md`** - Console monitoring system
+- **`NETWORK_MONITOR_GUIDE.md`** - Network activity monitoring
+
 ## Questions?
 
 For questions about tests, contact the development team or refer to:
+- `E2E_TEST_EXECUTION_GUIDE.md` for complete E2E testing guide
 - `E2E_TEST_GUIDE.md` for manual testing procedures
 - `E2E_TEST_SUMMARY.md` for E2E testing overview
 - Project documentation in `/docs`

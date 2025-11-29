@@ -16,6 +16,7 @@ This folder contains comprehensive documentation for setting up, testing, and de
 | **README.md** | Overview & getting started | 5 min | 🔴 First |
 | **API-SETUP-GUIDE.md** | Complete API setup instructions | 20 min | 🔴 First |
 | **QUICK-REFERENCE.md** | Quick lookup & checklists | 5 min | 🟡 Second |
+| **COMPLETE-USER-FLOW-TESTING.md** | End-to-end testing guide | 30 min | 🟡 Second |
 | **INCOMPLETE-TASKS.md** | Feature status & roadmap | 10 min | 🟡 Second |
 
 ---
@@ -70,12 +71,28 @@ This folder contains comprehensive documentation for setting up, testing, and de
 
 ---
 
-### 4. INCOMPLETE-TASKS.md
+### 4. COMPLETE-USER-FLOW-TESTING.md
+**What:** End-to-end testing guide for all three pages  
+**When to read:** Before testing the application  
+**Contains:**
+- Complete user flow walkthrough
+- Page A testing (content input)
+- Page B testing (lyrics editing)
+- Page C testing (song playback)
+- 6 complete test scenarios
+- Debugging checklist
+- Performance benchmarks
+- Test report template
+
+**Read this if:** You want to test the complete application
+
+### 5. INCOMPLETE-TASKS.md
 **What:** Feature status and roadmap  
 **When to read:** To understand what's done and what's next  
 **Contains:**
 - Page A status (✅ Complete)
 - Page B status (✅ Complete)
+- Page C status (✅ Complete)
 - Backend services status (✅ Complete)
 - Frontend components status (✅ Complete)
 - Testing status (✅ Complete)
@@ -103,12 +120,19 @@ This folder contains comprehensive documentation for setting up, testing, and de
 3. Start servers
 4. Test basic flow
 
-### Path 3: Understanding Status (10 minutes)
+### Path 3: Complete Testing (45 minutes)
+1. Read **README.md** (5 min)
+2. Read **COMPLETE-USER-FLOW-TESTING.md** (30 min)
+3. Run through all test scenarios
+4. Document any issues
+5. Verify all features work
+
+### Path 4: Understanding Status (10 minutes)
 1. Read **README.md** (5 min)
 2. Read **INCOMPLETE-TASKS.md** (5 min)
 3. Understand what's done and what's next
 
-### Path 4: Troubleshooting (5 minutes)
+### Path 5: Troubleshooting (5 minutes)
 1. Check **QUICK-REFERENCE.md** common errors
 2. Check **API-SETUP-GUIDE.md** troubleshooting
 3. Review backend logs
@@ -127,6 +151,8 @@ This folder contains comprehensive documentation for setting up, testing, and de
 - [x] Feature status
 - [x] Quick reference
 - [x] Troubleshooting
+- [x] All 3 pages (A, B, C) documented
+- [x] Complete user flow documented
 
 ### ⏳ Partial Documentation
 - [ ] Architecture design (in code comments)
@@ -155,7 +181,13 @@ This folder contains comprehensive documentation for setting up, testing, and de
 → **INCOMPLETE-TASKS.md** → Status sections
 
 ### "How do I test the app?"
-→ **QUICK-REFERENCE.md** → Testing Checklist
+→ **COMPLETE-USER-FLOW-TESTING.md** → Complete User Flow section
+
+### "How do I test all three pages?"
+→ **COMPLETE-USER-FLOW-TESTING.md** → Phase 1, 2, 3 sections
+
+### "What are the test scenarios?"
+→ **COMPLETE-USER-FLOW-TESTING.md** → Complete Flow Test Scenarios section
 
 ### "What's not implemented?"
 → **INCOMPLETE-TASKS.md** → Pending Features sections
@@ -178,8 +210,9 @@ This folder contains comprehensive documentation for setting up, testing, and de
 | README.md | ~10 KB | 8 | Overview, setup, status |
 | API-SETUP-GUIDE.md | ~15 KB | 10 | All API services |
 | QUICK-REFERENCE.md | ~8 KB | 12 | Quick lookups |
+| COMPLETE-USER-FLOW-TESTING.md | ~12 KB | 10 | End-to-end testing |
 | INCOMPLETE-TASKS.md | ~12 KB | 8 | Feature status |
-| **Total** | **~45 KB** | **38** | **Comprehensive** |
+| **Total** | **~57 KB** | **48** | **Comprehensive** |
 
 ---
 
@@ -259,6 +292,7 @@ This folder contains comprehensive documentation for setting up, testing, and de
 - [Google Search Setup](API-SETUP-GUIDE.md#google-search-api-setup)
 
 ### Testing
+- [Complete User Flow Testing](COMPLETE-USER-FLOW-TESTING.md)
 - [Testing Checklist](QUICK-REFERENCE.md#-testing-checklist)
 - [Testing Procedures](API-SETUP-GUIDE.md#testing-the-setup)
 - [Error Scenarios](QUICK-REFERENCE.md#-common-errors--fixes)
@@ -302,11 +336,12 @@ This folder contains comprehensive documentation for setting up, testing, and de
 ## 📝 Document Maintenance
 
 ### Last Updated
-- README.md: November 27, 2025
+- README.md: November 29, 2025
 - API-SETUP-GUIDE.md: November 27, 2025
-- QUICK-REFERENCE.md: November 27, 2025
+- QUICK-REFERENCE.md: November 29, 2025
+- COMPLETE-USER-FLOW-TESTING.md: November 29, 2025
 - INCOMPLETE-TASKS.md: November 27, 2025
-- INDEX.md: November 27, 2025
+- INDEX.md: November 29, 2025
 
 ### Update Frequency
 - Updated when features change
@@ -334,6 +369,6 @@ To update documentation:
 ---
 
 **Status:** ✅ Complete  
-**Last Updated:** November 27, 2025  
+**Last Updated:** November 29, 2025  
 **Maintained By:** Development Team
 

@@ -34,8 +34,8 @@ export function RateLimitIndicator() {
   }, [data?.reset_time])
 
   // Determine color based on remaining songs (WCAG AA compliant colors)
-  const getColorClass = (remaining: number) => {
-    if (remaining === 3) return 'text-green-700 dark:text-green-500'
+  const getColorClass = (remaining: number, total: number) => {
+    if (remaining === total) return 'text-green-700 dark:text-green-500'
     if (remaining >= 1) return 'text-yellow-700 dark:text-yellow-500'
     return 'text-red-700 dark:text-red-500'
   }
@@ -68,6 +68,7 @@ export function RateLimitIndicator() {
   if (!data) return null
 
   const remaining = data.remaining
+  const totalLimit = data.total_limit ?? 3
 
   return (
     <div 
@@ -76,9 +77,9 @@ export function RateLimitIndicator() {
       aria-live="polite"
       aria-atomic="true"
     >
-      <div className={cn('flex items-center space-x-2 text-sm font-medium', getColorClass(remaining))}>
-        <span aria-label={`${remaining} of 3 songs remaining today`}>
-          🎵 {remaining}/3 songs remaining today
+      <div className={cn('flex items-center space-x-2 text-sm font-medium', getColorClass(remaining, totalLimit))}>
+        <span aria-label={`${remaining} of ${totalLimit} songs remaining today`}>
+          🎵 {remaining}/{totalLimit} songs remaining today
         </span>
       </div>
       

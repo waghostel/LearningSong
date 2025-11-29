@@ -312,7 +312,7 @@ export function SongPlaybackPage() {
                 {rateLimitData && rateLimitData.remaining <= 0 ? (
                   <>
                     <p className="text-muted-foreground">
-                      You've reached your daily limit of 3 songs. Your limit will reset at{' '}
+                      You've reached your daily limit of {rateLimitData.total_limit ?? 3} songs. Your limit will reset at{' '}
                       {new Date(rateLimitData.reset_time).toLocaleTimeString()}.
                     </p>
                     <div className="flex justify-end">

@@ -225,7 +225,8 @@ async def get_user_rate_limit(
         
         return RateLimitResponse(
             remaining=rate_limit_info['remaining'],
-            reset_time=rate_limit_info['reset_time']
+            reset_time=rate_limit_info['reset_time'],
+            total_limit=3
         )
         
     except Exception as e:

@@ -16,6 +16,7 @@ export interface GenerateLyricsResponse {
 export interface RateLimitResponse {
   remaining: number
   reset_time: string
+  total_limit: number
 }
 
 // API functions
@@ -26,5 +27,5 @@ export const generateLyrics = async (
 }
 
 export const getRateLimit = async (): Promise<RateLimitResponse> => {
-  return apiClient.get<RateLimitResponse>('/api/user/rate-limit')
+  return apiClient.get<RateLimitResponse>('/api/lyrics/rate-limit')
 }

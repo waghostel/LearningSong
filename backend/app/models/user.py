@@ -17,3 +17,8 @@ class RateLimitResponse(BaseModel):
         ...,
         description="UTC timestamp when the rate limit resets (midnight UTC)"
     )
+    total_limit: int = Field(
+        default=3,
+        description="Total number of songs allowed per day",
+        ge=1
+    )
