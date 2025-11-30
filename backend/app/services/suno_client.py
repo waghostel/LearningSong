@@ -302,13 +302,18 @@ class SunoClient:
                 params={"taskId": task_id},
             )
             
+            print(f"🔍 [SUNO] GET /api/v1/generate/record-info?taskId={task_id[:16]}...")
+            print(f"🔍 [SUNO] Response status code: {response.status_code}")
+            
             if response.status_code == 401:
+                print("❌ [SUNO] Authentication failed (401)")
                 raise SunoAuthenticationError(
                     "Invalid API key",
                     status_code=401
                 )
             
             if response.status_code == 404:
+                print(f"❌ [SUNO] Task not found (404): {task_id}")
                 raise SunoAPIError(
                     f"Task not found: {task_id}",
                     status_code=404
@@ -318,7 +323,11 @@ class SunoClient:
             
             data = response.json()
             
+            # Debug: print raw response structure
+            print(f"🔍 [SUNO] Response code: {data.get('code')}, msg: {data.get('msg')}")
+            
             if data.get("code") != 200:
+                print(f"❌ [SUNO] API error: {data.get('msg')}")
                 raise SunoAPIError(
                     data.get("msg", "Unknown error"),
                     status_code=data.get("code")
@@ -326,6 +335,16 @@ class SunoClient:
             
             task_data = data.get("data", {})
             status = task_data.get("status", "PENDING")
+            
+            # Debug: print task data details
+            print(f"🔍 [SUNO] Raw status: {status}")
+            if task_data.get("response"):
+                suno_data = task_data.get("response", {}).get("sunoData", [])
+                print(f"🔍 [SUNO] sunoData count: {len(suno_data)}")
+                if suno_data:
+                    first_track = suno_data[0]
+                    print(f"🔍 [SUNO] First track keys: {list(first_track.keys())}")
+                    print(f"🔍 [SUNO] audioUrl present: {'audioUrl' in first_track}")
             
             # Map Suno status to progress percentage
             progress = self._status_to_progress(status)
@@ -339,11 +358,13 @@ class SunoClient:
                 if suno_data:
                     # Get the first track's audio URL
                     song_url = suno_data[0].get("audioUrl")
+                    print(f"✅ [SUNO] Song URL found: {song_url[:50] if song_url else 'None'}...")
             
             elif status in ("FAILED", "CREATE_TASK_FAILED", 
                           "GENERATE_AUDIO_FAILED", "CALLBACK_EXCEPTION",
                           "SENSITIVE_WORD_ERROR"):
                 error = self._get_error_message(status)
+                print(f"❌ [SUNO] Task failed with status: {status}")
             
             logger.debug(
                 f"Task {task_id} status: {status}, progress: {progress}%"
@@ -357,9 +378,11 @@ class SunoClient:
             )
             
         except httpx.TimeoutException as e:
+            print(f"⏰ [SUNO] Request timeout: {e}")
             raise SunoAPIError(f"Request timeout: {e}")
         
         except httpx.HTTPStatusError as e:
+            print(f"❌ [SUNO] HTTP error: {e.response.status_code}")
             raise SunoAPIError(
                 f"HTTP error: {e.response.status_code}",
                 status_code=e.response.status_code

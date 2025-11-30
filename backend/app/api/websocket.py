@@ -44,8 +44,8 @@ socket_app = socketio.ASGIApp(sio, socketio_path="")
 # Polling interval in seconds
 POLL_INTERVAL = 5
 
-# Maximum polling duration (90 seconds timeout)
-MAX_POLL_DURATION = 90
+# Maximum polling duration (5 minutes - Suno generation can take 2-4 minutes)
+MAX_POLL_DURATION = 300
 
 
 class ConnectionManager:
@@ -158,10 +158,13 @@ async def poll_and_broadcast(task_id: str) -> None:
         
     Requirements: FR-4, Task 16.3
     """
+    print(f"🎵 [POLL] Starting polling for task: {task_id}")
+    print(f"🎵 [POLL] Max duration: {MAX_POLL_DURATION}s, Poll interval: {POLL_INTERVAL}s")
     logger.info(f"Starting polling for task: {task_id}")
     
     suno_api_key = os.getenv("SUNO_API_KEY")
     if not suno_api_key:
+        print("❌ [POLL] SUNO_API_KEY not configured!")
         logger.error("SUNO_API_KEY not configured, cannot poll")
         await broadcast_status_update(task_id, {
             "task_id": task_id,
@@ -172,14 +175,22 @@ async def poll_and_broadcast(task_id: str) -> None:
         return
     
     suno_base_url = os.getenv("SUNO_API_URL", "https://api.sunoapi.org")
+    print(f"🎵 [POLL] Using Suno API URL: {suno_base_url}")
     start_time = asyncio.get_event_loop().time()
+    poll_count = 0
     
     try:
         async with SunoClient(api_key=suno_api_key, base_url=suno_base_url) as suno_client:
             while True:
+                poll_count += 1
                 # Check if we've exceeded max polling duration
                 elapsed = asyncio.get_event_loop().time() - start_time
+                remaining = MAX_POLL_DURATION - elapsed
+                
+                print(f"🔄 [POLL #{poll_count}] Task: {task_id[:16]}... | Elapsed: {elapsed:.1f}s | Remaining: {remaining:.1f}s")
+                
                 if elapsed > MAX_POLL_DURATION:
+                    print(f"⏰ [POLL] TIMEOUT after {elapsed:.1f}s for task: {task_id}")
                     logger.warning(f"Polling timeout for task: {task_id}")
                     await broadcast_status_update(task_id, {
                         "task_id": task_id,
@@ -197,13 +208,17 @@ async def poll_and_broadcast(task_id: str) -> None:
                 
                 # Check if there are still connected clients
                 if not manager.has_active_connections(task_id):
+                    print(f"👋 [POLL] No active connections for task: {task_id}, stopping")
                     logger.info(f"No active connections for task: {task_id}, stopping polling")
                     break
                 
                 try:
                     # Poll Suno API for status
+                    print(f"📡 [POLL] Calling Suno API get_task_status...")
                     suno_status = await suno_client.get_task_status(task_id)
                     generation_status = _map_suno_status_to_generation_status(suno_status.status)
+                    
+                    print(f"📊 [POLL] Suno response: status={suno_status.status}, progress={suno_status.progress}%, song_url={'YES' if suno_status.song_url else 'NO'}, error={suno_status.error}")
                     
                     # Prepare status update
                     status_update = {
@@ -232,18 +247,25 @@ async def poll_and_broadcast(task_id: str) -> None:
                     
                     # Check if task is complete
                     if generation_status in [GenerationStatus.COMPLETED, GenerationStatus.FAILED]:
+                        if generation_status == GenerationStatus.COMPLETED:
+                            print(f"✅ [POLL] Task COMPLETED! Song URL: {suno_status.song_url}")
+                        else:
+                            print(f"❌ [POLL] Task FAILED! Error: {suno_status.error}")
                         logger.info(f"Task {task_id} reached terminal state: {generation_status.value}")
                         break
                     
                 except SunoAPIError as e:
+                    print(f"⚠️ [POLL] Suno API error: {e}")
                     logger.error(f"Suno API error while polling task {task_id}: {e}")
                     # Continue polling on transient errors
                 
                 except Exception as e:
+                    print(f"⚠️ [POLL] Unexpected error: {type(e).__name__}: {e}")
                     logger.error(f"Unexpected error while polling task {task_id}: {e}")
                     # Continue polling on transient errors
                 
                 # Wait before next poll
+                print(f"💤 [POLL] Sleeping {POLL_INTERVAL}s before next poll...")
                 await asyncio.sleep(POLL_INTERVAL)
     
     except asyncio.CancelledError:
