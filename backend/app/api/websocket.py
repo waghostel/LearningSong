@@ -38,7 +38,8 @@ sio = socketio.AsyncServer(
 )
 
 # Create ASGI app that wraps Socket.IO server
-socket_app = socketio.ASGIApp(sio, socketio_path="socket.io")
+# Note: socketio_path should be empty since we mount at /socket.io in main.py
+socket_app = socketio.ASGIApp(sio, socketio_path="")
 
 # Polling interval in seconds
 POLL_INTERVAL = 5

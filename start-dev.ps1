@@ -41,6 +41,36 @@ function Stop-ProcessOnPort {
     }
 }
 
+# Function to kill all uvicorn processes to prevent stale servers
+function Stop-UvicornProcesses {
+    Write-Host "🧹 Cleaning up old uvicorn processes..." -ForegroundColor Cyan
+    $uvicornProcesses = Get-Process -Name "uvicorn" -ErrorAction SilentlyContinue
+    if ($uvicornProcesses) {
+        foreach ($proc in $uvicornProcesses) {
+            Write-Host "  → Stopping uvicorn (PID: $($proc.Id))..." -ForegroundColor Gray
+            Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+        }
+        Write-Host "✅ Old uvicorn processes stopped" -ForegroundColor Green
+    }
+    
+    # Also kill any python processes running uvicorn in this project
+    $pythonProcesses = Get-Process -Name "python" -ErrorAction SilentlyContinue
+    foreach ($proc in $pythonProcesses) {
+        try {
+            $cmdLine = (Get-CimInstance Win32_Process -Filter "ProcessId = $($proc.Id)" -ErrorAction SilentlyContinue).CommandLine
+            if ($cmdLine -and $cmdLine -like "*uvicorn*" -and $cmdLine -like "*LearningSong*") {
+                Write-Host "  → Stopping python/uvicorn (PID: $($proc.Id))..." -ForegroundColor Gray
+                Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+            }
+        } catch {
+            # Ignore errors
+        }
+    }
+}
+
+# Clean up old processes first
+Stop-UvicornProcesses
+
 # Clear ports before starting
 Write-Host "🔍 Checking for occupied ports..." -ForegroundColor Cyan
 Stop-ProcessOnPort -Port 8000 -ServiceName "Backend"

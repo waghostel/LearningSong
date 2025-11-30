@@ -1,7 +1,4 @@
-import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
-import { useGenerateLyrics } from '@/hooks/useLyrics'
 import { Button } from '@/components/ui/button'
 import { TextInputArea } from '@/components/TextInputArea'
 import { SearchToggle } from '@/components/SearchToggle'
@@ -11,22 +8,8 @@ import { LoadingProgress } from '@/components/LoadingProgress'
 import { useTextInputStore } from '@/stores/textInputStore'
 
 export function TextInputPage() {
-  const navigate = useNavigate()
   const { userId, loading: authLoading, error: authError } = useAuth()
-  const { data: lyricsData, isSuccess } = useGenerateLyrics()
   const { isGenerating } = useTextInputStore()
-
-  // Navigate to lyrics editing page on successful generation
-  useEffect(() => {
-    if (isSuccess && lyricsData) {
-      navigate('/lyrics-edit', { 
-        state: { 
-          lyrics: lyricsData.lyrics,
-          contentHash: lyricsData.content_hash
-        } 
-      })
-    }
-  }, [isSuccess, lyricsData, navigate])
 
   // Show loading state while authenticating
   if (authLoading) {

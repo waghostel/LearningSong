@@ -149,7 +149,7 @@ export const useWebSocket = ({
       socketRef.current = socket
 
       // Connection successful
-      socket.on('connect', () => {
+      socket.on('connect', async () => {
         console.log('WebSocket connected')
         updateConnectionStatus('connected')
         setError(null)
@@ -157,8 +157,14 @@ export const useWebSocket = ({
         setReconnectAttempts(0)
         reconnectDelayRef.current = INITIAL_RECONNECT_DELAY
 
-        // Subscribe to task updates
-        socket.emit('subscribe', { task_id: taskId })
+        // Subscribe to task updates with token
+        try {
+          const subscribeToken = await getAuthToken()
+          socket.emit('subscribe', { task_id: taskId, token: subscribeToken })
+        } catch (err) {
+          console.error('Error getting token for subscribe:', err)
+          handleError('Authentication failed')
+        }
       })
 
       // Receive status updates

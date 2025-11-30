@@ -162,6 +162,10 @@ async def verify_websocket_token(token: str) -> Optional[str]:
     if not token:
         return None
     
+    # Development mode: accept dev token for testing without Firebase
+    if IS_DEVELOPMENT and token == DEV_AUTH_TOKEN:
+        return DEV_USER_ID
+    
     try:
         # Verify the Firebase ID token
         decoded_token = auth.verify_id_token(token)

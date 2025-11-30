@@ -5,7 +5,6 @@ import { SongPlaybackPage } from '@/pages/SongPlaybackPage'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { Toaster } from '@/components/ui/sonner'
 import { Button } from '@/components/ui/button'
-import './App.css'
 
 function App() {
   return (

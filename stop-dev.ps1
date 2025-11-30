@@ -6,6 +6,29 @@ Write-Host ""
 
 $stopped = $false
 
+# Stop all uvicorn processes first (most reliable)
+$uvicornProcesses = Get-Process -Name "uvicorn" -ErrorAction SilentlyContinue
+foreach ($proc in $uvicornProcesses) {
+    Write-Host "  → Stopping uvicorn (PID: $($proc.Id))..." -ForegroundColor Gray
+    Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+    $stopped = $true
+}
+
+# Stop python processes running uvicorn
+$pythonProcesses = Get-Process -Name "python" -ErrorAction SilentlyContinue
+foreach ($proc in $pythonProcesses) {
+    try {
+        $cmdLine = (Get-CimInstance Win32_Process -Filter "ProcessId = $($proc.Id)" -ErrorAction SilentlyContinue).CommandLine
+        if ($cmdLine -and $cmdLine -like "*uvicorn*") {
+            Write-Host "  → Stopping python/uvicorn (PID: $($proc.Id))..." -ForegroundColor Gray
+            Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+            $stopped = $true
+        }
+    } catch {
+        # Ignore errors
+    }
+}
+
 # Stop processes on port 8000 (Backend)
 try {
     $backendProcess = Get-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique
@@ -46,13 +69,6 @@ foreach ($port in @(5173, 5174)) {
 $nodeProcesses = Get-Process -Name "node" -ErrorAction SilentlyContinue | Where-Object { $_.Path -like "*LearningSong*" }
 foreach ($proc in $nodeProcesses) {
     Write-Host "  → Stopping Node.js process (PID: $($proc.Id))..." -ForegroundColor Gray
-    Stop-Process -Id $proc.Id -Force
-    $stopped = $true
-}
-
-$pythonProcesses = Get-Process -Name "python" -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -like "*uvicorn*" }
-foreach ($proc in $pythonProcesses) {
-    Write-Host "  → Stopping Python process (PID: $($proc.Id))..." -ForegroundColor Gray
     Stop-Process -Id $proc.Id -Force
     $stopped = $true
 }

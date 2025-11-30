@@ -1,4 +1,5 @@
 import { useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { useTextInputStore } from '@/stores/textInputStore'
 import { useGenerateLyrics, useRateLimit } from '@/hooks/useLyrics'
@@ -6,9 +7,22 @@ import { showValidationError, showRateLimitError } from '@/lib/toast-utils'
 import { Loader2 } from 'lucide-react'
 
 export function GenerateButton() {
+  const navigate = useNavigate()
   const { content, isGenerating, setGenerating, searchEnabled } = useTextInputStore()
-  const { mutate: generateLyrics, isPending } = useGenerateLyrics()
+  const { mutate: generateLyrics, isPending, data: lyricsData, isSuccess } = useGenerateLyrics()
   const { data: rateLimitData } = useRateLimit()
+
+  // Navigate to lyrics editing page on successful generation
+  useEffect(() => {
+    if (isSuccess && lyricsData) {
+      navigate('/lyrics-edit', { 
+        state: { 
+          lyrics: lyricsData.lyrics,
+          contentHash: lyricsData.content_hash
+        } 
+      })
+    }
+  }, [isSuccess, lyricsData, navigate])
 
   // Calculate word count
   const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0

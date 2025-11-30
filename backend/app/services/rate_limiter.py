@@ -6,6 +6,7 @@ to generate up to 3 songs per day. The limit resets at midnight UTC.
 """
 
 import logging
+import os
 from datetime import datetime, timedelta, timezone
 from typing import Dict, Any
 from fastapi import HTTPException
@@ -14,6 +15,13 @@ from app.core.firebase import get_firestore_client
 
 # Configure logger
 logger = logging.getLogger(__name__)
+
+# Development mode settings
+DEV_USER_ID = 'dev-user-local'
+IS_DEVELOPMENT = os.getenv('ENVIRONMENT', 'development').lower() == 'development'
+
+# Log on module load to verify code is loaded
+logger.info(f"🔧 Rate limiter loaded: IS_DEVELOPMENT={IS_DEVELOPMENT}, DEV_USER_ID={DEV_USER_ID}")
 
 
 async def check_rate_limit(user_id: str) -> None:
@@ -33,6 +41,20 @@ async def check_rate_limit(user_id: str) -> None:
         
     Requirements: FR-2
     """
+    # Development mode: bypass rate limiting for dev user
+    if IS_DEVELOPMENT and user_id == DEV_USER_ID:
+        logger.info(
+            f"Rate limit bypassed for dev user: {user_id[:8]}...",
+            extra={
+                'extra_fields': {
+                    'user_id': user_id,
+                    'operation': 'rate_limit_check',
+                    'dev_mode': True
+                }
+            }
+        )
+        return
+    
     logger.info(
         f"Checking rate limit for user: {user_id[:8]}...",
         extra={
@@ -155,6 +177,15 @@ async def get_rate_limit(user_id: str) -> Dict[str, Any]:
             
     Requirements: FR-2
     """
+    # Development mode: return unlimited for dev user
+    print(f"🔍 DEBUG: get_rate_limit called with user_id={user_id}, IS_DEVELOPMENT={IS_DEVELOPMENT}, DEV_USER_ID={DEV_USER_ID}")
+    if IS_DEVELOPMENT and user_id == DEV_USER_ID:
+        print(f"✅ Returning unlimited rate limit for dev user")
+        return {
+            'remaining': 999,  # Effectively unlimited
+            'reset_time': datetime.now(timezone.utc) + timedelta(days=365)
+        }
+    
     firestore_client = get_firestore_client()
     user_ref = firestore_client.collection('users').document(user_id)
     user_doc = user_ref.get()
@@ -217,6 +248,19 @@ async def increment_usage(user_id: str) -> None:
         
     Requirements: FR-2
     """
+    # Development mode: skip incrementing for dev user
+    if IS_DEVELOPMENT and user_id == DEV_USER_ID:
+        logger.info(
+            f"Usage increment skipped for dev user: {user_id[:8]}...",
+            extra={
+                'extra_fields': {
+                    'user_id': user_id,
+                    'dev_mode': True
+                }
+            }
+        )
+        return
+    
     firestore_client = get_firestore_client()
     user_ref = firestore_client.collection('users').document(user_id)
     user_doc = user_ref.get()

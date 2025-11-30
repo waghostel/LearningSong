@@ -6,6 +6,7 @@ to generate music from lyrics.
 
 import asyncio
 import logging
+import os
 from dataclasses import dataclass
 from typing import Optional
 
@@ -173,6 +174,10 @@ class SunoClient:
         # Truncate title if needed
         title = title[:80] if title else "Learning Song"
         
+        # Get callback URL from environment or use a placeholder
+        # The API requires this field, but we poll for status instead of using webhooks
+        callback_url = os.getenv("SUNO_CALLBACK_URL", "https://example.com/callback")
+        
         payload = {
             "customMode": True,
             "instrumental": False,
@@ -180,7 +185,7 @@ class SunoClient:
             "prompt": lyrics,
             "style": style_tag,
             "title": title,
-            "callBackUrl": "",  # We'll poll for status instead
+            "callBackUrl": callback_url,
         }
         
         logger.info(f"Creating song with style: {style_tag}, title: {title}")

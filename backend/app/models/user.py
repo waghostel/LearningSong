@@ -10,8 +10,8 @@ class RateLimitResponse(BaseModel):
     remaining: int = Field(
         ...,
         description="Number of songs remaining for today",
-        ge=0,
-        le=3
+        ge=0
+        # Note: le=3 removed to support dev mode unlimited (999)
     )
     reset_time: datetime = Field(
         ...,
