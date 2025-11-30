@@ -1,10 +1,14 @@
 import axios from 'axios'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
-import { classifyError, getErrorInfo, ErrorType, type ErrorInfo } from '@/lib/error-utils'
+import { getErrorInfo, ErrorType, type ErrorInfo } from '@/lib/error-utils'
+import { auth, isDevelopmentMode } from '@/lib/firebase'
 
 // Get API base URL from environment
 // Vite exposes import.meta.env, but we'll use a fallback for test environments
 const API_BASE_URL = 'http://localhost:8000' // Default for development and tests
+
+// Development mode token for mock authentication
+const DEV_AUTH_TOKEN = 'dev-token-local'
 
 // Custom error class for API errors with enhanced error information
 export class ApiError extends Error {
@@ -79,7 +83,6 @@ function getUserFriendlyErrorMessage(error: AxiosError): {
 
   // Network errors (no response)
   if (!error.response) {
-    const errorType = classifyError(undefined, error.message || error.code)
     const errorInfo = getErrorInfo(undefined, error.message || error.code)
     
     return {
@@ -119,13 +122,24 @@ class ApiClient {
       },
     })
 
-    // Request interceptor
+    // Request interceptor - use async to get Firebase token
     this.client.interceptors.request.use(
-      (config) => {
-        // Add auth token if available
-        const token = localStorage.getItem('authToken')
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`
+      async (config) => {
+        try {
+          // Development mode: use mock token
+          if (isDevelopmentMode || !auth) {
+            config.headers.Authorization = `Bearer ${DEV_AUTH_TOKEN}`
+            return config
+          }
+
+          // Production mode: get Firebase ID token
+          const currentUser = auth.currentUser
+          if (currentUser) {
+            const token = await currentUser.getIdToken()
+            config.headers.Authorization = `Bearer ${token}`
+          }
+        } catch (error) {
+          console.error('Error getting auth token:', error)
         }
         return config
       },
@@ -155,7 +169,7 @@ class ApiClient {
         )
 
         // Log error for debugging (in development)
-        if (process.env.NODE_ENV === 'development') {
+        if (import.meta.env.DEV) {
           console.error('API Error:', {
             type: apiError.type,
             statusCode: apiError.statusCode,

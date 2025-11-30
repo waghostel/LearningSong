@@ -18,6 +18,35 @@ if (-not (Get-Command poetry -ErrorAction SilentlyContinue)) {
     exit 1
 }
 
+# Function to kill processes on specific ports
+function Stop-ProcessOnPort {
+    param($Port, $ServiceName)
+    
+    try {
+        $processes = Get-NetTCPConnection -LocalPort $Port -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique
+        if ($processes) {
+            Write-Host "⚠️  Port $Port is occupied by $ServiceName. Stopping existing processes..." -ForegroundColor Yellow
+            foreach ($pid in $processes) {
+                $process = Get-Process -Id $pid -ErrorAction SilentlyContinue
+                if ($process) {
+                    Write-Host "  → Stopping process (PID: $pid)..." -ForegroundColor Gray
+                    Stop-Process -Id $pid -Force
+                }
+            }
+            Write-Host "✅ Port $Port cleared" -ForegroundColor Green
+            Start-Sleep -Seconds 1
+        }
+    } catch {
+        # Port not in use, continue
+    }
+}
+
+# Clear ports before starting
+Write-Host "🔍 Checking for occupied ports..." -ForegroundColor Cyan
+Stop-ProcessOnPort -Port 8000 -ServiceName "Backend"
+Stop-ProcessOnPort -Port 5173 -ServiceName "Frontend"
+Stop-ProcessOnPort -Port 5174 -ServiceName "Frontend (alt)"
+
 # Check if frontend/.env exists
 if (-not (Test-Path "frontend/.env")) {
     Write-Host "⚠️  Warning: frontend/.env not found" -ForegroundColor Yellow

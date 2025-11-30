@@ -1,22 +1,38 @@
 # API Setup Guide for Real Testing
 
-This guide walks you through setting up all required API keys and credentials to test LearningSong with real services (Suno API, Firebase, Google Search, OpenAI).
+This guide walks you through setting up API keys and credentials to test LearningSong with real services.
 
-**Last Updated:** November 27, 2025  
+**Last Updated:** November 30, 2025  
 **Focus:** Page A (Content Input) and Page B (Lyrics Editing)
+
+## API Requirements Overview
+
+### 🔴 Required APIs (Core Functionality)
+- **Suno API** - Music generation from lyrics
+- **Firebase** - User authentication and data storage  
+- **OpenAI API** - Lyrics generation from educational content
+
+### 🟡 Optional APIs (Enhanced Features)
+- **Google Search API** - Content enrichment for short inputs
+- **Redis** - Caching for performance and cost reduction
+
+**Minimum Setup:** You can start with just the required APIs and add optional ones later.
 
 ---
 
 ## Table of Contents
 
 1. [Quick Start](#quick-start)
-2. [Suno API Setup](#suno-api-setup)
-3. [Firebase Setup](#firebase-setup)
-4. [Google Search API Setup](#google-search-api-setup)
-5. [OpenAI API Setup](#openai-api-setup)
-6. [Environment Configuration](#environment-configuration)
-7. [Testing the Setup](#testing-the-setup)
-8. [Troubleshooting](#troubleshooting)
+2. [Required APIs](#required-apis)
+   - [Suno API Setup](#suno-api-setup)
+   - [Firebase Setup](#firebase-setup)
+   - [OpenAI API Setup](#openai-api-setup)
+3. [Optional APIs](#optional-apis)
+   - [Google Search API Setup](#google-search-api-setup)
+   - [Redis Setup](#redis-setup)
+4. [Environment Configuration](#environment-configuration)
+5. [Testing the Setup](#testing-the-setup)
+6. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -26,9 +42,10 @@ This guide walks you through setting up all required API keys and credentials to
 - Node.js 18+ and pnpm
 - Python 3.11+ and Poetry
 - Git
-- Active accounts for: Suno, Firebase, Google Cloud, OpenAI
+- Active accounts for: **Suno** (required), **Firebase** (required), **OpenAI** (required)
+- Optional: Google Cloud account, Redis server
 
-### 5-Minute Setup
+### 5-Minute Setup (Required APIs Only)
 ```bash
 # 1. Clone and install
 git clone <repo>
@@ -37,21 +54,31 @@ cd LearningSong
 # 2. Backend setup
 cd backend
 cp .env.example .env
-# Edit .env with your API keys (see sections below)
+# Edit .env with REQUIRED keys only:
+#   - SUNO_API_KEY
+#   - FIREBASE_PROJECT_ID + FIREBASE_CREDENTIALS_PATH  
+#   - OPENAI_API_KEY
 poetry install
 poetry run uvicorn app.main:app --reload
 
 # 3. Frontend setup (new terminal)
 cd frontend
 cp .env.example .env
-# Edit .env with Firebase config
+# Edit .env with Firebase web config
 pnpm install
 pnpm dev
 
 # 4. Test at http://localhost:5173
 ```
 
+### Optional Enhancement Setup
+After basic functionality works, you can add:
+- **Google Search API** - For content enrichment
+- **Redis** - For caching and performance
+
 ---
+
+# Required APIs
 
 ## Suno API Setup
 
@@ -199,10 +226,12 @@ pnpm dev
 
 ---
 
+# Optional APIs
+
 ## Google Search API Setup
 
 ### What is Google Search API?
-Optional service to enrich short content with relevant context before generating lyrics.
+**Optional service** to enrich short content with relevant context before generating lyrics. The app works perfectly without this - it just won't do additional research for short inputs.
 
 ### Step 1: Create Google Cloud Project
 
@@ -268,6 +297,72 @@ else:
 | 101+ | $5 per 1000 queries |
 
 **Current Implementation:** Optional feature. Works without it.
+
+---
+
+## Redis Setup
+
+### What is Redis?
+**Optional caching service** that improves performance and reduces API costs by caching responses. The app works without Redis - it just won't cache API responses.
+
+### Step 1: Install Redis (Optional)
+
+#### Windows (using Chocolatey)
+```bash
+choco install redis-64
+redis-server
+```
+
+#### macOS (using Homebrew)
+```bash
+brew install redis
+brew services start redis
+```
+
+#### Docker (Cross-platform)
+```bash
+docker run -d -p 6379:6379 redis:alpine
+```
+
+### Step 2: Configure Backend (Optional)
+
+**File:** `backend/.env`
+
+```bash
+# Redis Configuration (optional)
+REDIS_URL=redis://localhost:6379
+```
+
+### Step 3: Verify Connection (Optional)
+
+```bash
+cd backend
+poetry run python -c "
+import os
+import redis
+
+redis_url = os.getenv('REDIS_URL')
+if redis_url:
+    try:
+        r = redis.from_url(redis_url)
+        r.ping()
+        print('✅ Redis connected successfully')
+    except Exception as e:
+        print(f'❌ Redis error: {e}')
+else:
+    print('ℹ️  Redis not configured (optional)')
+"
+```
+
+### Redis Benefits
+
+| Feature | With Redis | Without Redis |
+|---------|------------|---------------|
+| API Response Caching | ✅ Cached | ❌ Every request hits API |
+| Performance | ✅ Faster repeat requests | ⚠️ Slower repeat requests |
+| Cost Efficiency | ✅ Reduced API calls | ❌ Higher API costs |
+
+**Current Implementation:** Gracefully degrades without Redis.
 
 ---
 
@@ -338,25 +433,34 @@ else:
 **File:** `backend/.env`
 
 ```bash
-# Firebase Configuration
+# ===== REQUIRED CONFIGURATION =====
+
+# Firebase Configuration (required)
 FIREBASE_PROJECT_ID=your-project-id
 FIREBASE_CREDENTIALS_PATH=./firebase-credentials.json
 
-# Suno API Configuration
+# Suno API Configuration (required)
 SUNO_API_KEY=your-suno-api-key
 SUNO_API_URL=https://api.sunoapi.org
 
+# OpenAI API Configuration (required)
+OPENAI_API_KEY=sk-your-openai-key
+
+# ===== OPTIONAL CONFIGURATION =====
+
 # Google Search API Configuration (optional)
+# Used for content enrichment when input text is short
+# The app works without this - it just won't do additional research
 GOOGLE_SEARCH_API_KEY=your-google-search-api-key
 GOOGLE_SEARCH_ENGINE_ID=your-search-engine-id
 
-# OpenAI API Configuration
-OPENAI_API_KEY=sk-your-openai-key
-
 # Redis Configuration (optional)
+# Used for caching to reduce API costs and improve performance
+# The app works without Redis - it just won't cache responses
 REDIS_URL=redis://localhost:6379
 
-# Application Settings
+# Application Settings (optional)
+# These have sensible defaults if not set
 ENVIRONMENT=development
 DEBUG=true
 LOG_LEVEL=INFO
@@ -367,11 +471,14 @@ LOG_LEVEL=INFO
 **File:** `frontend/.env`
 
 ```bash
-# API Configuration
+# API Configuration (required)
+# These should match your backend server URLs
 VITE_API_URL=http://localhost:8000
 VITE_WS_URL=ws://localhost:8000
 
-# Firebase Configuration
+# Firebase Configuration (required)
+# Required for user authentication and data storage
+# Get these values from Firebase Console > Project Settings > General > Your apps
 VITE_FIREBASE_API_KEY=your_api_key_here
 VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
 VITE_FIREBASE_PROJECT_ID=your_project_id
@@ -391,16 +498,26 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-checks = {
+# Required configurations
+required_checks = {
     'FIREBASE_PROJECT_ID': os.getenv('FIREBASE_PROJECT_ID'),
     'FIREBASE_CREDENTIALS_PATH': os.getenv('FIREBASE_CREDENTIALS_PATH'),
-    'SUNO_API_KEY': '✓' if os.getenv('SUNO_API_KEY') else '✗',
-    'OPENAI_API_KEY': '✓' if os.getenv('OPENAI_API_KEY') else '✗',
-    'GOOGLE_SEARCH_API_KEY': '✓' if os.getenv('GOOGLE_SEARCH_API_KEY') else '✗',
+    'SUNO_API_KEY': '✓' if os.getenv('SUNO_API_KEY') else '✗ REQUIRED',
+    'OPENAI_API_KEY': '✓' if os.getenv('OPENAI_API_KEY') else '✗ REQUIRED',
 }
 
-print('Backend Configuration Status:')
-for key, value in checks.items():
+# Optional configurations
+optional_checks = {
+    'GOOGLE_SEARCH_API_KEY': '✓' if os.getenv('GOOGLE_SEARCH_API_KEY') else '- (optional)',
+    'REDIS_URL': '✓' if os.getenv('REDIS_URL') else '- (optional)',
+}
+
+print('🔴 Required Configuration Status:')
+for key, value in required_checks.items():
+    print(f'  {key}: {value}')
+
+print('\n🟡 Optional Configuration Status:')
+for key, value in optional_checks.items():
     print(f'  {key}: {value}')
 "
 ```

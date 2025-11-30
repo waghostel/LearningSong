@@ -118,6 +118,48 @@ Create music based on learning material
 | `GOOGLE_SEARCH_API_KEY` | Google Search API key (optional) | `your-google-key` |
 | `REDIS_URL` | Redis connection URL (optional) | `redis://localhost:6379` |
 
+## API Setup
+
+To test with real services, you'll need API keys for the following services:
+
+### Required APIs
+1. **Suno API** - Music generation service
+   - Visit [Suno API Console](https://sunoapi.org)
+   - Generate API key and add to `backend/.env` as `SUNO_API_KEY`
+
+2. **Firebase** - Authentication and database
+   - Create project at [Firebase Console](https://console.firebase.google.com)
+   - Enable Anonymous Authentication
+   - Create Firestore database
+   - Download service account JSON to `backend/firebase-credentials.json`
+   - Add web config to `frontend/.env`
+
+3. **OpenAI API** - Lyrics generation
+   - Get API key from [OpenAI Platform](https://platform.openai.com)
+   - Add to `backend/.env` as `OPENAI_API_KEY`
+
+### Optional APIs
+4. **Google Search API** - Content enrichment (optional)
+   - Create project at [Google Cloud Console](https://console.cloud.google.com)
+   - Enable Custom Search API
+   - Create search engine at [Programmable Search](https://programmablesearchengine.google.com)
+
+### Quick Setup
+```bash
+# 1. Copy environment files
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+
+# 2. Edit with your API keys
+# backend/.env - Add SUNO_API_KEY, OPENAI_API_KEY, Firebase config
+# frontend/.env - Add Firebase web config
+
+# 3. Test connection
+poetry run python -c "from app.core.firebase import initialize_firebase; initialize_firebase()"
+```
+
+📚 **[Complete API Setup Guide](docs/api-setup-guide.md)** - Detailed step-by-step instructions with screenshots and troubleshooting
+
 ## Technology Stack
 
 ### Frontend
@@ -164,6 +206,49 @@ This will:
 - Start both frontend and backend servers
 
 See [DEV-SCRIPTS.md](DEV-SCRIPTS.md) for more details.
+
+### PowerShell Development Scripts
+
+We provide three PowerShell scripts for streamlined development:
+
+#### `start-dev.ps1` - Separate Windows (Recommended)
+```powershell
+.\start-dev.ps1
+```
+
+**Features:**
+- ✅ Automatically kills processes on occupied ports (8000, 5173, 5174)
+- ✅ Checks and installs missing dependencies
+- ✅ Creates `.env` files from examples if missing
+- ✅ Starts backend and frontend in **separate terminal windows**
+- ✅ Shows process IDs for manual control
+- ✅ Best for: Viewing each server's output clearly
+
+#### `start-dev-single.ps1` - Single Window
+```powershell
+.\start-dev-single.ps1
+```
+
+**Features:**
+- ✅ Automatically kills processes on occupied ports (8000, 5173, 5174)
+- ✅ Runs both servers in the **same terminal window**
+- ✅ Prefixed output (`[Backend]`, `[Frontend]`)
+- ✅ Easy cleanup with Ctrl+C
+- ✅ Best for: Minimal window management
+
+#### `stop-dev.ps1` - Emergency Stop
+```powershell
+.\stop-dev.ps1
+```
+
+**Features:**
+- 🛑 Forcefully stops all development servers
+- 🛑 Kills processes on ports 8000, 5173, 5174
+- 🛑 Cleans up stuck Node.js and Python processes
+- 🛑 Best for: Emergency cleanup or stuck processes
+
+**Port Management:**
+All starting scripts automatically detect and kill processes occupying required ports before starting new servers. No more "port already in use" errors!
 
 ### Manual Start
 

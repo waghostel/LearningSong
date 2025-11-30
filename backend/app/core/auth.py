@@ -4,6 +4,7 @@ Authentication module for Firebase token verification.
 This module provides FastAPI dependencies for authenticating users
 via Firebase ID tokens passed in the Authorization header.
 """
+import os
 from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -14,6 +15,11 @@ from firebase_admin import auth
 # HTTP Bearer token security scheme
 security = HTTPBearer()
 
+# Development mode settings
+DEV_AUTH_TOKEN = 'dev-token-local'
+DEV_USER_ID = 'dev-user-local'
+IS_DEVELOPMENT = os.getenv('ENVIRONMENT', 'development').lower() == 'development'
+
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security)
@@ -23,6 +29,8 @@ async def get_current_user(
     
     This function extracts the Firebase ID token from the Authorization header,
     verifies it using Firebase Admin SDK, and returns the authenticated user's ID.
+    
+    In development mode, accepts a special dev token for testing without Firebase.
     
     Args:
         credentials: HTTP Bearer token credentials from the Authorization header
@@ -54,6 +62,10 @@ async def get_current_user(
             detail="Bearer token is missing",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    
+    # Development mode: accept dev token for testing without Firebase
+    if IS_DEVELOPMENT and token == DEV_AUTH_TOKEN:
+        return DEV_USER_ID
     
     try:
         # Verify the Firebase ID token
