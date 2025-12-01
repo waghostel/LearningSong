@@ -1,4 +1,5 @@
 import { apiClient, ApiError } from './client'
+import type { AlignedWord } from '@/types/lyrics'
 
 // Music Style enum with 8 preset styles
 export enum MusicStyle {
@@ -94,6 +95,10 @@ export interface SongDetails {
   created_at: string  // ISO datetime
   expires_at: string  // ISO datetime
   is_owner: boolean
+  // Timestamped lyrics fields
+  aligned_words?: AlignedWord[] | null
+  waveform_data?: number[] | null
+  has_timestamps?: boolean
 }
 
 export interface ShareLinkResponse {

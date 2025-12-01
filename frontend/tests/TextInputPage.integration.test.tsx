@@ -50,6 +50,7 @@ describe('TextInputPage Integration Tests', () => {
     mockedGetRateLimit.mockResolvedValue({
       remaining: 3,
       reset_time: new Date(Date.now() + 86400000).toISOString(),
+      total_limit: 3,
     })
   })
 
@@ -243,6 +244,7 @@ describe('TextInputPage Integration Tests', () => {
       mockedGetRateLimit.mockResolvedValue({
         remaining: 0,
         reset_time: new Date(Date.now() + 3600000).toISOString(),
+        total_limit: 3,
       })
       
       const user = userEvent.setup()
@@ -294,6 +296,7 @@ describe('TextInputPage Integration Tests', () => {
       mockedGetRateLimit.mockResolvedValue({
         remaining: 2,
         reset_time: new Date(Date.now() + 86400000).toISOString(),
+        total_limit: 3,
       })
       
       renderWithProviders(<TextInputPage />)
@@ -307,6 +310,7 @@ describe('TextInputPage Integration Tests', () => {
       mockedGetRateLimit.mockResolvedValue({
         remaining: 0,
         reset_time: new Date(Date.now() + 3600000).toISOString(),
+        total_limit: 3,
       })
       
       renderWithProviders(<TextInputPage />)

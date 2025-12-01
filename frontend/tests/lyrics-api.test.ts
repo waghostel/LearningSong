@@ -24,6 +24,7 @@ jest.mock('axios', () => ({
 }))
 
 import { generateLyrics, getRateLimit } from '@/api/lyrics'
+import { beforeEach } from 'node:test'
 
 describe('Lyrics API', () => {
   beforeEach(() => {
@@ -175,13 +176,14 @@ describe('Lyrics API', () => {
       const mockResponse: RateLimitResponse = {
         remaining: 3,
         reset_time: new Date().toISOString(),
+        total_limit: 3,
       }
 
       mockGet.mockResolvedValue({ data: mockResponse })
 
       const result = await getRateLimit()
 
-      expect(mockGet).toHaveBeenCalledWith('/api/user/rate-limit', undefined)
+      expect(mockGet).toHaveBeenCalledWith('/api/lyrics/rate-limit', undefined)
       expect(result).toEqual(mockResponse)
     })
 
@@ -189,6 +191,7 @@ describe('Lyrics API', () => {
       const mockResponse: RateLimitResponse = {
         remaining: 2,
         reset_time: new Date(Date.now() + 86400000).toISOString(),
+        total_limit: 3,
       }
 
       mockGet.mockResolvedValue({ data: mockResponse })
@@ -225,6 +228,7 @@ describe('Lyrics API', () => {
       const mockResponse: RateLimitResponse = {
         remaining: 0,
         reset_time: new Date(Date.now() + 3600000).toISOString(),
+        total_limit: 3,
       }
 
       mockGet.mockResolvedValue({ data: mockResponse })

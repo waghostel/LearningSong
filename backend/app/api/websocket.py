@@ -18,6 +18,7 @@ from app.services.song_storage import (
     get_task_from_firestore,
     update_task_status,
     verify_task_ownership,
+    store_timestamped_lyrics,
 )
 from app.models.songs import GenerationStatus
 
@@ -249,6 +250,63 @@ async def poll_and_broadcast(task_id: str) -> None:
                     if generation_status in [GenerationStatus.COMPLETED, GenerationStatus.FAILED]:
                         if generation_status == GenerationStatus.COMPLETED:
                             print(f"✅ [POLL] Task COMPLETED! Song URL: {suno_status.song_url}")
+                            
+                            # Fetch timestamped lyrics after song completion (Requirements: 1.1, 2.1)
+                            if suno_status.audio_id:
+                                print(f"🎵 [POLL] Fetching timestamped lyrics for audio_id: {suno_status.audio_id}")
+                                try:
+                                    timestamped_lyrics = await suno_client.get_timestamped_lyrics(
+                                        task_id=task_id,
+                                        audio_id=suno_status.audio_id,
+                                    )
+                                    
+                                    if timestamped_lyrics and timestamped_lyrics.aligned_words:
+                                        # Convert AlignedWord dataclasses to dicts for storage
+                                        aligned_words_dicts = [
+                                            {
+                                                "word": aw.word,
+                                                "startS": aw.start_s,
+                                                "endS": aw.end_s,
+                                                "success": aw.success,
+                                                "palign": aw.palign,
+                                            }
+                                            for aw in timestamped_lyrics.aligned_words
+                                        ]
+                                        
+                                        # Store timestamped lyrics with song metadata
+                                        await store_timestamped_lyrics(
+                                            task_id=task_id,
+                                            aligned_words=aligned_words_dicts,
+                                            waveform_data=timestamped_lyrics.waveform_data,
+                                        )
+                                        print(f"✅ [POLL] Stored {len(aligned_words_dicts)} aligned words for task: {task_id}")
+                                        logger.info(
+                                            f"Timestamped lyrics stored for task: {task_id}",
+                                            extra={
+                                                "extra_fields": {
+                                                    "task_id": task_id,
+                                                    "aligned_words_count": len(aligned_words_dicts),
+                                                }
+                                            }
+                                        )
+                                    else:
+                                        print(f"⚠️ [POLL] No timestamped lyrics available for task: {task_id}")
+                                        logger.info(f"No timestamped lyrics available for task: {task_id}")
+                                except Exception as e:
+                                    # Log error but don't block song delivery (Requirements: 2.4)
+                                    print(f"⚠️ [POLL] Failed to fetch timestamped lyrics: {e}")
+                                    logger.warning(
+                                        f"Failed to fetch timestamped lyrics for task: {task_id}",
+                                        extra={
+                                            "extra_fields": {
+                                                "task_id": task_id,
+                                                "error": str(e),
+                                            }
+                                        }
+                                    )
+                            else:
+                                print(f"⚠️ [POLL] No audio_id available, skipping timestamped lyrics fetch")
+                                logger.warning(f"No audio_id available for task: {task_id}, skipping timestamped lyrics")
                         else:
                             print(f"❌ [POLL] Task FAILED! Error: {suno_status.error}")
                         logger.info(f"Task {task_id} reached terminal state: {generation_status.value}")

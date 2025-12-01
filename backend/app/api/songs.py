@@ -221,7 +221,7 @@ async def get_song_details(
     else:
         created_at_dt = datetime.fromisoformat(str(created_at).replace('Z', '+00:00'))
     
-    # Step 7: Return SongDetails
+    # Step 7: Return SongDetails with timestamped lyrics (Requirements: 1.2)
     from app.models.songs import MusicStyle
     
     return SongDetails(
@@ -232,6 +232,9 @@ async def get_song_details(
         created_at=created_at_dt,
         expires_at=expires_at_dt,
         is_owner=is_owner,
+        aligned_words=song_data.get('aligned_words'),
+        waveform_data=song_data.get('waveform_data'),
+        has_timestamps=song_data.get('has_timestamps', False),
     )
 
 
@@ -534,7 +537,8 @@ async def get_shared_song(share_token: str) -> SongDetails:
     else:
         created_at_dt = datetime.fromisoformat(str(created_at).replace('Z', '+00:00'))
     
-    # Step 6: Return SongDetails (is_owner is False for shared songs)
+    # Step 6: Return SongDetails with timestamped lyrics (is_owner is False for shared songs)
+    # Requirements: 1.2 - Ensure shared song endpoint also returns timestamps
     from app.models.songs import MusicStyle
     
     song_id = song_data.get('task_id', share_token)
@@ -558,6 +562,9 @@ async def get_shared_song(share_token: str) -> SongDetails:
         created_at=created_at_dt,
         expires_at=expires_at_dt,
         is_owner=False,  # Shared songs are never owned by the viewer
+        aligned_words=song_data.get('aligned_words'),
+        waveform_data=song_data.get('waveform_data'),
+        has_timestamps=song_data.get('has_timestamps', False),
     )
 
 

@@ -34,6 +34,7 @@ export default {
   globals: {
     'import.meta': {
       env: {
+        DEV: false,
         VITE_API_URL: 'http://localhost:8000',
         VITE_WS_URL: 'http://localhost:8000',
       },

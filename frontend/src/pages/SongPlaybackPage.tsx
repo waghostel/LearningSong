@@ -66,6 +66,7 @@ export function SongPlaybackPage() {
     error,
     currentTime,
     duration,
+    alignedWords,
     loadSong,
     loadSharedSong,
     setCurrentTime,
@@ -270,6 +271,7 @@ export function SongPlaybackPage() {
               lyrics={lyrics}
               currentTime={currentTime}
               duration={duration}
+              alignedWords={alignedWords}
             />
           </section>
 

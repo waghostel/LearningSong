@@ -123,6 +123,8 @@ async def update_task_status(
     progress: int,
     song_url: Optional[str] = None,
     error: Optional[str] = None,
+    aligned_words: Optional[list[dict]] = None,
+    waveform_data: Optional[list[float]] = None,
 ) -> bool:
     """
     Update a song generation task status in Firestore.
@@ -133,11 +135,13 @@ async def update_task_status(
         progress: Progress percentage (0-100)
         song_url: URL of generated song (if completed)
         error: Error message (if failed)
+        aligned_words: Array of aligned words with timing information (Requirements: 2.2)
+        waveform_data: Waveform data for visualization (Requirements: 2.2)
         
     Returns:
         bool: True if update successful, False otherwise
         
-    Requirements: FR-3
+    Requirements: FR-3, 2.2
     """
     firestore_client = get_firestore_client()
     
@@ -153,6 +157,14 @@ async def update_task_status(
     if error is not None:
         update_data["error"] = error
     
+    # Add timestamped lyrics data if provided (Requirements: 2.2)
+    if aligned_words is not None:
+        update_data["aligned_words"] = aligned_words
+        update_data["has_timestamps"] = len(aligned_words) > 0
+    
+    if waveform_data is not None:
+        update_data["waveform_data"] = waveform_data
+    
     try:
         task_ref = firestore_client.collection(SONGS_COLLECTION).document(task_id)
         task_ref.update(update_data)
@@ -166,6 +178,7 @@ async def update_task_status(
                     "progress": progress,
                     "has_song_url": song_url is not None,
                     "has_error": error is not None,
+                    "has_timestamps": aligned_words is not None and len(aligned_words) > 0,
                     "operation": "update_task_status",
                 }
             },
@@ -179,6 +192,69 @@ async def update_task_status(
                     "task_id": task_id,
                     "error": str(e),
                     "operation": "update_task_status",
+                }
+            },
+        )
+        return False
+
+
+async def store_timestamped_lyrics(
+    task_id: str,
+    aligned_words: list[dict],
+    waveform_data: Optional[list[float]] = None,
+) -> bool:
+    """
+    Store timestamped lyrics data for a song.
+    
+    This function updates an existing song document with timestamped lyrics
+    data fetched from the Suno API.
+    
+    Args:
+        task_id: The Suno task ID
+        aligned_words: Array of aligned words with timing information
+            Each word should have: word, startS, endS, success, palign
+        waveform_data: Optional waveform data for visualization
+        
+    Returns:
+        bool: True if storage successful, False otherwise
+        
+    Requirements: 2.2, 2.3
+    """
+    firestore_client = get_firestore_client()
+    
+    update_data = {
+        "aligned_words": aligned_words,
+        "has_timestamps": len(aligned_words) > 0,
+        "updated_at": datetime.now(timezone.utc),
+    }
+    
+    if waveform_data is not None:
+        update_data["waveform_data"] = waveform_data
+    
+    try:
+        task_ref = firestore_client.collection(SONGS_COLLECTION).document(task_id)
+        task_ref.update(update_data)
+        
+        logger.info(
+            f"Timestamped lyrics stored: {task_id}",
+            extra={
+                "extra_fields": {
+                    "task_id": task_id,
+                    "aligned_words_count": len(aligned_words),
+                    "has_waveform": waveform_data is not None,
+                    "operation": "store_timestamped_lyrics",
+                }
+            },
+        )
+        return True
+    except Exception as e:
+        logger.error(
+            f"Failed to store timestamped lyrics: {task_id}",
+            extra={
+                "extra_fields": {
+                    "task_id": task_id,
+                    "error": str(e),
+                    "operation": "store_timestamped_lyrics",
                 }
             },
         )

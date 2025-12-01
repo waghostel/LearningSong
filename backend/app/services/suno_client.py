@@ -29,6 +29,51 @@ MAX_BACKOFF = 10.0  # seconds
 
 
 @dataclass
+class AlignedWord:
+    """Represents a word with timing information from timestamped lyrics.
+    
+    Attributes:
+        word: The word or phrase text
+        start_s: Start time in seconds
+        end_s: End time in seconds
+        success: Whether alignment was successful
+        palign: Phoneme alignment score
+    """
+    
+    word: str
+    start_s: float
+    end_s: float
+    success: bool
+    palign: float
+    
+    def __post_init__(self):
+        """Validate aligned word data after initialization."""
+        if self.start_s < 0:
+            raise ValueError("start_s cannot be negative")
+        if self.end_s < 0:
+            raise ValueError("end_s cannot be negative")
+        if self.end_s < self.start_s:
+            raise ValueError("end_s cannot be less than start_s")
+
+
+@dataclass
+class TimestampedLyrics:
+    """Response from timestamped lyrics endpoint.
+    
+    Attributes:
+        aligned_words: List of words with timing information
+        waveform_data: Audio waveform data points
+        hoot_cer: Character error rate from alignment
+        is_streamed: Whether the audio was streamed
+    """
+    
+    aligned_words: list[AlignedWord]
+    waveform_data: list[float]
+    hoot_cer: float
+    is_streamed: bool
+
+
+@dataclass
 class SunoTask:
     """Represents a Suno music generation task."""
     
@@ -51,6 +96,7 @@ class SunoStatus:
     progress: int  # 0-100
     song_url: Optional[str] = None
     error: Optional[str] = None
+    audio_id: Optional[str] = None  # Audio ID for fetching timestamped lyrics
     
     def __post_init__(self):
         """Validate status data after initialization."""
@@ -349,16 +395,20 @@ class SunoClient:
             # Map Suno status to progress percentage
             progress = self._status_to_progress(status)
             
-            # Get song URL if completed
+            # Get song URL and audio_id if completed
             song_url = None
             error = None
+            audio_id = None
             
             if status == "SUCCESS":
                 suno_data = task_data.get("response", {}).get("sunoData", [])
                 if suno_data:
-                    # Get the first track's audio URL
-                    song_url = suno_data[0].get("audioUrl")
+                    # Get the first track's audio URL and ID
+                    first_track = suno_data[0]
+                    song_url = first_track.get("audioUrl")
+                    audio_id = first_track.get("id")
                     print(f"✅ [SUNO] Song URL found: {song_url[:50] if song_url else 'None'}...")
+                    print(f"✅ [SUNO] Audio ID found: {audio_id}")
             
             elif status in ("FAILED", "CREATE_TASK_FAILED", 
                           "GENERATE_AUDIO_FAILED", "CALLBACK_EXCEPTION",
@@ -375,6 +425,7 @@ class SunoClient:
                 progress=progress,
                 song_url=song_url,
                 error=error,
+                audio_id=audio_id,
             )
             
         except httpx.TimeoutException as e:
@@ -387,6 +438,123 @@ class SunoClient:
                 f"HTTP error: {e.response.status_code}",
                 status_code=e.response.status_code
             )
+
+    async def get_timestamped_lyrics(
+        self,
+        task_id: str,
+        audio_id: str,
+    ) -> Optional[TimestampedLyrics]:
+        """
+        Fetch timestamped lyrics for a generated song.
+
+        Args:
+            task_id: Task identifier from create_song
+            audio_id: Audio identifier from the completed song
+
+        Returns:
+            TimestampedLyrics with aligned words and waveform data,
+            or None if the request fails
+
+        Note:
+            This method handles errors gracefully and returns None
+            instead of raising exceptions to avoid blocking song delivery.
+        """
+        if not task_id:
+            logger.warning("get_timestamped_lyrics called with empty task_id")
+            return None
+        
+        if not audio_id:
+            logger.warning("get_timestamped_lyrics called with empty audio_id")
+            return None
+        
+        logger.info(f"Fetching timestamped lyrics for task: {task_id}, audio: {audio_id}")
+        
+        payload = {
+            "taskId": task_id,
+            "audioId": audio_id,
+        }
+        
+        try:
+            response = await self.client.post(
+                "/api/v1/generate/get-timestamped-lyrics",
+                json=payload,
+            )
+            
+            print(f"🎵 [SUNO] POST /api/v1/generate/get-timestamped-lyrics")
+            print(f"🎵 [SUNO] Response status code: {response.status_code}")
+            
+            if response.status_code == 401:
+                logger.error("Authentication failed for timestamped lyrics request")
+                return None
+            
+            if response.status_code == 404:
+                logger.warning(f"Timestamped lyrics not found for task: {task_id}")
+                return None
+            
+            if response.status_code >= 400:
+                logger.error(f"HTTP error {response.status_code} fetching timestamped lyrics")
+                return None
+            
+            data = response.json()
+            
+            # Check response code
+            if data.get("code") != 200:
+                logger.warning(
+                    f"Timestamped lyrics API error: {data.get('msg', 'Unknown error')}"
+                )
+                return None
+            
+            response_data = data.get("data", {})
+            
+            # Parse aligned words
+            raw_aligned_words = response_data.get("alignedWords", [])
+            aligned_words = []
+            
+            for raw_word in raw_aligned_words:
+                try:
+                    aligned_word = AlignedWord(
+                        word=raw_word.get("word", ""),
+                        start_s=float(raw_word.get("startS", 0)),
+                        end_s=float(raw_word.get("endS", 0)),
+                        success=bool(raw_word.get("success", False)),
+                        palign=float(raw_word.get("palign", 0)),
+                    )
+                    aligned_words.append(aligned_word)
+                except (ValueError, TypeError) as e:
+                    logger.warning(f"Skipping malformed aligned word: {raw_word}, error: {e}")
+                    continue
+            
+            # Parse waveform data
+            waveform_data = response_data.get("waveformData", [])
+            if not isinstance(waveform_data, list):
+                waveform_data = []
+            
+            # Parse other fields
+            hoot_cer = float(response_data.get("hootCer", 0))
+            is_streamed = bool(response_data.get("isStreamed", False))
+            
+            logger.info(
+                f"Successfully fetched {len(aligned_words)} aligned words for task: {task_id}"
+            )
+            
+            return TimestampedLyrics(
+                aligned_words=aligned_words,
+                waveform_data=waveform_data,
+                hoot_cer=hoot_cer,
+                is_streamed=is_streamed,
+            )
+            
+        except httpx.TimeoutException as e:
+            logger.warning(f"Timeout fetching timestamped lyrics: {e}")
+            return None
+        
+        except httpx.HTTPStatusError as e:
+            logger.warning(f"HTTP error fetching timestamped lyrics: {e}")
+            return None
+        
+        except Exception as e:
+            logger.error(f"Unexpected error fetching timestamped lyrics: {e}")
+            return None
 
     def _status_to_progress(self, status: str) -> int:
         """Map Suno status to progress percentage."""

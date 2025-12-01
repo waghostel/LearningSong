@@ -1,6 +1,7 @@
 export { useAuth } from './useAuth'
 export { useExample } from './useExample'
 export { useLyrics } from './useLyrics'
+export { useLyricsSync } from './useLyricsSync'
 export { useWebSocket } from './useWebSocket'
 export { useSongGeneration } from './useSongGeneration'
 export { useNotifications } from './useNotifications'

@@ -109,10 +109,51 @@ class SongStatusUpdate(BaseModel):
     )
 
 
+class AlignedWordDict(BaseModel):
+    """Represents a word with timing information for lyrics synchronization.
+    
+    Requirements: 2.2, 2.3
+    """
+    
+    word: str = Field(
+        ...,
+        description="The word or phrase text"
+    )
+    startS: float = Field(
+        ...,
+        description="Start time in seconds",
+        ge=0.0
+    )
+    endS: float = Field(
+        ...,
+        description="End time in seconds",
+        ge=0.0
+    )
+    success: bool = Field(
+        default=True,
+        description="Whether alignment was successful"
+    )
+    palign: float = Field(
+        default=0.0,
+        description="Alignment confidence score",
+        ge=0.0,
+        le=1.0
+    )
+    
+    @field_validator('endS')
+    @classmethod
+    def validate_end_after_start(cls, v: float, info) -> float:
+        """Validate that endS is not less than startS."""
+        start_s = info.data.get('startS')
+        if start_s is not None and v < start_s:
+            raise ValueError('endS cannot be less than startS')
+        return v
+
+
 class SongDetails(BaseModel):
     """Complete song details for playback page.
     
-    Requirements: 8.1, 8.4
+    Requirements: 8.1, 8.4, 2.2, 2.3
     """
     
     song_id: str = Field(
@@ -142,6 +183,19 @@ class SongDetails(BaseModel):
     is_owner: bool = Field(
         ...,
         description="True if the requesting user owns the song"
+    )
+    # Timestamped lyrics fields (Requirements: 2.2, 2.3)
+    aligned_words: Optional[list[dict]] = Field(
+        default=None,
+        description="Array of aligned words with timing information"
+    )
+    waveform_data: Optional[list[float]] = Field(
+        default=None,
+        description="Waveform data for visualization"
+    )
+    has_timestamps: bool = Field(
+        default=False,
+        description="Whether timestamped lyrics are available"
     )
     
     model_config = {

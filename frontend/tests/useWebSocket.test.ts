@@ -158,7 +158,7 @@ describe('useWebSocket', () => {
         eventHandlers['connect']?.();
       });
 
-      expect(mockSocket.emit).toHaveBeenCalledWith('subscribe', { task_id: 'test-task-123' });
+      expect(mockSocket.emit).toHaveBeenCalledWith('subscribe', { task_id: 'test-task-123', token: 'dev-token-local' });
     });
   });
 

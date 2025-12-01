@@ -8,6 +8,7 @@ import {
   getSharedSong,
   createShareLink as apiCreateShareLink,
 } from '@/api/songs'
+import type { AlignedWord } from '@/types/lyrics'
 
 interface SongPlaybackState {
   // Song data
@@ -18,6 +19,11 @@ interface SongPlaybackState {
   createdAt: Date | null
   expiresAt: Date | null
   isOwner: boolean
+
+  // Timestamped lyrics data
+  alignedWords: AlignedWord[]
+  hasTimestamps: boolean
+  waveformData: number[]
 
   // Playback state
   isPlaying: boolean
@@ -49,6 +55,11 @@ const initialState = {
   createdAt: null as Date | null,
   expiresAt: null as Date | null,
   isOwner: false,
+  // Timestamped lyrics data
+  alignedWords: [] as AlignedWord[],
+  hasTimestamps: false,
+  waveformData: [] as number[],
+  // Playback state
   isPlaying: false,
   currentTime: 0,
   duration: 0,
@@ -67,6 +78,10 @@ const mapSongDetailsToState = (details: SongDetails) => ({
   createdAt: new Date(details.created_at),
   expiresAt: new Date(details.expires_at),
   isOwner: details.is_owner,
+  // Timestamped lyrics fields
+  alignedWords: details.aligned_words ?? [],
+  hasTimestamps: details.has_timestamps ?? false,
+  waveformData: details.waveform_data ?? [],
 })
 
 export const useSongPlaybackStore = create<SongPlaybackState>()(
@@ -144,6 +159,10 @@ export const useSongPlaybackStore = create<SongPlaybackState>()(
         expiresAt: state.expiresAt,
         isOwner: state.isOwner,
         shareUrl: state.shareUrl,
+        // Timestamped lyrics fields
+        alignedWords: state.alignedWords,
+        hasTimestamps: state.hasTimestamps,
+        waveformData: state.waveformData,
       }),
     }
   )

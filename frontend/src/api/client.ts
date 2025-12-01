@@ -169,7 +169,7 @@ class ApiClient {
         )
 
         // Log error for debugging (in development)
-        if (import.meta.env.DEV) {
+        if (process.env.NODE_ENV === 'development') {
           console.error('API Error:', {
             type: apiError.type,
             statusCode: apiError.statusCode,

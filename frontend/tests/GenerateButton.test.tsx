@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { GenerateButton } from '@/components/GenerateButton'
 import { useTextInputStore } from '@/stores/textInputStore'
 import { useGenerateLyrics, useRateLimit } from '@/hooks/useLyrics'
@@ -11,6 +12,11 @@ jest.mock('@/lib/toast-utils', () => ({
   showValidationError: jest.fn(),
   showRateLimitError: jest.fn(),
 }))
+
+// Helper to render with Router
+const renderWithRouter = (ui: React.ReactElement) => {
+  return render(<MemoryRouter>{ui}</MemoryRouter>)
+}
 
 describe('GenerateButton Component', () => {
   const mockGenerateLyrics = jest.fn()
@@ -37,14 +43,14 @@ describe('GenerateButton Component', () => {
   })
 
   it('renders button with correct text', () => {
-    render(<GenerateButton />)
+    renderWithRouter(<GenerateButton />)
     
     expect(screen.getByRole('button', { name: /Generate lyrics from content/i })).toBeInTheDocument()
     expect(screen.getByText('Generate Lyrics')).toBeInTheDocument()
   })
 
   it('shows keyboard shortcut hint', () => {
-    render(<GenerateButton />)
+    renderWithRouter(<GenerateButton />)
     
     expect(screen.getByText(/Ctrl\+Enter/i)).toBeInTheDocument()
   })
@@ -57,7 +63,7 @@ describe('GenerateButton Component', () => {
       searchEnabled: false,
     })
     
-    render(<GenerateButton />)
+    renderWithRouter(<GenerateButton />)
     
     const button = screen.getByRole('button')
     expect(button).toBeDisabled()
@@ -72,7 +78,7 @@ describe('GenerateButton Component', () => {
       searchEnabled: false,
     })
     
-    render(<GenerateButton />)
+    renderWithRouter(<GenerateButton />)
     
     const button = screen.getByRole('button')
     expect(button).toBeDisabled()
@@ -83,7 +89,7 @@ describe('GenerateButton Component', () => {
       data: { remaining: 0, reset_time: new Date().toISOString() },
     })
     
-    render(<GenerateButton />)
+    renderWithRouter(<GenerateButton />)
     
     const button = screen.getByRole('button')
     expect(button).toBeDisabled()
@@ -97,7 +103,7 @@ describe('GenerateButton Component', () => {
       searchEnabled: false,
     })
     
-    render(<GenerateButton />)
+    renderWithRouter(<GenerateButton />)
     
     const button = screen.getByRole('button')
     expect(button).toBeDisabled()
@@ -109,7 +115,7 @@ describe('GenerateButton Component', () => {
       isPending: true,
     })
     
-    render(<GenerateButton />)
+    renderWithRouter(<GenerateButton />)
     
     const button = screen.getByRole('button')
     expect(button).toBeDisabled()
@@ -121,7 +127,7 @@ describe('GenerateButton Component', () => {
       isPending: true,
     })
     
-    render(<GenerateButton />)
+    renderWithRouter(<GenerateButton />)
     
     expect(screen.getByText('Generating Lyrics...')).toBeInTheDocument()
     expect(screen.getByRole('button')).toHaveAttribute('aria-busy', 'true')
@@ -129,7 +135,7 @@ describe('GenerateButton Component', () => {
 
   it('calls generateLyrics when clicked', async () => {
     const user = userEvent.setup()
-    render(<GenerateButton />)
+    renderWithRouter(<GenerateButton />)
     
     const button = screen.getByRole('button')
     await user.click(button)
@@ -149,7 +155,7 @@ describe('GenerateButton Component', () => {
     })
     
     const user = userEvent.setup()
-    render(<GenerateButton />)
+    renderWithRouter(<GenerateButton />)
     
     const button = screen.getByRole('button')
     await user.click(button)
@@ -161,7 +167,7 @@ describe('GenerateButton Component', () => {
   })
 
   it('triggers generation on Ctrl+Enter', () => {
-    render(<GenerateButton />)
+    renderWithRouter(<GenerateButton />)
     
     fireEvent.keyDown(window, { key: 'Enter', ctrlKey: true })
     
@@ -172,7 +178,7 @@ describe('GenerateButton Component', () => {
   })
 
   it('triggers generation on Meta+Enter (Mac)', () => {
-    render(<GenerateButton />)
+    renderWithRouter(<GenerateButton />)
     
     fireEvent.keyDown(window, { key: 'Enter', metaKey: true })
     
@@ -190,7 +196,7 @@ describe('GenerateButton Component', () => {
       searchEnabled: false,
     })
     
-    render(<GenerateButton />)
+    renderWithRouter(<GenerateButton />)
     
     fireEvent.keyDown(window, { key: 'Enter', ctrlKey: true })
     
@@ -198,7 +204,7 @@ describe('GenerateButton Component', () => {
   })
 
   it('syncs generating state with isPending', () => {
-    const { rerender } = render(<GenerateButton />)
+    const { rerender } = renderWithRouter(<GenerateButton />)
     
     expect(mockSetGenerating).toHaveBeenCalledWith(false)
     
@@ -207,7 +213,7 @@ describe('GenerateButton Component', () => {
       isPending: true,
     })
     
-    rerender(<GenerateButton />)
+    rerender(<MemoryRouter><GenerateButton /></MemoryRouter>)
     
     expect(mockSetGenerating).toHaveBeenCalledWith(true)
   })
