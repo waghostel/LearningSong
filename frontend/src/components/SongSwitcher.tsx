@@ -87,12 +87,10 @@ export function SongSwitcher({
     <div
       data-testid="song-switcher"
       className="flex flex-col gap-2"
-      role="group"
-      aria-label="Song version switcher"
-      onKeyDown={handleKeyDown}
     >
       <label
         id="song-switcher-label"
+        htmlFor="song-switcher-group"
         className="text-sm font-medium"
       >
         Song Version
@@ -106,6 +104,10 @@ export function SongSwitcher({
         disabled={disabled || isLoading}
         aria-labelledby="song-switcher-label"
         aria-describedby="song-switcher-description"
+        role="group"
+        aria-label="Song version switcher"
+        onKeyDown={handleKeyDown}
+        id="song-switcher-group"
       >
         {variations.map((variation, index) => (
           <ToggleGroupItem

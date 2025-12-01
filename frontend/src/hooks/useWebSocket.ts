@@ -150,7 +150,6 @@ export const useWebSocket = ({
 
       // Connection successful
       socket.on('connect', async () => {
-        console.log('WebSocket connected')
         updateConnectionStatus('connected')
         setError(null)
         setErrorInfo(null)
@@ -161,16 +160,13 @@ export const useWebSocket = ({
         try {
           const subscribeToken = await getAuthToken()
           socket.emit('subscribe', { task_id: taskId, token: subscribeToken })
-        } catch (err) {
-          console.error('Error getting token for subscribe:', err)
+        } catch {
           handleError('Authentication failed')
         }
       })
 
       // Receive status updates
       socket.on('song_status', (update: SongStatusUpdate) => {
-        console.log('Received status update:', update)
-        
         // Call status update callback
         onStatusUpdate?.(update)
 
@@ -199,7 +195,6 @@ export const useWebSocket = ({
         if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
           updateConnectionStatus('reconnecting')
           const delay = calculateBackoffDelay(reconnectAttempts)
-          console.log(`Reconnecting in ${delay}ms (attempt ${reconnectAttempts + 1}/${MAX_RECONNECT_ATTEMPTS})`)
           
           // Set temporary error message during reconnection
           setError(`Connection lost. Reconnecting... (${reconnectAttempts + 1}/${MAX_RECONNECT_ATTEMPTS})`)
@@ -221,8 +216,6 @@ export const useWebSocket = ({
 
       // Disconnection
       socket.on('disconnect', (reason) => {
-        console.log('WebSocket disconnected:', reason)
-
         // Auto-reconnect if disconnected unexpectedly
         if (reason === 'io server disconnect') {
           // Server disconnected intentionally, don't reconnect

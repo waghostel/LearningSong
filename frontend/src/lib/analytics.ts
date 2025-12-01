@@ -24,16 +24,19 @@ export interface AnalyticsEvent {
  * In a production environment, this would send events to an analytics service
  * (e.g., Google Analytics, Mixpanel, Amplitude, etc.)
  * 
- * For now, we log to console and could extend to send to backend
+ * For now, we could extend to send to backend
  */
 function logEvent(event: AnalyticsEvent): void {
-  // Log to console for development
-  console.log('[Analytics]', event)
-  
   // In production, send to analytics service:
   // - Google Analytics: gtag('event', event.event_type, event)
   // - Mixpanel: mixpanel.track(event.event_type, event)
   // - Custom backend: fetch('/api/analytics', { method: 'POST', body: JSON.stringify(event) })
+  
+  // For development, events are tracked but not logged to console
+  // to avoid console clutter. Enable logging if needed for debugging.
+  if (import.meta.env.DEV && import.meta.env.VITE_DEBUG_ANALYTICS) {
+    console.warn('[Analytics]', event)
+  }
 }
 
 /**

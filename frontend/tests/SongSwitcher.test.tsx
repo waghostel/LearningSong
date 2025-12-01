@@ -7,11 +7,9 @@ import { SongSwitcher } from '@/components/SongSwitcher'
 import type { SongVariation } from '@/api/songs'
 
 // Type augmentation for jest-axe
-declare global {
-  namespace jest {
-    interface Matchers<R> {
-      toHaveNoViolations(): R
-    }
+declare module 'jest-axe' {
+  interface Matchers<R> {
+    toHaveNoViolations(): R
   }
 }
 

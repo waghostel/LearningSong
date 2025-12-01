@@ -1,16 +1,29 @@
 import { renderHook, act } from '@testing-library/react';
 import { useNotifications } from '@/hooks/useNotifications';
 
+interface MockNotificationInstance {
+  title: string;
+  close: jest.Mock;
+  onclick: (() => void) | null;
+  [key: string]: unknown;
+}
+
+interface MockNotificationConstructor {
+  new (title: string, options?: NotificationOptions): MockNotificationInstance;
+  permission: NotificationPermission;
+  requestPermission: jest.Mock;
+}
+
 describe('useNotifications', () => {
   let mockNotification: jest.Mock;
   let originalNotification: typeof Notification | undefined;
 
   beforeEach(() => {
     // Save original Notification
-    originalNotification = (global as any).Notification;
+    originalNotification = (global as Record<string, unknown>).Notification as typeof Notification | undefined;
 
     // Mock Notification constructor
-    mockNotification = jest.fn().mockImplementation((title, options) => ({
+    mockNotification = jest.fn().mockImplementation((title: string, options?: NotificationOptions) => ({
       title,
       ...options,
       close: jest.fn(),
@@ -18,36 +31,36 @@ describe('useNotifications', () => {
     }));
 
     // Set up Notification mock
-    (global as any).Notification = mockNotification;
-    (global as any).Notification.permission = 'default';
-    (global as any).Notification.requestPermission = jest.fn();
+    (global as Record<string, unknown>).Notification = mockNotification as unknown as MockNotificationConstructor;
+    ((global as Record<string, unknown>).Notification as MockNotificationConstructor).permission = 'default';
+    ((global as Record<string, unknown>).Notification as MockNotificationConstructor).requestPermission = jest.fn();
   });
 
   afterEach(() => {
     // Restore original Notification
     if (originalNotification) {
-      (global as any).Notification = originalNotification;
+      (global as Record<string, unknown>).Notification = originalNotification;
     } else {
-      delete (global as any).Notification;
+      delete (global as Record<string, unknown>).Notification;
     }
   });
 
   it('should initialize with default permission state', () => {
-    (global as any).Notification.permission = 'default';
+    ((global as Record<string, unknown>).Notification as MockNotificationConstructor).permission = 'default';
     const { result } = renderHook(() => useNotifications());
 
     expect(result.current.permission).toBe('default');
   });
 
   it('should initialize with granted permission state', () => {
-    (global as any).Notification.permission = 'granted';
+    ((global as Record<string, unknown>).Notification as MockNotificationConstructor).permission = 'granted';
     const { result } = renderHook(() => useNotifications());
 
     expect(result.current.permission).toBe('granted');
   });
 
   it('should request notification permission', async () => {
-    (global as any).Notification.requestPermission = jest
+    ((global as Record<string, unknown>).Notification as MockNotificationConstructor).requestPermission = jest
       .fn()
       .mockResolvedValue('granted');
 
@@ -60,11 +73,11 @@ describe('useNotifications', () => {
 
     expect(permissionGranted).toBe(true);
     expect(result.current.permission).toBe('granted');
-    expect((global as any).Notification.requestPermission).toHaveBeenCalled();
+    expect(((global as Record<string, unknown>).Notification as MockNotificationConstructor).requestPermission).toHaveBeenCalled();
   });
 
   it('should handle denied permission', async () => {
-    (global as any).Notification.requestPermission = jest
+    ((global as Record<string, unknown>).Notification as MockNotificationConstructor).requestPermission = jest
       .fn()
       .mockResolvedValue('denied');
 
@@ -80,7 +93,7 @@ describe('useNotifications', () => {
   });
 
   it('should send notification when permission is granted', () => {
-    (global as any).Notification.permission = 'granted';
+    ((global as Record<string, unknown>).Notification as MockNotificationConstructor).permission = 'granted';
     const { result } = renderHook(() => useNotifications());
 
     act(() => {
@@ -97,7 +110,7 @@ describe('useNotifications', () => {
   });
 
   it('should not send notification when permission is denied', () => {
-    (global as any).Notification.permission = 'denied';
+    ((global as Record<string, unknown>).Notification as MockNotificationConstructor).permission = 'denied';
     const { result } = renderHook(() => useNotifications());
 
     act(() => {
@@ -108,21 +121,21 @@ describe('useNotifications', () => {
   });
 
   it('should add click handler to focus window', () => {
-    (global as any).Notification.permission = 'granted';
+    ((global as Record<string, unknown>).Notification as MockNotificationConstructor).permission = 'granted';
     const mockFocus = jest.fn();
     global.window.focus = mockFocus;
 
     const { result } = renderHook(() => useNotifications());
 
-    let notification: any;
+    let notification: MockNotificationInstance;
     act(() => {
       result.current.sendNotification('Test Title');
-      notification = mockNotification.mock.results[0].value;
+      notification = mockNotification.mock.results[0].value as MockNotificationInstance;
     });
 
     // Simulate click
     act(() => {
-      notification.onclick();
+      notification.onclick?.();
     });
 
     expect(mockFocus).toHaveBeenCalled();
@@ -130,7 +143,7 @@ describe('useNotifications', () => {
   });
 
   it('should handle missing Notification API', async () => {
-    delete (global as any).Notification;
+    delete (global as Record<string, unknown>).Notification;
     const { result } = renderHook(() => useNotifications());
 
     expect(result.current.permission).toBe('default');

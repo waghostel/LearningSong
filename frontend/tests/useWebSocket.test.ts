@@ -86,7 +86,7 @@ describe('useWebSocket', () => {
 
   describe('connection', () => {
     it('should connect when taskId is provided', async () => {
-      const { result } = renderHook(() =>
+      renderHook(() =>
         useWebSocket({ taskId: 'test-task-123' })
       );
 

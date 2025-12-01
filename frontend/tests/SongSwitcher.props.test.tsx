@@ -3,7 +3,7 @@
  * Using fast-check for property-based testing
  */
 import * as fc from 'fast-check'
-import { render, screen, cleanup } from '@testing-library/react'
+import { render, cleanup } from '@testing-library/react'
 import { SongSwitcher } from '@/components/SongSwitcher'
 import type { SongVariation } from '@/api/songs'
 

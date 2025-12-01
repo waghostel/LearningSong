@@ -159,18 +159,18 @@ describe('AudioPlayer Integration Property Tests', () => {
       fc.assert(
         fc.property(
           durationArbitrary(),
-          (duration) => {
+          (_duration) => {
             // Generate position that is guaranteed to be within duration
-            const position = Math.random() * duration
+            const position = Math.random() * _duration
 
             // Position should be within valid range
             expect(position).toBeGreaterThanOrEqual(0)
-            expect(position).toBeLessThanOrEqual(duration)
+            expect(position).toBeLessThanOrEqual(_duration)
 
             // After switch, position should be preserved if valid
             const preservedPosition = position
             expect(preservedPosition).toBeGreaterThanOrEqual(0)
-            expect(preservedPosition).toBeLessThanOrEqual(duration)
+            expect(preservedPosition).toBeLessThanOrEqual(_duration)
           }
         ),
         { numRuns: 100 }
@@ -268,7 +268,7 @@ describe('AudioPlayer Integration Property Tests', () => {
             fc.integer({ min: -1000, max: -1 })
           ),
           durationArbitrary(),
-          (invalidPosition, duration) => {
+          (invalidPosition, _duration) => {
             // Invalid positions should be handled
             const isValid = Number.isFinite(invalidPosition) && invalidPosition >= 0
             expect(isValid).toBe(false)
