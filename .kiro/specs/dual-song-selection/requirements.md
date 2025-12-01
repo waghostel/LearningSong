@@ -99,6 +99,8 @@ This feature enables users to receive two song variations from a single generati
 3. WHEN a song record is created THEN the system SHALL store both song variation URLs and audio IDs
 4. WHEN a song record is retrieved THEN the system SHALL return both variations and indicate which is primary
 5. WHEN updating the primary song selection THEN the system SHALL accept a variation index parameter
+6. WHEN the SUNO_MODEL environment variable is set THEN the system SHALL use that model version for song generation
+7. WHEN the SUNO_MODEL environment variable is not set THEN the system SHALL default to V4 model
 
 ### Requirement 8
 

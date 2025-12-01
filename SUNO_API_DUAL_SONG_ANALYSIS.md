@@ -116,11 +116,23 @@ In `backend/app/services/suno_client.py` (line 149):
 
 ### Recommendation
 
-Consider upgrading to **V5** for:
+**Now Configurable!** The dual song selection spec includes support for switching between models via the `SUNO_MODEL` environment variable.
+
+**Default:** V4 (no configuration needed)
+
+**To upgrade to V5:**
+```bash
+# In backend/.env
+SUNO_MODEL=V5
+```
+
+**Benefits of V5:**
 - ✅ Faster generation (important for UX)
 - ✅ Superior quality
 - ✅ Same prompt limits as V4_5
 - ✅ Latest model with best features
+
+See `.kiro/specs/dual-song-selection/CONFIGURATION.md` for complete configuration guide.
 
 ---
 

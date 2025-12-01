@@ -81,10 +81,12 @@ sequenceDiagram
 
 **Current Behavior:**
 - `get_task_status()` returns only the first song from `sunoData[0]`
+- Model version is hardcoded to "V4"
 
 **New Behavior:**
 - Return all available songs from `sunoData` array
 - Create new data class `SongVariation` to represent each song
+- Read model version from `SUNO_MODEL` environment variable (default: "V4")
 
 ```python
 @dataclass
@@ -101,6 +103,10 @@ class SunoStatus:
     progress: int
     variations: list[SongVariation]  # Changed from single song_url
     error: Optional[str] = None
+
+# Model configuration
+DEFAULT_SUNO_MODEL = "V4"
+SUNO_MODEL = os.getenv("SUNO_MODEL", DEFAULT_SUNO_MODEL)
 ```
 
 #### 2. Song Storage Service (`backend/app/services/song_storage.py`)
@@ -624,6 +630,54 @@ export interface SongDetails {
 
 
 
+## Configuration
+
+### Environment Variables
+
+#### SUNO_MODEL
+**Purpose:** Configure which Suno API model version to use for song generation
+
+**Valid Values:**
+- `V3_5` - Better song structure, up to 4 minutes
+- `V4` - Improved vocals, up to 4 minutes (DEFAULT)
+- `V4_5` - Smart prompts, up to 8 minutes
+- `V4_5PLUS` - Richer tones, up to 8 minutes
+- `V5` - Latest model, fastest generation, up to 8 minutes
+
+**Default:** `V4`
+
+**Example:**
+```bash
+# Use V5 for faster generation
+SUNO_MODEL=V5
+
+# Use V4 (default, no need to set)
+# SUNO_MODEL=V4
+```
+
+**Implementation:**
+```python
+# backend/app/services/suno_client.py
+import os
+
+DEFAULT_SUNO_MODEL = "V4"
+SUNO_MODEL = os.getenv("SUNO_MODEL", DEFAULT_SUNO_MODEL)
+
+# Use in create_song()
+payload = {
+    "customMode": True,
+    "instrumental": False,
+    "model": SUNO_MODEL,  # Use configured model
+    "prompt": lyrics,
+    "style": style_tag,
+    "title": title,
+    "callBackUrl": callback_url,
+}
+```
+
+**Validation:**
+The system should validate that the provided model is one of the supported values and log a warning if an invalid model is specified, falling back to V4.
+
 ## Error Handling
 
 ### Backend Error Scenarios
@@ -752,6 +806,16 @@ try {
 - Set `primary_variation_index: 0`
 - Hide switcher (only 1 variation)
 - Gradual migration as users access old songs
+
+#### 5. Invalid Model Configuration
+**Scenario:** `SUNO_MODEL` environment variable contains invalid value
+
+**Handling:**
+- Validate model value against allowed list: `["V3_5", "V4", "V4_5", "V4_5PLUS", "V5"]`
+- Log warning: "Invalid SUNO_MODEL '{value}', falling back to V4"
+- Use default V4 model
+- Continue with song generation
+- Do not fail the request
 
 
 

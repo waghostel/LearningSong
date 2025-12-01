@@ -13,7 +13,7 @@ This spec implements a feature to allow users to receive and switch between two 
 **NO** ⚠️ - The Suno API doesn't support single-song generation. This spec handles both songs gracefully and hides the switcher UI when only one is available.
 
 ### 3. What API version are we using?
-**V4** - Currently configured. The spec maintains V4 but documents that V5 is available for future upgrades (faster, better quality).
+**V4** (default) - Now configurable via `SUNO_MODEL` environment variable. You can switch to V5 anytime by setting `SUNO_MODEL=V5` for faster generation and better quality.
 
 ## What This Spec Delivers
 
@@ -92,6 +92,9 @@ Primary variation updates are queued when offline and processed when connectivit
 ### 5. Accessibility First
 Full keyboard navigation, ARIA labels, focus indicators, and screen reader support built in from the start.
 
+### 6. Configurable Model Version
+Suno API model version is configurable via `SUNO_MODEL` environment variable with V4 as the default. Easily switch to V5 for faster generation.
+
 ## Testing Strategy
 
 - **28 Property-Based Tests**: Validate correctness properties across all inputs
@@ -99,6 +102,30 @@ Full keyboard navigation, ARIA labels, focus indicators, and screen reader suppo
 - **Integration Tests**: End-to-end flow testing
 - **E2E Tests**: Browser-based user journey testing
 - **Accessibility Tests**: WCAG compliance with axe-core
+
+## Configuration
+
+### SUNO_MODEL Environment Variable
+
+The Suno API model version is now configurable via environment variable:
+
+**Default:** `V4` (no configuration needed)
+
+**To use V5 (faster, better quality):**
+```bash
+# In your .env file
+SUNO_MODEL=V5
+```
+
+**Available Models:**
+- `V3_5` - Better song structure, up to 4 minutes
+- `V4` - Improved vocals, up to 4 minutes (DEFAULT)
+- `V4_5` - Smart prompts, up to 8 minutes
+- `V4_5PLUS` - Richer tones, up to 8 minutes
+- `V5` - Latest model, fastest generation, up to 8 minutes
+
+**Validation:**
+Invalid model values will log a warning and fall back to V4 automatically.
 
 ## Next Steps
 

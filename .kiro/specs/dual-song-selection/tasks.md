@@ -5,7 +5,10 @@
   - Modify `SunoClient.get_task_status()` to extract all variations from sunoData array instead of just first item
   - Update `SunoStatus` dataclass to include `variations: list[SongVariation]` field
   - Add validation to ensure variation_index is 0 or 1
-  - _Requirements: 1.1, 7.1_
+  - Add `SUNO_MODEL` environment variable support with V4 as default
+  - Validate model value against allowed list: ["V3_5", "V4", "V4_5", "V4_5PLUS", "V5"]
+  - Update `create_song()` to use `os.getenv("SUNO_MODEL", "V4")` instead of hardcoded "V4"
+  - _Requirements: 1.1, 7.1, 7.6, 7.7_
 
 - [ ] 1.1 Write property test for dual song extraction
   - **Property 1: Dual song extraction completeness**
@@ -270,6 +273,9 @@
   - Document database schema changes
   - Add migration guide for existing deployments
   - Update user-facing help text
+  - Document SUNO_MODEL environment variable configuration
+  - Add examples for switching between V4 and V5 models
+  - Document model validation and fallback behavior
 
 - [ ] 18. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
