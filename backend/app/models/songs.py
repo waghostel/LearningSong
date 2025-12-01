@@ -82,8 +82,33 @@ class GenerationStatus(str, Enum):
     FAILED = "failed"
 
 
+class SongVariation(BaseModel):
+    """Represents a single song variation from Suno API.
+    
+    Requirements: 1.1, 7.1
+    """
+    
+    audio_url: str = Field(
+        ...,
+        description="URL of the song audio file"
+    )
+    audio_id: str = Field(
+        ...,
+        description="Unique identifier for fetching timestamped lyrics"
+    )
+    variation_index: int = Field(
+        ...,
+        description="Index of this variation (0 or 1)",
+        ge=0,
+        le=1
+    )
+
+
 class SongStatusUpdate(BaseModel):
-    """Model for song generation status updates (WebSocket messages)."""
+    """Model for song generation status updates (WebSocket messages).
+    
+    Requirements: 7.2, 7.4
+    """
     
     task_id: str = Field(
         ...,
@@ -101,7 +126,11 @@ class SongStatusUpdate(BaseModel):
     )
     song_url: Optional[str] = Field(
         default=None,
-        description="URL of the generated song (when completed)"
+        description="URL of the generated song (when completed) - deprecated, use variations"
+    )
+    variations: list[SongVariation] = Field(
+        default_factory=list,
+        description="Array of song variations (1-2 items)"
     )
     error: Optional[str] = Field(
         default=None,
@@ -153,7 +182,7 @@ class AlignedWordDict(BaseModel):
 class SongDetails(BaseModel):
     """Complete song details for playback page.
     
-    Requirements: 8.1, 8.4, 2.2, 2.3
+    Requirements: 8.1, 8.4, 2.2, 2.3, 7.2, 7.4
     """
     
     song_id: str = Field(
@@ -162,7 +191,17 @@ class SongDetails(BaseModel):
     )
     song_url: str = Field(
         ...,
-        description="URL of the generated song audio file"
+        description="URL of the generated song audio file - deprecated, use variations"
+    )
+    variations: list[SongVariation] = Field(
+        default_factory=list,
+        description="Array of song variations (1-2 items)"
+    )
+    primary_variation_index: int = Field(
+        default=0,
+        description="Index of user's selected primary variation",
+        ge=0,
+        le=1
     )
     lyrics: str = Field(
         ...,
@@ -203,6 +242,20 @@ class SongDetails(BaseModel):
             datetime: lambda v: v.isoformat()
         }
     }
+
+
+class UpdatePrimaryVariationRequest(BaseModel):
+    """Request to update primary variation selection.
+    
+    Requirements: 4.1, 7.5
+    """
+    
+    variation_index: int = Field(
+        ...,
+        description="Index of the variation to set as primary (0 or 1)",
+        ge=0,
+        le=1
+    )
 
 
 class ShareLinkResponse(BaseModel):

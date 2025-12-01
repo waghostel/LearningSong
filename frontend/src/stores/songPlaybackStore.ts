@@ -4,6 +4,7 @@ import {
   MusicStyle,
   type SongDetails,
   type ShareLinkResponse,
+  type SongVariation,
   getSongDetails,
   getSharedSong,
   createShareLink as apiCreateShareLink,
@@ -19,6 +20,10 @@ interface SongPlaybackState {
   createdAt: Date | null
   expiresAt: Date | null
   isOwner: boolean
+
+  // Dual song state (Requirements: 4.1, 4.2)
+  songVariations: SongVariation[]
+  primaryVariationIndex: number
 
   // Timestamped lyrics data
   alignedWords: AlignedWord[]
@@ -44,6 +49,10 @@ interface SongPlaybackState {
   setDuration: (duration: number) => void
   createShareLink: () => Promise<string>
   reset: () => void
+  
+  // Actions for dual songs (Requirements: 4.1, 4.2)
+  setSongVariations: (variations: SongVariation[]) => void
+  setPrimaryVariationIndex: (index: number) => void
 }
 
 
@@ -55,6 +64,9 @@ const initialState = {
   createdAt: null as Date | null,
   expiresAt: null as Date | null,
   isOwner: false,
+  // Dual song state
+  songVariations: [] as SongVariation[],
+  primaryVariationIndex: 0,
   // Timestamped lyrics data
   alignedWords: [] as AlignedWord[],
   hasTimestamps: false,
@@ -78,6 +90,9 @@ const mapSongDetailsToState = (details: SongDetails) => ({
   createdAt: new Date(details.created_at),
   expiresAt: new Date(details.expires_at),
   isOwner: details.is_owner,
+  // Dual song fields
+  songVariations: details.variations ?? [],
+  primaryVariationIndex: details.primary_variation_index ?? 0,
   // Timestamped lyrics fields
   alignedWords: details.aligned_words ?? [],
   hasTimestamps: details.has_timestamps ?? false,
@@ -144,6 +159,12 @@ export const useSongPlaybackStore = create<SongPlaybackState>()(
         }
       },
 
+      setSongVariations: (variations: SongVariation[]) => 
+        set({ songVariations: variations }),
+      
+      setPrimaryVariationIndex: (index: number) => 
+        set({ primaryVariationIndex: index }),
+
       reset: () => set(initialState),
     }),
     {
@@ -159,6 +180,9 @@ export const useSongPlaybackStore = create<SongPlaybackState>()(
         expiresAt: state.expiresAt,
         isOwner: state.isOwner,
         shareUrl: state.shareUrl,
+        // Dual song fields
+        songVariations: state.songVariations,
+        primaryVariationIndex: state.primaryVariationIndex,
         // Timestamped lyrics fields
         alignedWords: state.alignedWords,
         hasTimestamps: state.hasTimestamps,

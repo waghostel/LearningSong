@@ -25,11 +25,26 @@ export interface GenerateSongResponse {
   estimated_time: number // seconds
 }
 
+/**
+ * Represents a single song variation from Suno API
+ * Requirements: 1.1, 7.1
+ */
+export interface SongVariation {
+  audio_url: string
+  audio_id: string
+  variation_index: number // 0 or 1
+}
+
+/**
+ * Song generation status update
+ * Requirements: 7.2, 7.4
+ */
 export interface SongStatusUpdate {
   task_id: string
   status: 'queued' | 'processing' | 'completed' | 'failed'
   progress: number // 0-100
-  song_url?: string
+  song_url?: string // Deprecated, use variations
+  variations: SongVariation[] // Array of song variations (1-2 items)
   error?: string
 }
 
@@ -87,9 +102,15 @@ export const generateSongWithTimeout = async (
 }
 
 // Song Details interfaces for playback page
+/**
+ * Complete song details for playback page
+ * Requirements: 7.2, 7.4
+ */
 export interface SongDetails {
   song_id: string
-  song_url: string
+  song_url: string // Deprecated, use variations
+  variations: SongVariation[] // Array of song variations (1-2 items)
+  primary_variation_index: number // Index of user's selected primary variation (0 or 1)
   lyrics: string
   style: MusicStyle
   created_at: string  // ISO datetime
@@ -140,5 +161,44 @@ export const getSharedSong = async (shareToken: string): Promise<SongDetails> =>
 export const createShareLink = async (songId: string): Promise<ShareLinkResponse> => {
   return retryWithBackoff(() =>
     apiClient.post<ShareLinkResponse>(`/api/songs/${songId}/share`)
+  )
+}
+
+/**
+ * Update the user's primary song variation selection
+ * Requirements: 4.1, 7.5
+ * @param taskId - Song task ID
+ * @param variationIndex - Index of selected variation (0 or 1)
+ * @returns Success response with updated primary_variation_index
+ * @throws ApiError with 403 if user doesn't own the song, 404 if song not found, 400 if invalid index
+ */
+export const updatePrimaryVariation = async (
+  taskId: string,
+  variationIndex: number
+): Promise<{ success: boolean; primary_variation_index: number }> => {
+  return retryWithBackoff(() =>
+    apiClient.patch<{ success: boolean; primary_variation_index: number }>(
+      `/api/songs/${taskId}/primary-variation`,
+      { variation_index: variationIndex }
+    )
+  )
+}
+
+/**
+ * Fetch timestamped lyrics for a specific variation
+ * Requirements: 6.1
+ * @param taskId - Song task ID
+ * @param variationIndex - Which variation (0 or 1)
+ * @returns Timestamped lyrics data with aligned_words and waveform_data
+ * @throws ApiError with 403 if user doesn't own the song, 404 if song not found, 400 if invalid index
+ */
+export const fetchVariationTimestampedLyrics = async (
+  taskId: string,
+  variationIndex: number
+): Promise<{ aligned_words: AlignedWord[]; waveform_data: number[] }> => {
+  return retryWithBackoff(() =>
+    apiClient.post<{ aligned_words: AlignedWord[]; waveform_data: number[] }>(
+      `/api/songs/${taskId}/timestamped-lyrics/${variationIndex}`
+    )
   )
 }

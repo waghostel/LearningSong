@@ -1,6 +1,11 @@
 # Implementation Plan
 
-- [ ] 1. Update backend data models and Suno client
+- [x] 1. Update backend data models and Suno client
+
+
+
+
+
   - Create `SongVariation` Pydantic model with audio_url, audio_id, and variation_index fields
   - Modify `SunoClient.get_task_status()` to extract all variations from sunoData array instead of just first item
   - Update `SunoStatus` dataclass to include `variations: list[SongVariation]` field
@@ -10,65 +15,94 @@
   - Update `create_song()` to use `os.getenv("SUNO_MODEL", "V4")` instead of hardcoded "V4"
   - _Requirements: 1.1, 7.1, 7.6, 7.7_
 
-- [ ] 1.1 Write property test for dual song extraction
+- [x] 1.1 Write property test for dual song extraction
+
+
   - **Property 1: Dual song extraction completeness**
   - **Validates: Requirements 1.1, 7.1**
 
-- [ ] 1.2 Update song storage service for variations
+- [x] 1.2 Update song storage service for variations
+
+
   - Modify `store_song_task()` to accept and store variations array
   - Update Firestore schema to include `variations` array and `primary_variation_index` fields
   - Add `update_primary_variation()` function to update user's selection
   - Implement backward compatibility: migrate old `song_url` to `variations[0]` on read
   - _Requirements: 1.2, 1.3, 1.4, 7.3_
 
-- [ ] 1.3 Write property test for variation storage
+- [x] 1.3 Write property test for variation storage
+
+
   - **Property 2: Variation storage completeness**
   - **Validates: Requirements 1.2, 7.3**
 
-- [ ] 1.4 Write property test for default primary variation
+- [x] 1.4 Write property test for default primary variation
+
+
   - **Property 3: Default primary variation**
   - **Validates: Requirements 1.3**
 
-- [ ] 1.5 Write property test for variation order preservation
+- [x] 1.5 Write property test for variation order preservation
+
+
   - **Property 4: Variation order preservation**
   - **Validates: Requirements 1.4**
 
-- [ ] 1.6 Write property test for variation data preservation
+- [x] 1.6 Write property test for variation data preservation
+
+
   - **Property 13: Variation data preservation**
   - **Validates: Requirements 4.3**
 
-- [ ] 2. Update backend API endpoints
+- [x] 2. Update backend API endpoints
+
+
+
+
+
   - Modify `GET /api/songs/{task_id}` to return variations array in `SongStatusUpdate`
   - Modify `GET /api/songs/{song_id}/details` to return variations and primary_variation_index
   - Update `update_task_status()` calls to store all variations from Suno response
   - _Requirements: 7.2, 7.4_
 
-- [ ] 2.1 Create new API endpoint for updating primary variation
+- [x] 2.1 Create new API endpoint for updating primary variation
+
+
   - Implement `PATCH /api/songs/{task_id}/primary-variation` endpoint
   - Accept `UpdatePrimaryVariationRequest` with variation_index (0 or 1)
   - Verify user ownership before updating
   - Return success response with updated primary_variation_index
   - _Requirements: 4.1, 7.5_
 
-- [ ] 2.2 Create new API endpoint for fetching variation-specific timestamped lyrics
+- [x] 2.2 Create new API endpoint for fetching variation-specific timestamped lyrics
+
+
   - Implement `POST /api/songs/{task_id}/timestamped-lyrics/{variation_index}` endpoint
   - Retrieve correct audio_id for the specified variation from database
   - Call Suno API with correct audio_id
   - Return aligned_words and waveform_data
   - _Requirements: 6.1_
 
-- [ ] 2.3 Write property test for API response format
+- [x] 2.3 Write property test for API response format
+
+
   - **Property 20: API response format completeness**
   - **Validates: Requirements 7.2, 7.4**
 
-- [ ] 3. Update frontend data models and API client
+- [x] 3. Update frontend data models and API client
+
+
   - Create `SongVariation` TypeScript interface
   - Update `SongStatusUpdate` interface to include variations array
   - Update `SongDetails` interface to include variations and primary_variation_index
   - Add API client functions: `updatePrimaryVariation()` and `fetchVariationTimestampedLyrics()`
   - _Requirements: 7.2, 7.4_
 
-- [ ] 4. Update Zustand store for dual songs
+- [x] 4. Update Zustand store for dual songs
+
+
+
+
   - Add `songVariations: SongVariation[]` state field
   - Add `primaryVariationIndex: number` state field
   - Add `setSongVariations()` action
@@ -76,7 +110,11 @@
   - Update `completeGeneration()` to handle variations array
   - _Requirements: 4.1, 4.2_
 
-- [ ] 5. Create SongSwitcher component
+- [x] 5. Create SongSwitcher component
+
+
+
+
   - Create `frontend/src/components/SongSwitcher.tsx`
   - Implement segmented control UI with "Version 1" and "Version 2" buttons
   - Show active state styling for currently selected variation
@@ -84,25 +122,38 @@
   - Hide component when variations.length < 2
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 3.5_
 
-- [ ] 5.1 Write property test for switcher visibility
+- [x] 5.1 Write property test for switcher visibility
+
+
   - **Property 5: Switcher visibility with multiple variations**
   - **Validates: Requirements 2.1**
 
-- [ ] 5.2 Write property test for switcher hidden state
+- [x] 5.2 Write property test for switcher hidden state
+
+
   - **Property 6: Switcher hidden with single variation**
   - **Validates: Requirements 2.2**
 
-- [ ] 5.3 Write property test for active variation indication
+- [x] 5.3 Write property test for active variation indication
+
+
   - **Property 7: Active variation indication**
   - **Validates: Requirements 2.4**
 
-- [ ] 5.4 Write unit tests for SongSwitcher component
+- [x] 5.4 Write unit tests for SongSwitcher component
+
+
   - Test rendering with 2 variations
   - Test click handlers
   - Test loading state display
   - Test disabled state
 
-- [ ] 6. Implement accessibility features for SongSwitcher
+- [x] 6. Implement accessibility features for SongSwitcher
+
+
+
+
+
   - Add keyboard navigation support (Tab, Arrow keys, Enter, Space)
   - Add ARIA labels for screen readers (aria-label, aria-pressed, role="group")
   - Add visible focus indicators with CSS
@@ -110,15 +161,21 @@
   - Test with axe-core for WCAG compliance
   - _Requirements: 9.1, 9.2, 9.3, 9.4_
 
-- [ ] 6.1 Write property test for keyboard navigation
+- [x] 6.1 Write property test for keyboard navigation
+
+
   - **Property 23: Keyboard navigation support**
   - **Validates: Requirements 9.2**
 
-- [ ] 6.2 Write property test for focus indication
+- [x] 6.2 Write property test for focus indication
+
+
   - **Property 24: Focus indication**
   - **Validates: Requirements 9.3**
 
-- [ ] 6.3 Write property test for screen reader accessibility
+- [x] 6.3 Write property test for screen reader accessibility
+
+
   - **Property 25: Screen reader accessibility**
   - **Validates: Requirements 9.4**
 

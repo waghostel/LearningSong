@@ -1,9 +1,11 @@
 import '@testing-library/jest-dom'
+import { toHaveNoViolations } from 'jest-axe'
 import { TextEncoder, TextDecoder } from 'util'
 import { Response } from 'node-fetch'
 
-// Extend Jest matchers with jest-dom
+// Extend Jest matchers with jest-dom and jest-axe
 // Type augmentation for jest-dom matchers is handled by the import
+expect.extend(toHaveNoViolations)
 
 // Polyfill TextEncoder/TextDecoder for react-router
 global.TextEncoder = TextEncoder

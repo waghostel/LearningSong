@@ -19,6 +19,14 @@ const mockCreateShareLink = createShareLink as jest.MockedFunction<typeof create
 const mockSongDetails = {
   song_id: 'song-123',
   song_url: 'https://example.com/song.mp3',
+  variations: [
+    {
+      audio_url: 'https://example.com/song.mp3',
+      audio_id: 'audio-123',
+      variation_index: 0,
+    },
+  ],
+  primary_variation_index: 0,
   lyrics: 'Test lyrics for the song',
   style: MusicStyle.POP,
   created_at: '2025-11-28T10:00:00Z',

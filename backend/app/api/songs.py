@@ -18,6 +18,8 @@ from app.models.songs import (
     GenerationStatus,
     SongDetails,
     ShareLinkResponse,
+    UpdatePrimaryVariationRequest,
+    SongVariation,
 )
 from app.core.auth import get_current_user
 from app.services.cache import check_song_cache
@@ -221,12 +223,26 @@ async def get_song_details(
     else:
         created_at_dt = datetime.fromisoformat(str(created_at).replace('Z', '+00:00'))
     
-    # Step 7: Return SongDetails with timestamped lyrics (Requirements: 1.2)
+    # Step 7: Return SongDetails with timestamped lyrics and variations (Requirements: 1.2, 7.2, 7.4)
     from app.models.songs import MusicStyle
+    
+    # Convert variations from dict to Pydantic models
+    variations_data = song_data.get('variations', [])
+    variations_models = [
+        SongVariation(
+            audio_url=var.get('audio_url'),
+            audio_id=var.get('audio_id'),
+            variation_index=var.get('variation_index')
+        )
+        for var in variations_data
+        if var.get('audio_url') and var.get('audio_id')
+    ]
     
     return SongDetails(
         song_id=song_id,
         song_url=song_url,
+        variations=variations_models,
+        primary_variation_index=song_data.get('primary_variation_index', 0),
         lyrics=song_data.get('lyrics', ''),
         style=MusicStyle(song_data.get('style', 'pop')),
         created_at=created_at_dt,
@@ -236,6 +252,474 @@ async def get_song_details(
         waveform_data=song_data.get('waveform_data'),
         has_timestamps=song_data.get('has_timestamps', False),
     )
+
+
+@router.patch("/{task_id}/primary-variation")
+async def update_song_primary_variation(
+    task_id: str,
+    request: UpdatePrimaryVariationRequest,
+    user_id: str = Depends(get_current_user)
+) -> dict:
+    """
+    Update the user's primary song variation selection.
+    
+    This endpoint:
+    1. Verifies user owns the song
+    2. Validates variation_index is 0 or 1
+    3. Updates primary_variation_index in Firestore
+    4. Returns success response
+    
+    Args:
+        task_id: The song/task ID
+        request: Request with variation_index (0 or 1)
+        user_id: Authenticated user ID from Firebase token
+        
+    Returns:
+        dict with success status and updated primary_variation_index
+        
+    Raises:
+        HTTPException: 404 if song not found
+        HTTPException: 403 if user doesn't own the song
+        HTTPException: 400 if variation_index is invalid
+        HTTPException: 500 if update fails
+        
+    Requirements: 4.1, 7.5
+    """
+    logger.info(
+        f"Update primary variation request for song: {task_id}",
+        extra={
+            'extra_fields': {
+                'user_id': user_id,
+                'task_id': task_id,
+                'variation_index': request.variation_index,
+                'operation': 'update_primary_variation'
+            }
+        }
+    )
+    
+    # Step 1: Verify song exists
+    try:
+        song_data = await get_task_from_firestore(task_id)
+    except Exception as e:
+        logger.error(
+            f"Failed to query Firestore for song: {task_id}",
+            extra={
+                'extra_fields': {
+                    'task_id': task_id,
+                    'error': str(e),
+                    'operation': 'update_primary_variation'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=500,
+            detail={
+                'error': 'Internal error',
+                'message': 'Failed to retrieve song data. Please try again.'
+            }
+        )
+    
+    if song_data is None:
+        logger.warning(
+            f"Song not found for primary variation update: {task_id}",
+            extra={
+                'extra_fields': {
+                    'task_id': task_id,
+                    'user_id': user_id,
+                    'operation': 'update_primary_variation'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=404,
+            detail={
+                'error': 'Song not found',
+                'message': 'The requested song could not be found.'
+            }
+        )
+    
+    # Step 2: Verify user ownership
+    if song_data.get('user_id') != user_id:
+        logger.warning(
+            f"Unauthorized primary variation update attempt for song: {task_id}",
+            extra={
+                'extra_fields': {
+                    'task_id': task_id,
+                    'requesting_user': user_id,
+                    'song_owner': song_data.get('user_id'),
+                    'operation': 'update_primary_variation'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=403,
+            detail={
+                'error': 'Forbidden',
+                'message': 'You do not have permission to update this song.'
+            }
+        )
+    
+    # Step 3: Validate variation exists
+    variations = song_data.get('variations', [])
+    if request.variation_index >= len(variations):
+        logger.warning(
+            f"Invalid variation_index for song: {task_id}",
+            extra={
+                'extra_fields': {
+                    'task_id': task_id,
+                    'variation_index': request.variation_index,
+                    'variations_count': len(variations),
+                    'operation': 'update_primary_variation'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=400,
+            detail={
+                'error': 'Invalid variation',
+                'message': f'Variation index {request.variation_index} does not exist for this song.'
+            }
+        )
+    
+    # Step 4: Update primary variation
+    from app.services.song_storage import update_primary_variation
+    
+    try:
+        success = await update_primary_variation(task_id, request.variation_index)
+        
+        if not success:
+            raise HTTPException(
+                status_code=500,
+                detail={
+                    'error': 'Update failed',
+                    'message': 'Failed to update primary variation. Please try again.'
+                }
+            )
+        
+        logger.info(
+            f"Primary variation updated successfully for song: {task_id}",
+            extra={
+                'extra_fields': {
+                    'task_id': task_id,
+                    'user_id': user_id,
+                    'variation_index': request.variation_index,
+                    'operation': 'update_primary_variation'
+                }
+            }
+        )
+        
+        return {
+            'success': True,
+            'primary_variation_index': request.variation_index
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(
+            f"Failed to update primary variation for song: {task_id}",
+            extra={
+                'extra_fields': {
+                    'task_id': task_id,
+                    'error': str(e),
+                    'operation': 'update_primary_variation'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=500,
+            detail={
+                'error': 'Internal error',
+                'message': 'Failed to update primary variation. Please try again.'
+            }
+        )
+
+
+@router.post("/{task_id}/timestamped-lyrics/{variation_index}")
+async def get_variation_timestamped_lyrics(
+    task_id: str,
+    variation_index: int,
+    user_id: str = Depends(get_current_user)
+) -> dict:
+    """
+    Fetch timestamped lyrics for a specific song variation.
+    
+    This endpoint:
+    1. Verifies user owns the song
+    2. Retrieves the correct audio_id for the specified variation
+    3. Calls Suno API to fetch timestamped lyrics
+    4. Returns aligned_words and waveform_data
+    
+    Args:
+        task_id: The song/task ID
+        variation_index: Which variation (0 or 1)
+        user_id: Authenticated user ID from Firebase token
+        
+    Returns:
+        dict with aligned_words and waveform_data
+        
+    Raises:
+        HTTPException: 404 if song not found
+        HTTPException: 403 if user doesn't own the song
+        HTTPException: 400 if variation_index is invalid
+        HTTPException: 500 if Suno API call fails
+        
+    Requirements: 6.1
+    """
+    logger.info(
+        f"Timestamped lyrics request for song: {task_id}, variation: {variation_index}",
+        extra={
+            'extra_fields': {
+                'user_id': user_id,
+                'task_id': task_id,
+                'variation_index': variation_index,
+                'operation': 'get_variation_timestamped_lyrics'
+            }
+        }
+    )
+    
+    # Step 1: Verify song exists
+    try:
+        song_data = await get_task_from_firestore(task_id)
+    except Exception as e:
+        logger.error(
+            f"Failed to query Firestore for song: {task_id}",
+            extra={
+                'extra_fields': {
+                    'task_id': task_id,
+                    'error': str(e),
+                    'operation': 'get_variation_timestamped_lyrics'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=500,
+            detail={
+                'error': 'Internal error',
+                'message': 'Failed to retrieve song data. Please try again.'
+            }
+        )
+    
+    if song_data is None:
+        logger.warning(
+            f"Song not found for timestamped lyrics: {task_id}",
+            extra={
+                'extra_fields': {
+                    'task_id': task_id,
+                    'user_id': user_id,
+                    'operation': 'get_variation_timestamped_lyrics'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=404,
+            detail={
+                'error': 'Song not found',
+                'message': 'The requested song could not be found.'
+            }
+        )
+    
+    # Step 2: Verify user ownership
+    if song_data.get('user_id') != user_id:
+        logger.warning(
+            f"Unauthorized timestamped lyrics request for song: {task_id}",
+            extra={
+                'extra_fields': {
+                    'task_id': task_id,
+                    'requesting_user': user_id,
+                    'song_owner': song_data.get('user_id'),
+                    'operation': 'get_variation_timestamped_lyrics'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=403,
+            detail={
+                'error': 'Forbidden',
+                'message': 'You do not have permission to access this song.'
+            }
+        )
+    
+    # Step 3: Validate variation_index
+    if variation_index not in (0, 1):
+        logger.warning(
+            f"Invalid variation_index: {variation_index}",
+            extra={
+                'extra_fields': {
+                    'task_id': task_id,
+                    'variation_index': variation_index,
+                    'operation': 'get_variation_timestamped_lyrics'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=400,
+            detail={
+                'error': 'Invalid variation',
+                'message': 'Variation index must be 0 or 1.'
+            }
+        )
+    
+    # Step 4: Get audio_id for the specified variation
+    variations = song_data.get('variations', [])
+    
+    if variation_index >= len(variations):
+        logger.warning(
+            f"Variation index out of range for song: {task_id}",
+            extra={
+                'extra_fields': {
+                    'task_id': task_id,
+                    'variation_index': variation_index,
+                    'variations_count': len(variations),
+                    'operation': 'get_variation_timestamped_lyrics'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=400,
+            detail={
+                'error': 'Invalid variation',
+                'message': f'Variation {variation_index} does not exist for this song.'
+            }
+        )
+    
+    variation = variations[variation_index]
+    audio_id = variation.get('audio_id')
+    
+    if not audio_id:
+        logger.error(
+            f"No audio_id found for variation {variation_index} of song: {task_id}",
+            extra={
+                'extra_fields': {
+                    'task_id': task_id,
+                    'variation_index': variation_index,
+                    'operation': 'get_variation_timestamped_lyrics'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=500,
+            detail={
+                'error': 'Internal error',
+                'message': 'Audio ID not found for this variation.'
+            }
+        )
+    
+    # Step 5: Call Suno API to fetch timestamped lyrics
+    suno_api_key = os.getenv("SUNO_API_KEY")
+    if not suno_api_key:
+        logger.error(
+            "SUNO_API_KEY not configured",
+            extra={
+                'extra_fields': {
+                    'task_id': task_id,
+                    'error': 'missing_api_key'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=503,
+            detail={
+                'error': 'Service unavailable',
+                'message': 'Song generation service is not configured. Please try again later.'
+            }
+        )
+    
+    suno_base_url = os.getenv("SUNO_API_URL", "https://api.sunoapi.org")
+    
+    try:
+        async with SunoClient(api_key=suno_api_key, base_url=suno_base_url) as suno_client:
+            timestamped_lyrics = await suno_client.get_timestamped_lyrics(
+                task_id=task_id,
+                audio_id=audio_id
+            )
+            
+            if timestamped_lyrics is None:
+                logger.warning(
+                    f"Failed to fetch timestamped lyrics for variation {variation_index}",
+                    extra={
+                        'extra_fields': {
+                            'task_id': task_id,
+                            'variation_index': variation_index,
+                            'audio_id': audio_id,
+                            'operation': 'get_variation_timestamped_lyrics'
+                        }
+                    }
+                )
+                # Return empty arrays instead of failing
+                return {
+                    'aligned_words': [],
+                    'waveform_data': []
+                }
+            
+            # Convert AlignedWord dataclasses to dicts
+            aligned_words_dicts = [
+                {
+                    'word': word.word,
+                    'startS': word.start_s,
+                    'endS': word.end_s,
+                    'success': word.success,
+                    'palign': word.palign
+                }
+                for word in timestamped_lyrics.aligned_words
+            ]
+            
+            logger.info(
+                f"Successfully fetched timestamped lyrics for variation {variation_index}",
+                extra={
+                    'extra_fields': {
+                        'task_id': task_id,
+                        'variation_index': variation_index,
+                        'aligned_words_count': len(aligned_words_dicts),
+                        'operation': 'get_variation_timestamped_lyrics'
+                    }
+                }
+            )
+            
+            return {
+                'aligned_words': aligned_words_dicts,
+                'waveform_data': timestamped_lyrics.waveform_data
+            }
+    
+    except SunoAPIError as e:
+        logger.error(
+            f"Suno API error fetching timestamped lyrics: {e}",
+            extra={
+                'extra_fields': {
+                    'task_id': task_id,
+                    'variation_index': variation_index,
+                    'error_type': 'suno_api_error',
+                    'error_message': str(e),
+                    'operation': 'get_variation_timestamped_lyrics'
+                }
+            }
+        )
+        # Return empty arrays instead of failing
+        return {
+            'aligned_words': [],
+            'waveform_data': []
+        }
+    
+    except Exception as e:
+        logger.error(
+            f"Unexpected error fetching timestamped lyrics: {e}",
+            extra={
+                'extra_fields': {
+                    'task_id': task_id,
+                    'variation_index': variation_index,
+                    'error_type': 'unexpected',
+                    'error_message': str(e),
+                    'operation': 'get_variation_timestamped_lyrics'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=500,
+            detail={
+                'error': 'Internal error',
+                'message': 'Failed to fetch timestamped lyrics. Please try again.'
+            }
+        )
 
 
 @router.post("/{song_id}/share", response_model=ShareLinkResponse)
@@ -537,11 +1021,23 @@ async def get_shared_song(share_token: str) -> SongDetails:
     else:
         created_at_dt = datetime.fromisoformat(str(created_at).replace('Z', '+00:00'))
     
-    # Step 6: Return SongDetails with timestamped lyrics (is_owner is False for shared songs)
-    # Requirements: 1.2 - Ensure shared song endpoint also returns timestamps
+    # Step 6: Return SongDetails with timestamped lyrics and variations (is_owner is False for shared songs)
+    # Requirements: 1.2, 7.2, 7.4 - Ensure shared song endpoint also returns timestamps and variations
     from app.models.songs import MusicStyle
     
     song_id = song_data.get('task_id', share_token)
+    
+    # Convert variations from dict to Pydantic models
+    variations_data = song_data.get('variations', [])
+    variations_models = [
+        SongVariation(
+            audio_url=var.get('audio_url'),
+            audio_id=var.get('audio_id'),
+            variation_index=var.get('variation_index')
+        )
+        for var in variations_data
+        if var.get('audio_url') and var.get('audio_id')
+    ]
     
     logger.info(
         f"Shared song retrieved successfully: {share_token[:8]}...",
@@ -557,6 +1053,8 @@ async def get_shared_song(share_token: str) -> SongDetails:
     return SongDetails(
         song_id=song_id,
         song_url=song_url,
+        variations=variations_models,
+        primary_variation_index=song_data.get('primary_variation_index', 0),
         lyrics=song_data.get('lyrics', ''),
         style=MusicStyle(song_data.get('style', 'pop')),
         created_at=created_at_dt,
@@ -1046,11 +1544,25 @@ async def get_song_status(
                 }
             }
         )
+        
+        # Convert variations from dict to Pydantic models (Requirements: 7.2, 7.4)
+        variations_data = task_data.get('variations', [])
+        variations_models = [
+            SongVariation(
+                audio_url=var.get('audio_url'),
+                audio_id=var.get('audio_id'),
+                variation_index=var.get('variation_index')
+            )
+            for var in variations_data
+            if var.get('audio_url') and var.get('audio_id')
+        ]
+        
         return SongStatusUpdate(
             task_id=task_id,
             status=GenerationStatus(current_status),
             progress=task_data.get('progress', 0),
             song_url=task_data.get('song_url'),
+            variations=variations_models,
             error=task_data.get('error'),
         )
     
@@ -1106,11 +1618,24 @@ async def get_song_status(
             }
         )
         # Return cached status if Suno API fails
+        # Convert variations from dict to Pydantic models
+        variations_data = task_data.get('variations', [])
+        variations_models = [
+            SongVariation(
+                audio_url=var.get('audio_url'),
+                audio_id=var.get('audio_id'),
+                variation_index=var.get('variation_index')
+            )
+            for var in variations_data
+            if var.get('audio_url') and var.get('audio_id')
+        ]
+        
         return SongStatusUpdate(
             task_id=task_id,
             status=GenerationStatus(current_status) if current_status else GenerationStatus.QUEUED,
             progress=task_data.get('progress', 0),
             song_url=task_data.get('song_url'),
+            variations=variations_models,
             error=task_data.get('error'),
         )
     
@@ -1126,11 +1651,24 @@ async def get_song_status(
             }
         )
         # Return cached status if unexpected error
+        # Convert variations from dict to Pydantic models
+        variations_data = task_data.get('variations', [])
+        variations_models = [
+            SongVariation(
+                audio_url=var.get('audio_url'),
+                audio_id=var.get('audio_id'),
+                variation_index=var.get('variation_index')
+            )
+            for var in variations_data
+            if var.get('audio_url') and var.get('audio_id')
+        ]
+        
         return SongStatusUpdate(
             task_id=task_id,
             status=GenerationStatus(current_status) if current_status else GenerationStatus.QUEUED,
             progress=task_data.get('progress', 0),
             song_url=task_data.get('song_url'),
+            variations=variations_models,
             error=task_data.get('error'),
         )
     
@@ -1138,6 +1676,16 @@ async def get_song_status(
     generation_status = _map_suno_status_to_generation_status(suno_status.status)
     
     # Step 7: Update Firestore with latest status
+    # Convert SongVariation dataclasses to dicts for storage
+    variations_dicts = [
+        {
+            'audio_url': var.audio_url,
+            'audio_id': var.audio_id,
+            'variation_index': var.variation_index
+        }
+        for var in suno_status.variations
+    ] if suno_status.variations else []
+    
     try:
         await update_task_status(
             task_id=task_id,
@@ -1145,6 +1693,7 @@ async def get_song_status(
             progress=suno_status.progress,
             song_url=suno_status.song_url,
             error=suno_status.error,
+            variations=variations_dicts,
         )
     except Exception as e:
         # Log error but don't fail the request - we have the status
@@ -1159,11 +1708,22 @@ async def get_song_status(
             }
         )
     
-    # Step 8: Return status update
+    # Step 8: Return status update with variations (Requirements: 7.2, 7.4)
+    # Convert dataclass variations to Pydantic models
+    variations_models = [
+        SongVariation(
+            audio_url=var.audio_url,
+            audio_id=var.audio_id,
+            variation_index=var.variation_index
+        )
+        for var in suno_status.variations
+    ] if suno_status.variations else []
+    
     return SongStatusUpdate(
         task_id=task_id,
         status=generation_status,
         progress=suno_status.progress,
         song_url=suno_status.song_url,
+        variations=variations_models,
         error=suno_status.error,
     )

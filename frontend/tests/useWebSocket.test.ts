@@ -240,6 +240,7 @@ describe('useWebSocket', () => {
         task_id: 'test-task-123',
         status: 'processing',
         progress: 50,
+        variations: [],
       };
 
       await act(async () => {
@@ -268,6 +269,13 @@ describe('useWebSocket', () => {
         status: 'completed',
         progress: 100,
         song_url: 'https://example.com/song.mp3',
+        variations: [
+          {
+            audio_url: 'https://example.com/song.mp3',
+            audio_id: 'audio-123',
+            variation_index: 0,
+          },
+        ],
       };
 
       await act(async () => {
@@ -296,6 +304,7 @@ describe('useWebSocket', () => {
         status: 'failed',
         progress: 0,
         error: 'Generation failed',
+        variations: [],
       };
 
       await act(async () => {

@@ -25,7 +25,7 @@ export default {
           esModuleInterop: true,
           module: 'esnext',
           moduleResolution: 'node',
-          types: ['jest', '@testing-library/jest-dom', 'node'],
+          types: ['jest', '@testing-library/jest-dom', 'jest-axe', 'node'],
           skipLibCheck: true,
         },
       },

@@ -89,19 +89,38 @@ class SunoTask:
 
 
 @dataclass
+class SongVariation:
+    """Represents a single song variation from Suno API.
+    
+    Requirements: 1.1, 7.1
+    """
+    audio_url: str
+    audio_id: str
+    variation_index: int  # 0 or 1
+    
+    def __post_init__(self):
+        """Validate variation data after initialization."""
+        if self.variation_index not in (0, 1):
+            raise ValueError("variation_index must be 0 or 1")
+
+
+@dataclass
 class SunoStatus:
     """Represents the status of a Suno music generation task."""
     
     status: str  # PENDING, GENERATING, SUCCESS, FAILED, etc.
     progress: int  # 0-100
-    song_url: Optional[str] = None
+    variations: list[SongVariation] = None  # List of song variations
+    song_url: Optional[str] = None  # Deprecated: kept for backward compatibility
     error: Optional[str] = None
-    audio_id: Optional[str] = None  # Audio ID for fetching timestamped lyrics
+    audio_id: Optional[str] = None  # Deprecated: kept for backward compatibility
     
     def __post_init__(self):
         """Validate status data after initialization."""
         if self.progress < 0 or self.progress > 100:
             raise ValueError("progress must be between 0 and 100")
+        if self.variations is None:
+            self.variations = []
 
 
 class SunoAPIError(Exception):
@@ -224,10 +243,22 @@ class SunoClient:
         # The API requires this field, but we poll for status instead of using webhooks
         callback_url = os.getenv("SUNO_CALLBACK_URL", "https://example.com/callback")
         
+        # Get model version from environment variable with validation
+        # Requirements: 7.6, 7.7
+        allowed_models = ["V3_5", "V4", "V4_5", "V4_5PLUS", "V5"]
+        suno_model = os.getenv("SUNO_MODEL", "V4")
+        
+        if suno_model not in allowed_models:
+            logger.warning(
+                f"Invalid SUNO_MODEL '{suno_model}', falling back to V4. "
+                f"Allowed values: {allowed_models}"
+            )
+            suno_model = "V4"
+        
         payload = {
             "customMode": True,
             "instrumental": False,
-            "model": "V4",  # Use V4 model for good quality
+            "model": suno_model,
             "prompt": lyrics,
             "style": style_tag,
             "title": title,
@@ -395,20 +426,43 @@ class SunoClient:
             # Map Suno status to progress percentage
             progress = self._status_to_progress(status)
             
-            # Get song URL and audio_id if completed
-            song_url = None
+            # Get song variations if completed
+            # Requirements: 1.1, 7.1
+            variations = []
+            song_url = None  # Deprecated: kept for backward compatibility
             error = None
-            audio_id = None
+            audio_id = None  # Deprecated: kept for backward compatibility
             
             if status == "SUCCESS":
                 suno_data = task_data.get("response", {}).get("sunoData", [])
-                if suno_data:
-                    # Get the first track's audio URL and ID
-                    first_track = suno_data[0]
-                    song_url = first_track.get("audioUrl")
-                    audio_id = first_track.get("id")
-                    print(f"✅ [SUNO] Song URL found: {song_url[:50] if song_url else 'None'}...")
-                    print(f"✅ [SUNO] Audio ID found: {audio_id}")
+                print(f"✅ [SUNO] Found {len(suno_data)} song variations")
+                
+                # Extract all variations (up to 2)
+                for idx, track in enumerate(suno_data[:2]):
+                    audio_url = track.get("audioUrl")
+                    track_audio_id = track.get("id")
+                    
+                    if audio_url and track_audio_id:
+                        variation = SongVariation(
+                            audio_url=audio_url,
+                            audio_id=track_audio_id,
+                            variation_index=idx
+                        )
+                        variations.append(variation)
+                        print(f"✅ [SUNO] Variation {idx}: URL={audio_url[:50]}..., ID={track_audio_id}")
+                    else:
+                        logger.warning(
+                            f"Skipping malformed variation {idx}: "
+                            f"audioUrl={audio_url is not None}, id={track_audio_id is not None}"
+                        )
+                
+                # Set deprecated fields for backward compatibility
+                if variations:
+                    song_url = variations[0].audio_url
+                    audio_id = variations[0].audio_id
+                
+                if not variations:
+                    logger.warning(f"No valid variations found for task {task_id}")
             
             elif status in ("FAILED", "CREATE_TASK_FAILED", 
                           "GENERATE_AUDIO_FAILED", "CALLBACK_EXCEPTION",
@@ -417,12 +471,13 @@ class SunoClient:
                 print(f"❌ [SUNO] Task failed with status: {status}")
             
             logger.debug(
-                f"Task {task_id} status: {status}, progress: {progress}%"
+                f"Task {task_id} status: {status}, progress: {progress}%, variations: {len(variations)}"
             )
             
             return SunoStatus(
                 status=status,
                 progress=progress,
+                variations=variations,
                 song_url=song_url,
                 error=error,
                 audio_id=audio_id,

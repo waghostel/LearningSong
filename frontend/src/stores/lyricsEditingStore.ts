@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import { MusicStyle, type GenerateSongRequest } from '@/api/songs'
+import { MusicStyle, type GenerateSongRequest, type SongVariation } from '@/api/songs'
 import type { ErrorInfo } from '@/lib/error-utils'
 
 export type GenerationStatus = 
@@ -29,6 +29,10 @@ interface LyricsEditingState {
   canRetry: boolean
   lastRequest: GenerateSongRequest | null
   
+  // Dual song state (Requirements: 4.1, 4.2)
+  songVariations: SongVariation[]
+  primaryVariationIndex: number
+  
   // Actions for lyrics
   setOriginalLyrics: (lyrics: string) => void
   setEditedLyrics: (lyrics: string) => void
@@ -38,9 +42,13 @@ interface LyricsEditingState {
   // Actions for generation
   startGeneration: (taskId: string) => void
   updateProgress: (status: GenerationStatus, progress: number) => void
-  completeGeneration: (songUrl: string) => void
+  completeGeneration: (songUrl: string, variations?: SongVariation[]) => void
   failGeneration: (error: string, retryable: boolean, errorInfo?: ErrorInfo) => void
   reset: () => void
+  
+  // Actions for dual songs (Requirements: 4.1, 4.2)
+  setSongVariations: (variations: SongVariation[]) => void
+  setPrimaryVariationIndex: (index: number) => void
 }
 
 const initialState = {
@@ -58,6 +66,8 @@ const initialState = {
   errorInfo: null as ErrorInfo | null,
   canRetry: false,
   lastRequest: null as GenerateSongRequest | null,
+  songVariations: [] as SongVariation[],
+  primaryVariationIndex: 0,
 }
 
 export const useLyricsEditingStore = create<LyricsEditingState>()(
@@ -100,12 +110,14 @@ export const useLyricsEditingStore = create<LyricsEditingState>()(
       updateProgress: (status: GenerationStatus, progress: number) => 
         set({ generationStatus: status, progress }),
       
-      completeGeneration: (songUrl: string) => 
+      completeGeneration: (songUrl: string, variations?: SongVariation[]) => 
         set({ 
           isGenerating: false,
           generationStatus: 'completed',
           progress: 100,
           songUrl,
+          songVariations: variations || [],
+          primaryVariationIndex: 0, // Default to first variation
           error: null,
           errorInfo: null,
           canRetry: false,
@@ -119,6 +131,12 @@ export const useLyricsEditingStore = create<LyricsEditingState>()(
           errorInfo: errorInfo || null,
           canRetry: retryable,
         }),
+      
+      setSongVariations: (variations: SongVariation[]) => 
+        set({ songVariations: variations }),
+      
+      setPrimaryVariationIndex: (index: number) => 
+        set({ primaryVariationIndex: index }),
       
       reset: () => set(initialState),
     }),
