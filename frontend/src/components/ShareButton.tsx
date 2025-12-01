@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Loader2, Share2, Check } from 'lucide-react'
 import { useSongPlaybackStore } from '@/stores/songPlaybackStore'
 import { showSuccess, showError } from '@/lib/toast-utils'
+import { logShareLinkCreated } from '@/lib/analytics'
 import { cn } from '@/lib/utils'
 
 interface ShareButtonProps {
@@ -20,7 +21,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
   className,
   disabled = false,
 }) => {
-  const { createShareLink, isSharing } = useSongPlaybackStore()
+  const { createShareLink, isSharing, primaryVariationIndex } = useSongPlaybackStore()
   const [showCopied, setShowCopied] = React.useState(false)
   const buttonRef = React.useRef<HTMLButtonElement>(null)
 
@@ -29,6 +30,11 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
 
     try {
       const shareUrl = await createShareLink()
+      
+      // Log analytics event
+      // Property 28: Share link uses primary variation
+      // Requirements: 10.4
+      logShareLinkCreated(songId, primaryVariationIndex)
       
       // Copy to clipboard
       await navigator.clipboard.writeText(shareUrl)

@@ -53,6 +53,10 @@ interface SongPlaybackState {
   // Actions for dual songs (Requirements: 4.1, 4.2)
   setSongVariations: (variations: SongVariation[]) => void
   setPrimaryVariationIndex: (index: number) => void
+  
+  // Actions for timestamped lyrics (Requirements: 6.1, 6.2, 6.3, 6.4)
+  setTimestampedLyrics: (alignedWords: AlignedWord[], waveformData: number[]) => void
+  clearTimestampedLyrics: () => void
 }
 
 
@@ -164,6 +168,20 @@ export const useSongPlaybackStore = create<SongPlaybackState>()(
       
       setPrimaryVariationIndex: (index: number) => 
         set({ primaryVariationIndex: index }),
+      
+      setTimestampedLyrics: (alignedWords: AlignedWord[], waveformData: number[]) =>
+        set({ 
+          alignedWords, 
+          waveformData, 
+          hasTimestamps: alignedWords.length > 0 
+        }),
+      
+      clearTimestampedLyrics: () =>
+        set({ 
+          alignedWords: [], 
+          waveformData: [], 
+          hasTimestamps: false 
+        }),
 
       reset: () => set(initialState),
     }),

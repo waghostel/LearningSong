@@ -18,6 +18,7 @@ This folder contains comprehensive documentation for setting up, testing, and de
 | **QUICK-REFERENCE.md** | Quick lookup & checklists | 5 min | 🟡 Second |
 | **COMPLETE-USER-FLOW-TESTING.md** | End-to-end testing guide | 30 min | 🟡 Second |
 | **INCOMPLETE-TASKS.md** | Feature status & roadmap | 10 min | 🟡 Second |
+| **DUAL-SONG-SELECTION-INDEX.md** | Dual song feature documentation | 10 min | 🟡 Feature |
 
 ---
 
@@ -102,6 +103,36 @@ This folder contains comprehensive documentation for setting up, testing, and de
 - Quick implementation checklist
 
 **Read this if:** You want to know what's next
+
+---
+
+### 6. DUAL-SONG-SELECTION-INDEX.md
+**What:** Complete documentation for dual song selection feature  
+**When to read:** When working with the dual song feature  
+**Contains:**
+- Feature overview and benefits
+- Quick navigation by audience
+- Links to all related documentation
+- API endpoints summary
+- Data models summary
+- Configuration summary
+- Deployment strategies
+- Testing strategy
+- Accessibility features
+- Backward compatibility
+- Error handling
+- Monitoring & metrics
+- Troubleshooting quick reference
+- Related documentation links
+
+**Related Documents:**
+- [User Guide](./dual-song-user-guide.md) - For end users
+- [API Documentation](./dual-song-selection-api.md) - For backend developers
+- [SongSwitcher Component](./song-switcher-component.md) - For frontend developers
+- [Suno Model Configuration](./suno-model-configuration.md) - For system administrators
+- [Migration Guide](./dual-song-migration-guide.md) - For deployment engineers
+
+**Read this if:** You're working with the dual song selection feature
 
 ---
 
@@ -284,6 +315,14 @@ This folder contains comprehensive documentation for setting up, testing, and de
 ---
 
 ## 🚀 Quick Links
+
+### Dual Song Selection Feature
+- [Feature Index](./DUAL-SONG-SELECTION-INDEX.md)
+- [User Guide](./dual-song-user-guide.md)
+- [API Documentation](./dual-song-selection-api.md)
+- [SongSwitcher Component](./song-switcher-component.md)
+- [Suno Model Configuration](./suno-model-configuration.md)
+- [Migration Guide](./dual-song-migration-guide.md)
 
 ### Setup
 - [Suno API Setup](API-SETUP-GUIDE.md#suno-api-setup)

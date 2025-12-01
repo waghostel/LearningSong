@@ -179,7 +179,12 @@
   - **Property 25: Screen reader accessibility**
   - **Validates: Requirements 9.4**
 
-- [ ] 7. Create useSongSwitcher hook
+- [x] 7. Create useSongSwitcher hook
+
+
+
+
+
   - Create `frontend/src/hooks/useSongSwitcher.ts`
   - Manage activeIndex state
   - Implement `switchVariation()` function that:
@@ -191,27 +196,38 @@
   - Implement request cancellation for rapid switches using AbortController
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.6, 6.5_
 
-- [ ] 7.1 Write property test for variation switch
+- [x] 7.1 Write property test for variation switch
+
+
   - **Property 8: Variation switch triggers state update**
   - **Validates: Requirements 3.1, 3.3, 3.4**
 
-- [ ] 7.2 Write property test for playback position preservation
+- [x] 7.2 Write property test for playback position preservation
+
   - **Property 9: Playback position preservation**
   - **Validates: Requirements 3.2**
 
-- [ ] 7.3 Write property test for loading state
+- [x] 7.3 Write property test for loading state
+
   - **Property 10: Loading state during switch**
   - **Validates: Requirements 3.5**
 
-- [ ] 7.4 Write property test for switch failure recovery
+- [x] 7.4 Write property test for switch failure recovery
+
   - **Property 11: Switch failure recovery**
   - **Validates: Requirements 3.6**
 
-- [ ] 7.5 Write property test for request cancellation
+- [x] 7.5 Write property test for request cancellation
+
   - **Property 19: Request cancellation on switch**
   - **Validates: Requirements 6.5**
 
-- [ ] 8. Integrate SongSwitcher into playback UI
+- [x] 8. Integrate SongSwitcher into playback UI
+
+
+
+
+
   - Update `LyricsEditingPage.tsx` to pass variations to playback navigation
   - Create or update `PlaybackPage.tsx` to display SongSwitcher
   - Position switcher near audio player controls
@@ -219,7 +235,12 @@
   - Handle variation switches and update audio player
   - _Requirements: 2.5, 3.1_
 
-- [ ] 9. Implement audio player integration
+
+- [x] 9. Implement audio player integration
+
+
+
+
   - Update audio player to stop playback before switching variations
   - Preserve playback position during switch if possible
   - Auto-play new variation if previous was playing
@@ -227,15 +248,23 @@
   - Display loading state during variation load
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 9.1 Write property test for playback control
+
+- [x] 9.1 Write property test for playback control
+
   - **Property 14: Playback control during switch**
   - **Validates: Requirements 5.1**
 
-- [ ] 9.2 Write property test for playback state preservation
+- [x] 9.2 Write property test for playback state preservation
+
+
   - **Property 15: Playback state preservation**
   - **Validates: Requirements 5.4, 5.5**
 
-- [ ] 10. Implement timestamped lyrics integration
+- [x] 10. Implement timestamped lyrics integration
+
+
+
+
   - Update lyrics sync to fetch timestamped lyrics for active variation
   - Use correct audio_id when fetching lyrics after switch
   - Display loading state in lyrics panel during fetch
@@ -243,58 +272,90 @@
   - Cancel pending requests when switching variations
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 10.1 Write property test for timestamped lyrics fetch
+- [x] 10.1 Write property test for timestamped lyrics fetch
+
+
   - **Property 16: Timestamped lyrics fetch with correct audio ID**
   - **Validates: Requirements 6.1**
 
-- [ ] 10.2 Write property test for lyrics sync
+
+- [x] 10.2 Write property test for lyrics sync
+
   - **Property 17: Lyrics sync after switch**
   - **Validates: Requirements 6.3**
 
-- [ ] 10.3 Write property test for lyrics fallback
+
+- [x] 10.3 Write property test for lyrics fallback
+
+
+
+
   - **Property 18: Lyrics fallback on fetch failure**
   - **Validates: Requirements 6.4**
 
-- [ ] 11. Implement persistence and error handling
+- [x] 11. Implement persistence and error handling
+
+
   - Ensure primary variation selection persists in database
   - Load user's selected variation when returning to song
+
+
   - Handle database update failures gracefully (show error but allow playback)
   - Implement offline detection and queue updates when offline
+
+
   - Display appropriate error messages for variation-specific failures
   - _Requirements: 4.1, 4.2, 4.4, 4.5, 8.3, 8.5_
 
-- [ ] 11.1 Write property test for primary variation persistence
+
+- [x] 11.1 Write property test for primary variation persistence
   - **Property 12: Primary variation persistence**
   - **Validates: Requirements 4.1, 4.2**
 
-- [ ] 11.2 Write property test for variation error isolation
+- [x] 11.2 Write property test for variation error isolation
   - **Property 21: Variation-specific error isolation**
   - **Validates: Requirements 8.3**
 
-- [ ] 11.3 Write property test for offline update queueing
+- [x] 11.3 Write property test for offline update queueing
+
   - **Property 22: Offline update queueing**
   - **Validates: Requirements 8.5**
 
-- [ ] 12. Implement analytics tracking
+
+- [x] 12. Implement analytics tracking
+
+
+
+
   - Log variation switch events with variation_index and timestamp
   - Track which variation is played in playback events
   - Include user context in analytics events
   - Ensure share links use primary variation
   - _Requirements: 10.1, 10.2, 10.3, 10.4_
 
-- [ ] 12.1 Write property test for selection event logging
+- [x] 12.1 Write property test for selection event logging
+
+
   - **Property 26: Selection event logging**
   - **Validates: Requirements 10.1, 10.3**
 
-- [ ] 12.2 Write property test for play event tracking
+- [x] 12.2 Write property test for play event tracking
+
   - **Property 27: Play event tracking**
   - **Validates: Requirements 10.2**
 
-- [ ] 12.3 Write property test for share link primary variation
+- [x] 12.3 Write property test for share link primary variation
+
   - **Property 28: Share link uses primary variation**
   - **Validates: Requirements 10.4**
 
-- [ ] 13. Handle edge cases and backward compatibility
+
+- [x] 13. Handle edge cases and backward compatibility
+
+
+
+
+
   - Handle Suno API returning only 1 song (hide switcher)
   - Handle malformed variation data (skip invalid, log error)
   - Implement migration for old songs (convert song_url to variations[0])
@@ -302,29 +363,50 @@
   - Handle shared songs (don't update owner's primary selection)
   - _Requirements: 1.5, 8.1, 8.2, 8.4_
 
-- [ ] 13.1 Write unit tests for edge cases
+- [x] 13.1 Write unit tests for edge cases
+
+
+
   - Test single variation handling
   - Test malformed data handling
   - Test backward compatibility migration
   - Test expired song handling
   - Test shared song behavior
 
-- [ ] 14. Checkpoint - Ensure all tests pass
+- [x] 14. Checkpoint - Ensure all tests pass
+
+
+
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 15. Write integration tests
+
+- [x] 15. Write integration tests
+
+
+
+
   - Test complete flow: generate → switch → persist → reload
   - Test WebSocket updates with variations
   - Test API error scenarios
   - Test concurrent switch requests
 
-- [ ] 16. Write E2E tests
+- [x] 16. Write E2E tests
+
+
+
+
+
   - Test user journey with Playwright
   - Test keyboard navigation flow
   - Test mobile touch interactions
   - Test offline/online transitions
 
-- [ ] 17. Update documentation
+- [x] 17. Update documentation
+
+
+
+
+
   - Update API documentation with new endpoints
   - Document SongSwitcher component props and usage
   - Document database schema changes
@@ -334,5 +416,7 @@
   - Add examples for switching between V4 and V5 models
   - Document model validation and fallback behavior
 
-- [ ] 18. Final checkpoint - Ensure all tests pass
+- [x] 18. Final checkpoint - Ensure all tests pass
+
+
   - Ensure all tests pass, ask the user if questions arise.

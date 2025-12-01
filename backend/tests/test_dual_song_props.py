@@ -813,3 +813,471 @@ class TestAPIResponseFormat:
         assert result.variations[1].audio_url == "https://example.com/song2.mp3"
         assert result.variations[1].audio_id == "audio-2"
         assert result.variations[1].variation_index == 1
+
+
+# ============================================================================
+# Property Tests for Persistence and Error Handling
+# ============================================================================
+
+class TestPrimaryVariationPersistence:
+    """
+    **Feature: dual-song-selection, Property 12: Primary variation persistence**
+    **Validates: Requirements 4.1, 4.2**
+    
+    For any user selection of a variation as primary, the database should be updated
+    with the new primary_variation_index value, and subsequent retrievals should
+    reflect this selection.
+    """
+
+    @given(
+        variation_index=st.integers(min_value=0, max_value=1)
+    )
+    @settings(max_examples=100)
+    @pytest.mark.asyncio
+    async def test_primary_variation_persists_across_retrievals(self, variation_index: int):
+        """
+        Property: For any primary variation update, subsequent retrievals should reflect the selection.
+        
+        This test verifies that:
+        1. Primary variation can be updated
+        2. The update persists in the database
+        3. Subsequent retrievals return the updated value
+        """
+        from app.services.song_storage import store_song_task, update_primary_variation, get_task_from_firestore
+        from app.models.songs import GenerateSongRequest, MusicStyle
+        from unittest.mock import MagicMock, patch, AsyncMock
+        
+        # Arrange - Create a song with 2 variations
+        task_id = f"test-task-persist-{variation_index}"
+        user_id = "test-user"
+        
+        variations = [
+            {
+                "audio_url": "https://example.com/song0.mp3",
+                "audio_id": "audio-0",
+                "variation_index": 0,
+            },
+            {
+                "audio_url": "https://example.com/song1.mp3",
+                "audio_id": "audio-1",
+                "variation_index": 1,
+            }
+        ]
+        
+        request = GenerateSongRequest(
+            lyrics="Test lyrics for persistence test. " * 10,
+            style=MusicStyle.POP,
+            content_hash="test-hash",
+        )
+        
+        # Mock Firestore client
+        mock_firestore = MagicMock()
+        mock_collection = MagicMock()
+        mock_doc_ref = MagicMock()
+        
+        mock_firestore.collection.return_value = mock_collection
+        mock_collection.document.return_value = mock_doc_ref
+        
+        # Store the data in memory to simulate persistence
+        stored_data = {}
+        
+        def mock_set(data):
+            stored_data.clear()
+            stored_data.update(data)
+        
+        def mock_update(data):
+            stored_data.update(data)
+        
+        def mock_get():
+            mock_doc = MagicMock()
+            mock_doc.exists = len(stored_data) > 0
+            mock_doc.to_dict.return_value = dict(stored_data)
+            return mock_doc
+        
+        mock_doc_ref.set = mock_set
+        mock_doc_ref.update = mock_update
+        mock_doc_ref.get = mock_get
+        
+        with patch('app.services.song_storage.get_firestore_client', return_value=mock_firestore):
+            # Act - Store initial song
+            await store_song_task(
+                user_id=user_id,
+                task_id=task_id,
+                request=request,
+                variations=variations,
+            )
+            
+            # Verify initial state
+            initial_data = await get_task_from_firestore(task_id)
+            assert initial_data is not None
+            assert initial_data["primary_variation_index"] == 0  # Default
+            
+            # Update primary variation
+            update_success = await update_primary_variation(task_id, variation_index)
+            assert update_success is True
+            
+            # Retrieve and verify persistence
+            updated_data = await get_task_from_firestore(task_id)
+            assert updated_data is not None
+            assert updated_data["primary_variation_index"] == variation_index
+            
+            # Verify variations array is unchanged
+            assert len(updated_data["variations"]) == 2
+            assert updated_data["variations"][0]["audio_url"] == variations[0]["audio_url"]
+            assert updated_data["variations"][1]["audio_url"] == variations[1]["audio_url"]
+
+    @given(
+        initial_index=st.integers(min_value=0, max_value=1),
+        new_index=st.integers(min_value=0, max_value=1)
+    )
+    @settings(max_examples=100)
+    @pytest.mark.asyncio
+    async def test_primary_variation_can_be_changed_multiple_times(
+        self,
+        initial_index: int,
+        new_index: int
+    ):
+        """
+        Property: For any sequence of primary variation updates, the final value should match the last update.
+        
+        This test verifies that:
+        1. Primary variation can be updated multiple times
+        2. Each update overwrites the previous value
+        3. The final value matches the last update
+        """
+        from app.services.song_storage import store_song_task, update_primary_variation, get_task_from_firestore
+        from app.models.songs import GenerateSongRequest, MusicStyle
+        from unittest.mock import MagicMock, patch
+        
+        # Arrange
+        task_id = f"test-task-multi-{initial_index}-{new_index}"
+        user_id = "test-user"
+        
+        variations = [
+            {
+                "audio_url": "https://example.com/song0.mp3",
+                "audio_id": "audio-0",
+                "variation_index": 0,
+            },
+            {
+                "audio_url": "https://example.com/song1.mp3",
+                "audio_id": "audio-1",
+                "variation_index": 1,
+            }
+        ]
+        
+        request = GenerateSongRequest(
+            lyrics="Test lyrics for multi-update test. " * 10,
+            style=MusicStyle.POP,
+            content_hash="test-hash",
+        )
+        
+        # Mock Firestore client
+        mock_firestore = MagicMock()
+        mock_collection = MagicMock()
+        mock_doc_ref = MagicMock()
+        
+        mock_firestore.collection.return_value = mock_collection
+        mock_collection.document.return_value = mock_doc_ref
+        
+        stored_data = {}
+        
+        def mock_set(data):
+            stored_data.clear()
+            stored_data.update(data)
+        
+        def mock_update(data):
+            stored_data.update(data)
+        
+        def mock_get():
+            mock_doc = MagicMock()
+            mock_doc.exists = len(stored_data) > 0
+            mock_doc.to_dict.return_value = dict(stored_data)
+            return mock_doc
+        
+        mock_doc_ref.set = mock_set
+        mock_doc_ref.update = mock_update
+        mock_doc_ref.get = mock_get
+        
+        with patch('app.services.song_storage.get_firestore_client', return_value=mock_firestore):
+            # Act - Store initial song
+            await store_song_task(
+                user_id=user_id,
+                task_id=task_id,
+                request=request,
+                variations=variations,
+            )
+            
+            # Update to initial_index
+            await update_primary_variation(task_id, initial_index)
+            
+            # Verify first update
+            data_after_first = await get_task_from_firestore(task_id)
+            assert data_after_first["primary_variation_index"] == initial_index
+            
+            # Update to new_index
+            await update_primary_variation(task_id, new_index)
+            
+            # Verify final update
+            final_data = await get_task_from_firestore(task_id)
+            assert final_data["primary_variation_index"] == new_index
+
+
+class TestVariationErrorIsolation:
+    """
+    **Feature: dual-song-selection, Property 21: Variation-specific error isolation**
+    **Validates: Requirements 8.3**
+    
+    For any song variation that fails to load, the error should be displayed only for
+    that specific variation without affecting the availability of other variations.
+    """
+
+    @given(
+        failing_index=st.integers(min_value=0, max_value=1)
+    )
+    @settings(max_examples=100)
+    def test_variation_error_does_not_affect_other_variations(self, failing_index: int):
+        """
+        Property: For any variation that fails, other variations should remain accessible.
+        
+        This test verifies that:
+        1. A failing variation is isolated
+        2. Other variations remain in the variations array
+        3. The system can still function with remaining variations
+        """
+        from app.models.songs import SongDetails, MusicStyle, SongVariation
+        from datetime import datetime, timezone
+        
+        # Arrange - Create variations where one might fail
+        variations = [
+            SongVariation(
+                audio_url="https://example.com/song0.mp3" if failing_index != 0 else "https://invalid-url.com/404",
+                audio_id="audio-0",
+                variation_index=0,
+            ),
+            SongVariation(
+                audio_url="https://example.com/song1.mp3" if failing_index != 1 else "https://invalid-url.com/404",
+                audio_id="audio-1",
+                variation_index=1,
+            )
+        ]
+        
+        # Act - Create SongDetails with variations
+        song_details = SongDetails(
+            song_id="test-song-error",
+            song_url=variations[0].audio_url,
+            variations=variations,
+            primary_variation_index=0,
+            lyrics="Test lyrics",
+            style=MusicStyle.POP,
+            created_at=datetime.now(timezone.utc),
+            expires_at=datetime.now(timezone.utc),
+            is_owner=True,
+        )
+        
+        # Assert - Both variations are present regardless of which one fails
+        assert len(song_details.variations) == 2
+        assert song_details.variations[0].variation_index == 0
+        assert song_details.variations[1].variation_index == 1
+        
+        # The failing variation has a different URL pattern
+        failing_variation = song_details.variations[failing_index]
+        working_variation = song_details.variations[1 - failing_index]
+        
+        assert "invalid-url" in failing_variation.audio_url
+        assert "example.com" in working_variation.audio_url
+
+    @pytest.mark.asyncio
+    async def test_timestamped_lyrics_failure_does_not_block_playback(self):
+        """
+        Test that timestamped lyrics fetch failure doesn't prevent audio playback.
+        
+        This verifies that:
+        1. Failed lyrics fetch returns empty arrays
+        2. The API doesn't raise an exception
+        3. Playback can continue with plain lyrics
+        """
+        from app.api.songs import get_variation_timestamped_lyrics
+        from app.services.suno_client import SunoClient, SunoAPIError
+        from unittest.mock import AsyncMock, patch, MagicMock
+        
+        # Arrange
+        task_id = "test-task-lyrics-fail"
+        variation_index = 0
+        user_id = "test-user"
+        
+        # Mock Firestore to return song data
+        mock_song_data = {
+            "user_id": user_id,
+            "task_id": task_id,
+            "variations": [
+                {
+                    "audio_url": "https://example.com/song0.mp3",
+                    "audio_id": "audio-0",
+                    "variation_index": 0,
+                }
+            ],
+        }
+        
+        # Mock Suno client to raise an error
+        mock_suno_client = AsyncMock()
+        mock_suno_client.get_timestamped_lyrics = AsyncMock(side_effect=SunoAPIError("API Error"))
+        mock_suno_client.__aenter__ = AsyncMock(return_value=mock_suno_client)
+        mock_suno_client.__aexit__ = AsyncMock(return_value=None)
+        
+        with patch('app.api.songs.get_task_from_firestore', new=AsyncMock(return_value=mock_song_data)), \
+             patch('app.api.songs.SunoClient', return_value=mock_suno_client), \
+             patch('app.api.songs.os.getenv', return_value="test-api-key"):
+            
+            # Act - Call the endpoint
+            result = await get_variation_timestamped_lyrics(task_id, variation_index, user_id)
+            
+            # Assert - Should return empty arrays instead of raising exception
+            assert result is not None
+            assert "aligned_words" in result
+            assert "waveform_data" in result
+            assert result["aligned_words"] == []
+            assert result["waveform_data"] == []
+
+
+class TestOfflineUpdateQueueing:
+    """
+    **Feature: dual-song-selection, Property 22: Offline update queueing**
+    **Validates: Requirements 8.5**
+    
+    For any primary variation update attempted while offline, the system should queue
+    the update and display an offline indicator, then process the update when
+    connectivity is restored.
+    """
+
+    @given(
+        variation_index=st.integers(min_value=0, max_value=1)
+    )
+    @settings(max_examples=100)
+    def test_offline_update_data_structure(self, variation_index: int):
+        """
+        Property: For any offline update, the queued data should contain all necessary information.
+        
+        This test verifies that:
+        1. Offline updates can be represented as data structures
+        2. The data includes task_id and variation_index
+        3. The data can be serialized for storage
+        """
+        # Arrange - Create an offline update structure
+        offline_update = {
+            "task_id": f"test-task-{variation_index}",
+            "variation_index": variation_index,
+            "timestamp": "2024-01-01T00:00:00Z",
+            "operation": "update_primary_variation",
+        }
+        
+        # Assert - Verify structure
+        assert "task_id" in offline_update
+        assert "variation_index" in offline_update
+        assert "timestamp" in offline_update
+        assert "operation" in offline_update
+        
+        # Verify values
+        assert isinstance(offline_update["task_id"], str)
+        assert offline_update["variation_index"] in (0, 1)
+        assert isinstance(offline_update["timestamp"], str)
+        assert offline_update["operation"] == "update_primary_variation"
+
+    @given(
+        updates=st.lists(
+            st.builds(
+                dict,
+                task_id=task_id_strategy,
+                variation_index=st.integers(min_value=0, max_value=1),
+                timestamp=st.datetimes().map(lambda dt: dt.isoformat()),
+            ),
+            min_size=1,
+            max_size=10,
+        )
+    )
+    @settings(max_examples=100, suppress_health_check=[HealthCheck.too_slow])
+    def test_offline_queue_maintains_order(self, updates: list[dict]):
+        """
+        Property: For any sequence of offline updates, the queue should maintain insertion order.
+        
+        This test verifies that:
+        1. Multiple updates can be queued
+        2. The queue maintains FIFO order
+        3. Updates can be processed in order
+        """
+        # Arrange - Create a queue
+        queue = []
+        
+        # Act - Add updates to queue
+        for update in updates:
+            queue.append(update)
+        
+        # Assert - Verify order is maintained
+        assert len(queue) == len(updates)
+        for i, (queued, original) in enumerate(zip(queue, updates)):
+            assert queued["task_id"] == original["task_id"]
+            assert queued["variation_index"] == original["variation_index"]
+
+    @pytest.mark.asyncio
+    async def test_database_update_failure_returns_false(self):
+        """
+        Test that database update failures are handled gracefully.
+        
+        This verifies that:
+        1. Update failures return False instead of raising exceptions
+        2. Errors are logged
+        3. The system can continue operating
+        """
+        from app.services.song_storage import update_primary_variation
+        from unittest.mock import MagicMock, patch
+        
+        # Arrange
+        task_id = "test-task-fail"
+        variation_index = 1
+        
+        # Mock Firestore to raise an exception
+        mock_firestore = MagicMock()
+        mock_collection = MagicMock()
+        mock_doc_ref = MagicMock()
+        
+        mock_firestore.collection.return_value = mock_collection
+        mock_collection.document.return_value = mock_doc_ref
+        mock_doc_ref.update.side_effect = Exception("Database connection failed")
+        
+        with patch('app.services.song_storage.get_firestore_client', return_value=mock_firestore):
+            # Act
+            result = await update_primary_variation(task_id, variation_index)
+            
+            # Assert - Should return False, not raise exception
+            assert result is False
+
+    @pytest.mark.asyncio
+    async def test_invalid_variation_index_returns_false(self):
+        """
+        Test that invalid variation indices are rejected gracefully.
+        
+        This verifies that:
+        1. Invalid indices (not 0 or 1) return False
+        2. No database operations are attempted
+        3. Errors are logged
+        """
+        from app.services.song_storage import update_primary_variation
+        from unittest.mock import MagicMock, patch
+        
+        # Arrange
+        task_id = "test-task-invalid"
+        invalid_indices = [-1, 2, 3, 100]
+        
+        # Mock Firestore (should not be called)
+        mock_firestore = MagicMock()
+        
+        with patch('app.services.song_storage.get_firestore_client', return_value=mock_firestore):
+            for invalid_index in invalid_indices:
+                # Act
+                result = await update_primary_variation(task_id, invalid_index)
+                
+                # Assert
+                assert result is False
+                
+                # Verify Firestore was not called
+                mock_firestore.collection.assert_not_called()

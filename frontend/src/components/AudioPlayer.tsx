@@ -2,10 +2,13 @@ import * as React from 'react'
 import { Play, Pause, Download, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { logPlaybackStart, logPlaybackPause, logPlaybackEnd } from '@/lib/analytics'
 
 export interface AudioPlayerProps {
   songUrl: string
   songStyle?: string
+  songId?: string
+  variationIndex?: number
   onTimeUpdate?: (currentTime: number, duration: number) => void
   onEnded?: () => void
   onError?: (error: Error) => void
@@ -40,6 +43,8 @@ export function generateDownloadFilename(style?: string): string {
 export function AudioPlayer({
   songUrl,
   songStyle,
+  songId,
+  variationIndex = 0,
   onTimeUpdate,
   onEnded,
   onError,
@@ -113,13 +118,32 @@ export function AudioPlayer({
     setIsLoading(false)
   }, [])
 
-  const handlePlay = React.useCallback(() => setIsPlaying(true), [])
-  const handlePause = React.useCallback(() => setIsPlaying(false), [])
+  const handlePlay = React.useCallback(() => {
+    setIsPlaying(true)
+    // Log playback start event
+    // Property 27: Play event tracking
+    // Requirements: 10.2
+    if (songId) {
+      logPlaybackStart(songId, variationIndex)
+    }
+  }, [songId, variationIndex])
+  
+  const handlePause = React.useCallback(() => {
+    setIsPlaying(false)
+    // Log playback pause event
+    if (songId && audioRef.current) {
+      logPlaybackPause(songId, variationIndex, audioRef.current.currentTime)
+    }
+  }, [songId, variationIndex])
 
   const handleEnded = React.useCallback(() => {
     setIsPlaying(false)
+    // Log playback end event
+    if (songId) {
+      logPlaybackEnd(songId, variationIndex)
+    }
     onEnded?.()
-  }, [onEnded])
+  }, [onEnded, songId, variationIndex])
 
   const handleError = React.useCallback(() => {
     setHasError(true)

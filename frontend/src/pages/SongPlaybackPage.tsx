@@ -4,11 +4,13 @@ import { useAuth } from '@/hooks/useAuth'
 import { useNetworkStatus } from '@/hooks/useNetworkStatus'
 import { useRateLimit } from '@/hooks/useLyrics'
 import { useSongPlaybackStore } from '@/stores/songPlaybackStore'
+import { useSongSwitcher } from '@/hooks/useSongSwitcher'
 import { Button } from '@/components/ui/button'
 import { AudioPlayer } from '@/components/AudioPlayer'
 import { LyricsDisplay } from '@/components/LyricsDisplay'
 import { SongMetadata } from '@/components/SongMetadata'
 import { ShareButton } from '@/components/ShareButton'
+import { SongSwitcher } from '@/components/SongSwitcher'
 import { RateLimitIndicator } from '@/components/RateLimitIndicator'
 import { OfflineIndicator } from '@/components/OfflineIndicator'
 import { RefreshCw, ArrowLeft, AlertCircle } from 'lucide-react'
@@ -49,13 +51,14 @@ export function mapErrorToUserFriendly(error: string | Error | null): string {
 }
 
 export function SongPlaybackPage() {
-  const { songId, shareToken } = useParams<{ songId?: string; shareToken?: string }>()
+  const { songId: songIdParam, shareToken } = useParams<{ songId?: string; shareToken?: string }>()
   const navigate = useNavigate()
   const { loading: authLoading } = useAuth()
   const { isOnline, wasOffline, checkConnection } = useNetworkStatus()
   const { data: rateLimitData } = useRateLimit()
 
   const {
+    songId,
     songUrl,
     lyrics,
     style,
@@ -67,18 +70,50 @@ export function SongPlaybackPage() {
     currentTime,
     duration,
     alignedWords,
+    songVariations,
+    primaryVariationIndex,
     loadSong,
     loadSharedSong,
     setCurrentTime,
     setDuration,
+    setPrimaryVariationIndex,
     reset,
   } = useSongPlaybackStore()
 
   const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false)
   const [audioError, setAudioError] = useState<Error | null>(null)
 
+  // Initialize song switcher hook
+  // Requirements: 3.1, 3.2, 3.3, 3.4, 3.6, 6.5
+  const {
+    activeIndex,
+    isLoading: isSwitching,
+    error: switchingError,
+    switchVariation,
+    clearError: clearSwitchError,
+  } = useSongSwitcher({
+    taskId: songId || '',
+    variations: songVariations,
+    initialIndex: primaryVariationIndex,
+    onSwitch: (index) => {
+      // Update store with new primary variation
+      setPrimaryVariationIndex(index)
+      // Update audio player source to new variation
+      if (songVariations[index]) {
+        // The audio player will automatically update via the songUrl change
+      }
+    },
+    onError: () => {
+      // Error is already set in the hook state
+    },
+  })
+
   // Determine if song is expired
   const isExpired = expiresAt ? getTimeRemaining(expiresAt).isExpired : false
+
+  // Get the current variation's audio URL
+  // Requirements: 3.3 - Update audio player source to new song URL
+  const currentVariationUrl = songVariations[activeIndex]?.audio_url || songUrl
 
   // Load song data on mount
   useEffect(() => {
@@ -86,8 +121,8 @@ export function SongPlaybackPage() {
       try {
         if (shareToken) {
           await loadSharedSong(shareToken)
-        } else if (songId) {
-          await loadSong(songId)
+        } else if (songIdParam) {
+          await loadSong(songIdParam)
         } else {
           // No song ID or share token, redirect to home
           navigate('/', { replace: true })
@@ -98,7 +133,7 @@ export function SongPlaybackPage() {
     }
 
     loadData()
-  }, [songId, shareToken, loadSong, loadSharedSong, navigate])
+  }, [songIdParam, shareToken, loadSong, loadSharedSong, navigate])
 
   // Handle time updates from audio player
   const handleTimeUpdate = useCallback(
@@ -239,10 +274,12 @@ export function SongPlaybackPage() {
           {/* Audio Player */}
           <section id="audio-player" aria-labelledby="player-section-title">
             <h2 id="player-section-title" className="sr-only">Audio player section</h2>
-            {songUrl && (
+            {currentVariationUrl && (
               <AudioPlayer
-                songUrl={songUrl}
+                songUrl={currentVariationUrl}
                 songStyle={style || undefined}
+                songId={songId || undefined}
+                variationIndex={activeIndex}
                 onTimeUpdate={handleTimeUpdate}
                 onError={handleAudioError}
                 disabled={isExpired}
@@ -252,6 +289,35 @@ export function SongPlaybackPage() {
               <div className="mt-2 p-3 rounded bg-destructive/10 text-destructive text-sm" role="alert">
                 <AlertCircle className="inline h-4 w-4 mr-2" />
                 Unable to load audio. Please try again.
+              </div>
+            )}
+            
+            {/* Song Switcher - positioned near audio player controls */}
+            {/* Requirements: 2.5 - Display switcher in prominent location near audio player */}
+            {songVariations.length >= 2 && (
+              <div className="mt-4">
+                <SongSwitcher
+                  variations={songVariations}
+                  activeIndex={activeIndex}
+                  onSwitch={switchVariation}
+                  isLoading={isSwitching}
+                  disabled={isExpired}
+                />
+              </div>
+            )}
+            
+            {/* Variation switch error */}
+            {switchingError && !isExpired && (
+              <div className="mt-2 p-3 rounded bg-destructive/10 text-destructive text-sm" role="alert">
+                <AlertCircle className="inline h-4 w-4 mr-2" />
+                {switchingError}
+                <button
+                  onClick={clearSwitchError}
+                  className="ml-2 underline hover:no-underline"
+                  aria-label="Dismiss error"
+                >
+                  Dismiss
+                </button>
               </div>
             )}
           </section>

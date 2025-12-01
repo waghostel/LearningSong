@@ -441,4 +441,145 @@ describe('SongPlaybackPage Integration Tests', () => {
       expect(mapErrorToUserFriendly('Network error')).toContain('connect')
     })
   })
+
+  describe('Song Switcher Integration', () => {
+    it('displays song switcher when song has 2 variations', async () => {
+      const mockVariations = [
+        {
+          audio_url: 'https://example.com/song1.mp3',
+          audio_id: 'audio-id-1',
+          variation_index: 0,
+        },
+        {
+          audio_url: 'https://example.com/song2.mp3',
+          audio_id: 'audio-id-2',
+          variation_index: 1,
+        },
+      ]
+
+      setupStoreWithSong({
+        songVariations: mockVariations,
+        primaryVariationIndex: 0,
+      })
+
+      renderWithProviders('/playback/song-123')
+
+      await waitFor(() => {
+        expect(screen.getByTestId('song-switcher')).toBeInTheDocument()
+      })
+
+      // Should show both version buttons
+      expect(screen.getByLabelText(/Version 1/)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Version 2/)).toBeInTheDocument()
+    })
+
+    it('hides song switcher when song has only 1 variation', async () => {
+      const mockVariations = [
+        {
+          audio_url: 'https://example.com/song1.mp3',
+          audio_id: 'audio-id-1',
+          variation_index: 0,
+        },
+      ]
+
+      setupStoreWithSong({
+        songVariations: mockVariations,
+        primaryVariationIndex: 0,
+      })
+
+      renderWithProviders('/playback/song-123')
+
+      await waitFor(() => {
+        expect(screen.getByText('LearningSong')).toBeInTheDocument()
+      })
+
+      // Song switcher should not be present
+      expect(screen.queryByTestId('song-switcher')).not.toBeInTheDocument()
+    })
+
+    it('positions song switcher near audio player', async () => {
+      const mockVariations = [
+        {
+          audio_url: 'https://example.com/song1.mp3',
+          audio_id: 'audio-id-1',
+          variation_index: 0,
+        },
+        {
+          audio_url: 'https://example.com/song2.mp3',
+          audio_id: 'audio-id-2',
+          variation_index: 1,
+        },
+      ]
+
+      setupStoreWithSong({
+        songVariations: mockVariations,
+        primaryVariationIndex: 0,
+      })
+
+      renderWithProviders('/playback/song-123')
+
+      await waitFor(() => {
+        const audioPlayer = screen.getAllByRole('region', { name: /audio player/i })[0]
+        const songSwitcher = screen.getByTestId('song-switcher')
+
+        // Both should be in the same section
+        const audioPlayerSection = audioPlayer.closest('section')
+        expect(audioPlayerSection).toContainElement(songSwitcher)
+      })
+    })
+
+    it('disables song switcher when song is expired', async () => {
+      const mockVariations = [
+        {
+          audio_url: 'https://example.com/song1.mp3',
+          audio_id: 'audio-id-1',
+          variation_index: 0,
+        },
+        {
+          audio_url: 'https://example.com/song2.mp3',
+          audio_id: 'audio-id-2',
+          variation_index: 1,
+        },
+      ]
+
+      setupStoreWithSong({
+        songVariations: mockVariations,
+        primaryVariationIndex: 0,
+        expiresAt: new Date(Date.now() - 1000), // Already expired
+      })
+
+      renderWithProviders('/playback/song-123')
+
+      await waitFor(() => {
+        const version1Button = screen.getByLabelText(/Version 1/)
+        expect(version1Button).toBeDisabled()
+      })
+    })
+
+    it('shows active variation indication', async () => {
+      const mockVariations = [
+        {
+          audio_url: 'https://example.com/song1.mp3',
+          audio_id: 'audio-id-1',
+          variation_index: 0,
+        },
+        {
+          audio_url: 'https://example.com/song2.mp3',
+          audio_id: 'audio-id-2',
+          variation_index: 1,
+        },
+      ]
+
+      setupStoreWithSong({
+        songVariations: mockVariations,
+        primaryVariationIndex: 0,
+      })
+
+      renderWithProviders('/playback/song-123')
+
+      await waitFor(() => {
+        expect(screen.getByText('Currently playing Version 1')).toBeInTheDocument()
+      })
+    })
+  })
 })

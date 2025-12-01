@@ -35,6 +35,8 @@ export function LyricsEditingPage() {
     generationStatus,
     songId,
     songUrl,
+    songVariations,
+    primaryVariationIndex,
     reset
   } = useLyricsEditingStore()
   
@@ -81,15 +83,18 @@ export function LyricsEditingPage() {
       
       // Navigate to Page C (playback page) with songId
       // Pass song data via navigation state as backup
+      // Requirements: 2.5 - Pass variations to playback page
       navigate(`/playback/${songId}`, {
         state: {
           songUrl,
           lyrics: editedLyrics,
           style: selectedStyle,
+          variations: songVariations,
+          primaryVariationIndex,
         }
       })
     }
-  }, [generationStatus, songUrl, songId, sendNotification, navigate, editedLyrics, selectedStyle])
+  }, [generationStatus, songUrl, songId, sendNotification, navigate, editedLyrics, selectedStyle, songVariations, primaryVariationIndex])
 
   const handleGenerateSong = () => {
     generate({
