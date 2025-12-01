@@ -246,7 +246,7 @@ class SunoClient:
         # Get model version from environment variable with validation
         # Requirements: 7.6, 7.7
         allowed_models = ["V3_5", "V4", "V4_5", "V4_5PLUS", "V5"]
-        suno_model = os.getenv("SUNO_MODEL", "V4")
+        suno_model = os.getenv("SUNO_MODEL", "V5")
         
         if suno_model not in allowed_models:
             logger.warning(

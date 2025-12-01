@@ -92,13 +92,13 @@ export const StyleSelector: React.FC = () => {
       >
         <SelectTrigger 
           id="style-selector" 
-          className="w-full focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="w-full bg-white focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label={`Select music style. Currently selected: ${selectedOption?.label || 'none'}`}
           aria-describedby={`${descriptionId} ${helpId}`}
         >
           <SelectValue placeholder="Select a music style" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white">
           {MUSIC_STYLES.map((style) => (
             <SelectItem 
               key={style.value} 

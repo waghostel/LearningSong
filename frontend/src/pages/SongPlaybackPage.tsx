@@ -13,6 +13,7 @@ import { ShareButton } from '@/components/ShareButton'
 import { SongSwitcher } from '@/components/SongSwitcher'
 import { RateLimitIndicator } from '@/components/RateLimitIndicator'
 import { OfflineIndicator } from '@/components/OfflineIndicator'
+import { PageNavigation } from '@/components/PageNavigation'
 import { RefreshCw, ArrowLeft, AlertCircle } from 'lucide-react'
 import { getTimeRemaining } from '@/lib/song-metadata-utils'
 import { mapErrorToUserFriendly } from '@/lib/error-mapping-utils'
@@ -217,7 +218,10 @@ export function SongPlaybackPage() {
               <h1 className="text-3xl font-bold tracking-tight">LearningSong</h1>
               <p className="text-muted-foreground mt-1">Your song is ready to play</p>
             </div>
-            <RateLimitIndicator />
+            <div className="flex items-center gap-4">
+              <PageNavigation />
+              <RateLimitIndicator />
+            </div>
           </div>
         </div>
       </header>

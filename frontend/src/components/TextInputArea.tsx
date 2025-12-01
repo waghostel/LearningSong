@@ -1,4 +1,3 @@
-import { useEffect, useRef } from 'react'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { useTextInputStore } from '@/stores/textInputStore'
@@ -6,7 +5,6 @@ import { cn } from '@/lib/utils'
 
 export function TextInputArea() {
   const { content, setContent } = useTextInputStore()
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   // Calculate word count
   const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0
@@ -20,25 +18,15 @@ export function TextInputArea() {
 
   const state = getState()
 
-  // Auto-resize textarea
-  useEffect(() => {
-    const textarea = textareaRef.current
-    if (textarea) {
-      textarea.style.height = 'auto'
-      textarea.style.height = `${textarea.scrollHeight}px`
-    }
-  }, [content])
-
   return (
-    <Card>
-      <CardContent className="pt-6 space-y-2">
+    <Card className="flex-1 flex flex-col min-h-0">
+      <CardContent className="p-4 flex-1 flex flex-col min-h-0 gap-2">
         <Textarea
-          ref={textareaRef}
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Paste or type your educational content here..."
           className={cn(
-            'min-h-[200px] resize-none transition-colors',
+            'flex-1 min-h-[150px] resize-none transition-colors',
             state === 'warning' && 'border-yellow-500 focus-visible:ring-yellow-500',
             state === 'error' && 'border-red-500 focus-visible:ring-red-500'
           )}
@@ -49,7 +37,7 @@ export function TextInputArea() {
         <div 
           id="word-counter" 
           className={cn(
-            'text-sm text-right transition-colors',
+            'text-sm text-right transition-colors shrink-0',
             state === 'normal' && 'text-muted-foreground',
             state === 'warning' && 'text-yellow-700 dark:text-yellow-500 font-medium',
             state === 'error' && 'text-red-700 dark:text-red-500 font-semibold'
