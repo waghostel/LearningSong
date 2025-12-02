@@ -120,26 +120,75 @@
     - Show only when timestamped lyrics available
     - _Requirements: 3.1_
 
-- [ ] 6. Checkpoint - Ensure offset features work
+- [ ] 6. Implement section marker detection and handling
+  - [ ] 6.1 Create section marker utility functions
+    - Create `frontend/src/lib/section-marker-utils.ts`
+    - Implement `isSectionMarker(word: string)` function to detect `**...**` pattern
+    - Implement `classifyAlignedWords(alignedWords)` to separate markers from lyrics
+    - Implement `findNextNonMarkerIndex(alignedWords, currentIndex)` function
+    - _Requirements: 10.1, 10.2_
+
+  - [ ] 6.2 Write property test for section marker detection
+    - **Property 18: Section marker detection**
+    - **Validates: Requirements 10.1, 10.2**
+
+  - [ ] 6.3 Update useLyricsSync hook for marker-aware highlighting
+    - Modify `findWordAtTime()` to skip section markers when determining current word
+    - When current time falls on a marker, return the next non-marker word index
+    - Add `skipMarkers` option to hook configuration
+    - _Requirements: 10.4, 10.5_
+
+  - [ ] 6.4 Write property test for section marker highlighting skip
+    - **Property 19: Section marker highlighting skip**
+    - **Validates: Requirements 10.4, 10.5**
+
+  - [ ] 6.5 Update LyricsDisplay for section marker styling
+    - Add distinct CSS classes for section markers (muted color, smaller font)
+    - Render markers inline but without "current word" highlight effect
+    - Add `showMarkers` prop to control visibility
+    - _Requirements: 10.3, 10.6_
+
+  - [ ] 6.6 Create MarkerVisibilityToggle component
+    - Create `frontend/src/components/MarkerVisibilityToggle.tsx`
+    - Implement toggle switch to show/hide section markers
+    - Save preference to localStorage
+    - Load preference on mount
+    - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5_
+
+  - [ ] 6.7 Write property test for marker visibility toggle
+    - **Property 20: Section marker visibility toggle**
+    - **Validates: Requirements 11.2, 11.3**
+
+  - [ ] 6.8 Write property test for marker visibility persistence
+    - **Property 21: Section marker visibility persistence**
+    - **Validates: Requirements 11.4, 11.5**
+
+  - [ ] 6.9 Integrate marker controls into SongPlaybackPage
+    - Add MarkerVisibilityToggle near lyrics panel
+    - Pass showMarkers state to LyricsDisplay
+    - Show toggle only when section markers exist in alignedWords
+    - _Requirements: 11.1_
+
+- [ ] 7. Checkpoint - Ensure offset and section marker features work
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 7. Implement LRC file export
-  - [ ] 7.1 Create LRC generator utilities
+- [ ] 8. Implement LRC file export
+  - [ ] 8.1 Create LRC generator utilities
     - Create `frontend/src/lib/lrc-generator.ts`
     - Implement `formatLrcTimestamp(seconds)` function
     - Implement `generateLrcContent(alignedWords, metadata, offset)` function
     - Implement `downloadLrcFile(content, filename)` function
     - _Requirements: 7.2, 7.3, 7.4, 7.5_
 
-  - [ ] 7.2 Write property test for LRC timestamp format
+  - [ ] 8.2 Write property test for LRC timestamp format
     - **Property 13: LRC timestamp format**
     - **Validates: Requirements 7.3**
 
-  - [ ] 7.3 Write property test for LRC content completeness
+  - [ ] 8.3 Write property test for LRC content completeness
     - **Property 14: LRC content completeness**
     - **Validates: Requirements 7.4**
 
-  - [ ] 7.4 Create LrcDownloadButton component
+  - [ ] 8.4 Create LrcDownloadButton component
     - Create `frontend/src/components/LrcDownloadButton.tsx`
     - Show button when alignedWords.length > 0
     - Hide button when no timestamped lyrics
@@ -147,29 +196,29 @@
     - Apply user's offset to timestamps
     - _Requirements: 7.1, 7.5, 7.6_
 
-  - [ ] 7.5 Write property test for LRC download visibility
+  - [ ] 8.5 Write property test for LRC download visibility
     - **Property 15: LRC download visibility**
     - **Validates: Requirements 7.1, 7.6**
 
-  - [ ] 7.6 Write unit tests for LrcDownloadButton
+  - [ ] 8.6 Write unit tests for LrcDownloadButton
     - Test rendering when alignedWords exist
     - Test hidden when alignedWords empty
     - Test LRC content generation
     - Test filename format
 
-  - [ ] 7.7 Integrate LrcDownloadButton into SongPlaybackPage
+  - [ ] 8.7 Integrate LrcDownloadButton into SongPlaybackPage
     - Add LrcDownloadButton to action buttons section
     - Pass alignedWords, style, createdAt, and offset props
     - _Requirements: 7.1_
 
-- [ ] 8. Implement song history backend API
-  - [ ] 8.1 Create SongHistorySummary model
+- [ ] 9. Implement song history backend API
+  - [ ] 9.1 Create SongHistorySummary model
     - Add `SongHistorySummary` Pydantic model to `backend/app/models/songs.py`
     - Include song_id, style, created_at, expires_at, lyrics_preview fields
     - Add has_variations and primary_variation_index fields
     - _Requirements: 6.2_
 
-  - [ ] 8.2 Create song history API endpoint
+  - [ ] 9.2 Create song history API endpoint
     - Add `GET /api/songs/history` endpoint to `backend/app/api/songs.py`
     - Query Firestore for user's non-expired songs
     - Order by created_at DESC
@@ -177,23 +226,23 @@
     - Return list of SongHistorySummary
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-  - [ ] 8.3 Write property test for song history ordering
+  - [ ] 9.3 Write property test for song history ordering
     - **Property 9: Song history ordering**
     - **Validates: Requirements 4.3**
 
-  - [ ] 8.4 Write property test for expiration filtering
+  - [ ] 9.4 Write property test for expiration filtering
     - **Property 10: Song history expiration filtering**
     - **Validates: Requirements 4.4, 6.1**
 
-  - [ ] 8.5 Write property test for response completeness
+  - [ ] 9.5 Write property test for response completeness
     - **Property 11: Song history response completeness**
     - **Validates: Requirements 6.2**
 
-  - [ ] 8.6 Write property test for history limit
+  - [ ] 9.6 Write property test for history limit
     - **Property 12: Song history limit**
     - **Validates: Requirements 6.3**
 
-  - [ ] 8.7 Write unit tests for song history API
+  - [ ] 9.7 Write unit tests for song history API
     - Test returns user's songs
     - Test ordering by created_at DESC
     - Test limit parameter
@@ -201,14 +250,14 @@
     - Test empty response for new user
     - Test 401 for unauthenticated request
 
-- [ ] 9. Implement song history frontend
-  - [ ] 9.1 Create song history API client function
+- [ ] 10. Implement song history frontend
+  - [ ] 10.1 Create song history API client function
     - Add `getSongHistory()` function to `frontend/src/api/songs.ts`
     - Return list of SongHistorySummary
     - Handle errors gracefully
     - _Requirements: 6.1_
 
-  - [ ] 9.2 Create SongHistoryItem component
+  - [ ] 10.2 Create SongHistoryItem component
     - Create `frontend/src/components/SongHistoryItem.tsx`
     - Display song style with icon
     - Show creation date and expiration countdown
@@ -217,7 +266,7 @@
     - Add keyboard accessibility
     - _Requirements: 4.2, 8.3, 8.4_
 
-  - [ ] 9.3 Create SongHistoryPage
+  - [ ] 10.3 Create SongHistoryPage
     - Create `frontend/src/pages/SongHistoryPage.tsx`
     - Fetch song history on mount
     - Display loading state
@@ -226,39 +275,40 @@
     - Navigate to playback page on item click
     - _Requirements: 4.1, 4.5, 5.2, 5.3_
 
-  - [ ] 9.4 Write unit tests for SongHistoryPage
+  - [ ] 10.4 Write unit tests for SongHistoryPage
     - Test loading state
     - Test empty state
     - Test list rendering
     - Test navigation on click
     - Test error state
 
-- [ ] 10. Add song history navigation
-  - [ ] 10.1 Add route for song history page
+- [ ] 11. Add song history navigation
+  - [ ] 11.1 Add route for song history page
     - Add `/history` route to App.tsx
     - Import and render SongHistoryPage
     - _Requirements: 5.1_
 
-  - [ ] 10.2 Add navigation link to PageNavigation
+  - [ ] 11.2 Add navigation link to PageNavigation
     - Add "My Songs" link to PageNavigation component
     - Link to `/history` route
     - _Requirements: 5.1_
 
-  - [ ] 10.3 Add back link from playback page
+  - [ ] 11.3 Add back link from playback page
     - Add "My Songs" link to SongPlaybackPage header
     - Navigate to `/history`
     - _Requirements: 5.4_
 
-- [ ] 11. Checkpoint - Ensure all features work
+- [ ] 12. Checkpoint - Ensure all features work
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 12. Write integration tests
+- [ ] 13. Write integration tests
   - Test offset control integration with lyrics display
   - Test offset persistence across page reloads
   - Test LRC download with offset applied
   - Test song history navigation flow
   - Test song switcher with variations
+  - Test section marker detection and highlighting skip
 
-- [ ] 13. Final checkpoint - Ensure all tests pass
+- [ ] 14. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 

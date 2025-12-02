@@ -21,6 +21,7 @@ This feature addresses four improvements to the Song Playback page in LearningSo
 - **Aligned Words**: Word-level timing data from Suno API containing startS (start time in seconds) and endS (end time in seconds)
 - **LRC File**: Lyrics file format with timestamps, commonly used by music players for synchronized lyrics display
 - **Primary Variation**: The user's selected song version when two variations are available
+- **Section Marker**: A non-vocal text element in lyrics that indicates song structure (e.g., `**Verse 1**`, `**Chorus**`, `**Bridge**`), identified by the `**...**` pattern
 
 ## Requirements
 
@@ -134,4 +135,29 @@ This feature addresses four improvements to the Song Playback page in LearningSo
 2. WHEN loading a song THEN the system SHALL check local storage for a saved offset and apply it
 3. WHEN the offset storage exceeds 50 entries THEN the system SHALL remove the oldest entries to prevent storage bloat
 4. WHEN clearing browser data THEN the system SHALL gracefully handle missing offset values by defaulting to 0ms
+
+### Requirement 10: Section Marker Detection and Handling
+
+**User Story:** As a user, I want section markers (like **Verse**, **Chorus**) to be handled separately from actual lyrics, so that the highlighting accurately follows the vocal timing rather than staying on markers.
+
+#### Acceptance Criteria
+
+1. WHEN processing alignedWords THEN the system SHALL detect words matching the pattern `**...**` as section markers
+2. WHEN a section marker is detected THEN the system SHALL classify it as a non-vocal element separate from regular lyrics
+3. WHEN displaying section markers THEN the system SHALL render them with distinct visual styling (muted color, smaller font, or label badge)
+4. WHEN the current playback time is within a section marker's timestamp range THEN the system SHALL skip highlighting the marker and highlight the next actual lyric word instead
+5. WHEN calculating the current word index THEN the system SHALL exclude section markers from the highlighting sequence
+6. WHEN a section marker appears THEN the system SHALL display it inline but not apply the "current word" highlight effect to it
+
+### Requirement 11: Section Marker Skip Option
+
+**User Story:** As a user, I want the option to show or hide section markers in the lyrics display, so that I can focus on just the singable lyrics if preferred.
+
+#### Acceptance Criteria
+
+1. WHEN timestamped lyrics contain section markers THEN the system SHALL display a toggle control to show/hide markers
+2. WHEN the user toggles markers off THEN the system SHALL hide all `**...**` pattern words from the display
+3. WHEN the user toggles markers on THEN the system SHALL show section markers with distinct styling
+4. WHEN the marker visibility preference changes THEN the system SHALL persist the preference in local storage
+5. WHEN loading the lyrics display THEN the system SHALL restore the user's marker visibility preference
 

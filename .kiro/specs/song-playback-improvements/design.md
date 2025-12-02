@@ -368,6 +368,22 @@ interface SongHistorySummary {
 *For any* offset value change, the new value should be announced via an aria-live region.
 **Validates: Requirements 8.5**
 
+### Property 18: Section marker detection
+*For any* aligned word with text matching the pattern `**...**` (text surrounded by double asterisks), the system should classify it as a section marker.
+**Validates: Requirements 10.1, 10.2**
+
+### Property 19: Section marker highlighting skip
+*For any* playback time that falls within a section marker's timestamp range, the current word highlight should be applied to the next non-marker word instead of the marker.
+**Validates: Requirements 10.4, 10.5**
+
+### Property 20: Section marker visibility toggle
+*For any* toggle of marker visibility, the display should immediately update to show or hide all section markers while preserving the highlighting of actual lyrics.
+**Validates: Requirements 11.2, 11.3**
+
+### Property 21: Section marker visibility persistence
+*For any* marker visibility preference saved to localStorage, loading the lyrics display should restore the same visibility state.
+**Validates: Requirements 11.4, 11.5**
+
 ## Error Handling
 
 ### Frontend Error Scenarios
