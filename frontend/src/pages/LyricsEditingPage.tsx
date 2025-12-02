@@ -13,6 +13,13 @@ import { ProgressTracker } from '@/components/ProgressTracker'
 import { RateLimitIndicator } from '@/components/RateLimitIndicator'
 import { OfflineIndicator } from '@/components/OfflineIndicator'
 import { PageNavigation } from '@/components/PageNavigation'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { HelpCircle } from 'lucide-react'
 
 interface LocationState {
   lyrics: string
@@ -189,7 +196,33 @@ export function LyricsEditingPage() {
           {/* Page Title and Back Button */}
           <div className="space-y-1 text-left mb-3 shrink-0">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold" id="page-title">Edit Your Lyrics</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-semibold" id="page-title">Edit Your Lyrics</h2>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        className="text-muted-foreground hover:text-foreground transition-colors"
+                        aria-label="Tips for editing lyrics"
+                      >
+                        <HelpCircle className="h-5 w-5" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-xs">
+                      <div className="space-y-1.5 text-sm">
+                        <p className="font-medium">Tips:</p>
+                        <ul className="list-disc list-inside space-y-0.5 text-xs">
+                          <li>Keep lyrics between 50-3000 characters</li>
+                          <li>Choose a music style that matches your content</li>
+                          <li>Song generation takes 30-60 seconds</li>
+                          <li>Use Ctrl+Enter to quickly generate</li>
+                        </ul>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               <Button
                 variant="link"
                 onClick={handleBackToEdit}

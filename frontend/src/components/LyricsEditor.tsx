@@ -39,15 +39,7 @@ export const LyricsEditor: React.FC = () => {
   return (
     <Card className="flex-1 flex flex-col min-h-0">
       <CardContent className="p-4 flex-1 flex flex-col min-h-0 gap-2">
-        <div className="flex items-center justify-between shrink-0">
-          <label 
-            id="lyrics-editor-label"
-            htmlFor="lyrics-editor" 
-            className="text-sm font-medium"
-          >
-            Edit Lyrics
-          </label>
-        </div>
+
         
         <Textarea
           id="lyrics-editor"
