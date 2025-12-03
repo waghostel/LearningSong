@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, act } from '@testing-library/react'
-import { LyricsDisplay, parseLyricsIntoSections, calculateCurrentSection, getWordStateClasses } from '@/components/LyricsDisplay'
+import { LyricsDisplay } from '@/components/LyricsDisplay'
+import { parseLyricsIntoSections, calculateCurrentSection, getWordStateClasses } from '@/lib/lyrics-display-utils'
 import type { AlignedWord } from '@/types/lyrics'
 
 // Helper to create aligned words for testing

@@ -23,9 +23,10 @@ import {
 
 /**
  * Generator for valid song IDs (non-empty strings)
+ * Filters out "__proto__" and other prototype pollution keys for security
  */
 const songIdArbitrary = fc.string({ minLength: 1, maxLength: 50 })
-  .filter(s => s.trim().length > 0)
+  .filter(s => s.trim().length > 0 && !['__proto__', 'constructor', 'prototype'].includes(s))
 
 /**
  * Generator for valid offset values within the allowed range
@@ -42,11 +43,16 @@ const offsetEntryArbitrary = fc.record({
 
 /**
  * Generator for offset storage with a specific number of entries
+ * Ensures unique song IDs to guarantee the requested number of entries
  */
 const offsetStorageArbitrary = (minSize: number = 0, maxSize: number = 60): fc.Arbitrary<OffsetStorage> =>
-  fc.array(
+  fc.uniqueArray(
     fc.tuple(songIdArbitrary, offsetEntryArbitrary),
-    { minLength: minSize, maxLength: maxSize }
+    {
+      minLength: minSize,
+      maxLength: maxSize,
+      selector: (entry) => entry[0], // Use songId as uniqueness key
+    }
   ).map(entries => {
     const storage: OffsetStorage = {}
     for (const [songId, entry] of entries) {

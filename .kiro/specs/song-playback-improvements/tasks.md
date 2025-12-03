@@ -259,8 +259,13 @@
 
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 8. Implement VTT generation and line-level sync
-  - [ ] 8.1 Create line aggregation utilities
+- [-] 8. Implement VTT generation and line-level sync
+
+
+
+
+  - [x] 8.1 Create line aggregation utilities
+
     - Create `frontend/src/lib/vtt-generator.ts`
     - Implement `aggregateWordsToLines(alignedWords, editedLyrics)` function
     - Match edited lyrics lines to aligned words by text content
@@ -269,72 +274,93 @@
     - Detect section markers (**...**) and mark them in LineCue
     - _Requirements: 7.2, 7.3, 7.4_
 
-  - [ ] 8.2 Write property test for line aggregation timestamp bounds
+
+  - [x] 8.2 Write property test for line aggregation timestamp bounds
+
+
     - **Property 13: Line aggregation timestamp bounds**
     - **Validates: Requirements 7.2, 7.3**
 
-  - [ ] 8.3 Write property test for line aggregation completeness
+
+
+  - [x] 8.3 Write property test for line aggregation completeness
     - **Property 24: Line aggregation completeness**
     - **Validates: Requirements 7.2, 7.4**
 
-  - [ ] 8.4 Create VTT file generator
+
+
+  - [x] 8.4 Create VTT file generator
     - Implement `formatVttTimestamp(seconds)` function (HH:MM:SS.mmm format)
     - Implement `generateVttContent(lineCues, offset)` function
     - Implement `downloadVttFile(content, filename)` function
     - Exclude section markers from VTT output
+
+
     - _Requirements: 7.5, 7.6_
 
-  - [ ] 8.5 Write property test for VTT timestamp format
+  - [x] 8.5 Write property test for VTT timestamp format
     - **Property 14: VTT timestamp format**
     - **Validates: Requirements 7.5**
 
-  - [ ] 8.6 Create LineLyricsDisplay component
+
+  - [x] 8.6 Create LineLyricsDisplay component
+
     - Create `frontend/src/components/LineLyricsDisplay.tsx`
     - Render lyrics line by line with LineCue data
     - Highlight current line based on currentTime + offset
     - Make each line clickable to seek audio
     - Auto-scroll to keep current line visible
     - Render section markers with distinct styling (muted, smaller)
+
     - _Requirements: 9.1, 9.2, 9.3, 8.1, 8.4_
 
-  - [ ] 8.7 Write property test for current line highlighting
+
+
+  - [x] 8.7 Write property test for current line highlighting
     - **Property 23: Current line highlighting**
     - **Validates: Requirements 9.1, 9.4**
 
-  - [ ] 8.8 Implement line click navigation
+  - [x] 8.8 Implement line click navigation
     - Add onClick handler to each line in LineLyricsDisplay
+
     - Call onLineClick(startTime) when line is clicked
     - Update audio player currentTime via seek
     - Continue playback if audio was playing
+
     - _Requirements: 8.2, 8.3, 8.5_
 
-  - [ ] 8.9 Write property test for line click navigation
+  - [x] 8.9 Write property test for line click navigation
     - **Property 22: Line click navigation**
     - **Validates: Requirements 8.2**
 
-  - [ ] 8.10 Create SyncModeToggle component
+
+  - [x] 8.10 Create SyncModeToggle component
     - Create `frontend/src/components/SyncModeToggle.tsx`
+
     - Toggle between 'word' and 'line' sync modes
     - Persist preference to localStorage
     - _Requirements: 9.5_
 
-  - [ ] 8.11 Write property test for sync mode persistence
+  - [x] 8.11 Write property test for sync mode persistence
     - **Property 25: Sync mode toggle persistence**
     - **Validates: Requirements 9.5**
 
-  - [ ] 8.12 Create VttDownloadButton component
+
+  - [x] 8.12 Create VttDownloadButton component
     - Create `frontend/src/components/VttDownloadButton.tsx`
+
+
     - Show button when lineCues.length > 0
     - Hide button when no line-level timestamps
     - Generate filename from style and date
     - Apply user's offset to timestamps
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
 
-  - [ ] 8.13 Write property test for VTT download visibility
+  - [x] 8.13 Write property test for VTT download visibility
     - **Property 15: VTT download visibility**
     - **Validates: Requirements 10.1, 10.5**
 
-  - [ ] 8.14 Integrate VTT components into SongPlaybackPage
+  - [x] 8.14 Integrate VTT components into SongPlaybackPage
     - Add SyncModeToggle to controls area
     - Conditionally render LineLyricsDisplay or LyricsDisplay based on sync mode
     - Pass lineCues, currentTime, offset, and onLineClick props
@@ -342,38 +368,47 @@
     - Connect line click to audio player seek
     - _Requirements: 7.1, 8.1, 9.1, 10.1_
 
-- [ ] 9. Implement song history backend API
-  - [ ] 9.1 Create SongHistorySummary model
+- [x] 9. Implement song history backend API
+
+
+
+  - [x] 9.1 Create SongHistorySummary model
     - Add `SongHistorySummary` Pydantic model to `backend/app/models/songs.py`
     - Include song_id, style, created_at, expires_at, lyrics_preview fields
     - Add has_variations and primary_variation_index fields
     - _Requirements: 6.2_
 
-  - [ ] 9.2 Create song history API endpoint
+
+  - [x] 9.2 Create song history API endpoint
     - Add `GET /api/songs/history` endpoint to `backend/app/api/songs.py`
     - Query Firestore for user's non-expired songs
     - Order by created_at DESC
     - Limit to 20 results
     - Return list of SongHistorySummary
+
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-  - [ ] 9.3 Write property test for song history ordering
+  - [x] 9.3 Write property test for song history ordering
+
     - **Property 9: Song history ordering**
     - **Validates: Requirements 4.3**
 
-  - [ ] 9.4 Write property test for expiration filtering
+
+  - [x] 9.4 Write property test for expiration filtering
     - **Property 10: Song history expiration filtering**
     - **Validates: Requirements 4.4, 6.1**
 
-  - [ ] 9.5 Write property test for response completeness
+
+  - [x] 9.5 Write property test for response completeness
     - **Property 11: Song history response completeness**
+
     - **Validates: Requirements 6.2**
 
-  - [ ] 9.6 Write property test for history limit
+  - [x] 9.6 Write property test for history limit
     - **Property 12: Song history limit**
     - **Validates: Requirements 6.3**
 
-  - [ ] 9.7 Write unit tests for song history API
+  - [x] 9.7 Write unit tests for song history API
     - Test returns user's songs
     - Test ordering by created_at DESC
     - Test limit parameter
@@ -381,58 +416,92 @@
     - Test empty response for new user
     - Test 401 for unauthenticated request
 
-- [ ] 10. Implement song history frontend
-  - [ ] 10.1 Create song history API client function
+- [x] 10. Implement song history frontend
+
+
+
+
+
+
+
+  - [x] 10.1 Create song history API client function
+
     - Add `getSongHistory()` function to `frontend/src/api/songs.ts`
     - Return list of SongHistorySummary
     - Handle errors gracefully
+
+
     - _Requirements: 6.1_
 
-  - [ ] 10.2 Create SongHistoryItem component
+
+  - [x] 10.2 Create SongHistoryItem component
     - Create `frontend/src/components/SongHistoryItem.tsx`
     - Display song style with icon
     - Show creation date and expiration countdown
     - Show lyrics preview (first 100 chars)
+
+
     - Make clickable to navigate to playback
     - Add keyboard accessibility
     - _Requirements: 4.2, 8.3, 8.4_
 
-  - [ ] 10.3 Create SongHistoryPage
+
+  - [x] 10.3 Create SongHistoryPage
     - Create `frontend/src/pages/SongHistoryPage.tsx`
     - Fetch song history on mount
+
     - Display loading state
     - Display empty state when no songs
     - Render list of SongHistoryItem components
     - Navigate to playback page on item click
+
     - _Requirements: 4.1, 4.5, 5.2, 5.3_
 
-  - [ ] 10.4 Write unit tests for SongHistoryPage
+  - [x] 10.4 Write unit tests for SongHistoryPage
+
     - Test loading state
     - Test empty state
     - Test list rendering
     - Test navigation on click
     - Test error state
 
-- [ ] 11. Add song history navigation
-  - [ ] 11.1 Add route for song history page
+- [x] 11. Add song history navigation
+
+
+
+
+  - [x] 11.1 Add route for song history page
+
     - Add `/history` route to App.tsx
     - Import and render SongHistoryPage
     - _Requirements: 5.1_
 
-  - [ ] 11.2 Add navigation link to PageNavigation
+
+  - [x] 11.2 Add navigation link to PageNavigation
     - Add "My Songs" link to PageNavigation component
     - Link to `/history` route
     - _Requirements: 5.1_
 
-  - [ ] 11.3 Add back link from playback page
+
+  - [x] 11.3 Add back link from playback page
     - Add "My Songs" link to SongPlaybackPage header
     - Navigate to `/history`
     - _Requirements: 5.4_
 
-- [ ] 12. Checkpoint - Ensure all features work
+- [x] 12. Checkpoint - Ensure all features work
+
+
+
+
+
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 13. Write integration tests
+- [x] 13. Write integration tests
+
+
+
+
+
   - Test offset control integration with lyrics display
   - Test offset persistence across page reloads
   - Test VTT download with offset applied

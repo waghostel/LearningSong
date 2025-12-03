@@ -157,8 +157,8 @@ describe('SongPlaybackPage Integration Tests', () => {
       const audioPlayers = screen.getAllByRole('region', { name: /audio player/i })
       expect(audioPlayers.length).toBeGreaterThan(0)
 
-      // Lyrics should be displayed
-      expect(screen.getByText('Lyrics')).toBeInTheDocument()
+      // Lyrics heading should be displayed
+      expect(screen.getByRole('heading', { name: 'Lyrics' })).toBeInTheDocument()
 
       // Share button should be present for owner
       expect(screen.getByRole('button', { name: /share/i })).toBeInTheDocument()

@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { AudioPlayer, formatTime, generateDownloadFilename } from '@/components/AudioPlayer'
+import { AudioPlayer } from '@/components/AudioPlayer'
+import { formatTime, generateDownloadFilename } from '@/lib/audio-player-utils'
 
 // Mock HTMLMediaElement methods
 const mockPlay = jest.fn().mockResolvedValue(undefined)

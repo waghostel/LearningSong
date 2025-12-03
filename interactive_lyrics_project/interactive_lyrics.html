@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Learning Song: The Science of Immune Tolerance</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Space+Grotesk:wght@300;400;600&display=swap");
+
+      :root {
+        --bg-color: #0f172a;
+        --card-bg: rgba(30, 41, 59, 0.7);
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --accent-color: #38bdf8; /* Light Blue */
+        --highlight-color: #818cf8; /* Indigo */
+        --success-color: #34d399; /* Emerald */
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --gradient-1: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+        --player-bg: rgba(15, 23, 42, 0.85);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Outfit", sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-primary);
+        line-height: 1.6;
+        overflow-x: hidden;
+        background-image: radial-gradient(
+            circle at 10% 20%,
+            rgba(56, 189, 248, 0.1) 0%,
+            transparent 20%
+          ),
+          radial-gradient(
+            circle at 90% 80%,
+            rgba(129, 140, 248, 0.1) 0%,
+            transparent 20%
+          );
+      }
+
+      /* Navigation */
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--glass-border);
+        z-index: 1000;
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .nav-brand {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: var(--gradient-1);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 2rem;
+      }
+
+      .nav-links a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .nav-links a:hover,
+      .nav-links a.active {
+        color: var(--accent-color);
+      }
+
+      header {
+        text-align: center;
+        padding: 6rem 2rem 4rem;
+        background: linear-gradient(
+          to bottom,
+          rgba(15, 23, 42, 0.9),
+          var(--bg-color)
+        );
+        position: relative;
+        z-index: 10;
+        transition: all 0.5s ease;
+        max-height: 500px;
+        overflow: hidden;
+      }
+
+      header.hidden {
+        max-height: 0;
+        padding: 0 2rem;
+        opacity: 0;
+      }
+
+      h1 {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 3.5rem;
+        font-weight: 700;
+        background: var(--gradient-1);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+        letter-spacing: -0.02em;
+      }
+
+      .subtitle {
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .container {
+        display: grid;
+        grid-template-columns: 1fr 3fr;
+        gap: 2rem;
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 2rem;
+        min-height: 80vh;
+      }
+
+      /* Lyrics Section */
+      .lyrics-column {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        padding-bottom: 80vh; /* Allow scrolling last item to top while keeping info panel sticky */
+      }
+
+      .lyric-card {
+        background: var(--card-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        backdrop-filter: blur(10px);
+        overflow: hidden;
+        scroll-margin-top: 2rem;
+      }
+
+      .lyric-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: var(--gradient-1);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .lyric-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        border-color: rgba(56, 189, 248, 0.3);
+      }
+
+      .lyric-card.active {
+        background: rgba(56, 189, 248, 0.1);
+        border-color: var(--accent-color);
+      }
+
+      .lyric-card.active::before {
+        opacity: 1;
+      }
+
+      .section-title {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--accent-color);
+        margin-bottom: 0.8rem;
+        display: block;
+      }
+
+      .lyric-text {
+        font-size: 0.95rem;
+        color: var(--text-primary);
+        line-height: 1.8;
+      }
+
+      .lyric-line {
+        display: block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        margin-bottom: 4px;
+        cursor: pointer;
+      }
+
+      .lyric-line:hover {
+        background: rgba(56, 189, 248, 0.1);
+        transform: translateX(4px);
+      }
+
+      .lyric-line.highlight {
+        background: rgba(56, 189, 248, 0.2);
+        color: #fff;
+        font-weight: 600;
+        transform: scale(1.02);
+        transform-origin: left;
+      }
+
+      /* Info Panel Section */
+      .info-column {
+        position: relative;
+      }
+
+      .info-panel {
+        position: sticky;
+        top: 2rem;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 0; /* Reset padding for internal layout */
+        backdrop-filter: blur(20px);
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+        height: calc(100vh - 4rem); /* Fixed height */
+        display: flex;
+        flex-direction: column;
+        overflow: hidden; /* Hide overflow for inner scroll */
+      }
+
+      .info-scroll-container {
+        padding: 2.5rem;
+        padding-bottom: 8rem; /* Space for player */
+        overflow-y: auto;
+        flex-grow: 1;
+      }
+
+      .info-scroll-container::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .info-scroll-container::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+      }
+
+      .info-scroll-container::-webkit-scrollbar-thumb {
+        background: var(--accent-color);
+        border-radius: 10px;
+      }
+
+      .info-scroll-container::-webkit-scrollbar-thumb:hover {
+        background: var(--highlight-color);
+      }
+
+      .info-content {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.4s ease;
+        display: none;
+      }
+
+      .info-content.active {
+        opacity: 1;
+        transform: translateY(0);
+        display: block;
+      }
+
+      .info-title {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        color: var(--highlight-color);
+      }
+
+      .info-body {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+      }
+
+      .info-body strong {
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+
+      .info-body ul {
+        list-style-type: none;
+        margin-top: 1rem;
+      }
+
+      .info-body li {
+        margin-bottom: 0.8rem;
+        padding-left: 1.5rem;
+        position: relative;
+      }
+
+      .info-body li::before {
+        content: "•";
+        color: var(--accent-color);
+        position: absolute;
+        left: 0;
+        font-weight: bold;
+      }
+
+      .tag {
+        display: inline-block;
+        padding: 0.4rem 1rem;
+        background: rgba(56, 189, 248, 0.1);
+        color: var(--accent-color);
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      /* Image Styling */
+      .info-image {
+        width: 100%;
+        height: auto;
+        border-radius: 16px;
+        display: block;
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--glass-border);
+        transition: transform 0.3s ease;
+      }
+
+      .info-image:hover {
+        transform: scale(1.02);
+      }
+
+      .split-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        align-items: start;
+      }
+
+      @media (max-width: 1200px) {
+        .split-layout {
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+        }
+        .info-image {
+            margin-bottom: 1.5rem;
+        }
+      }
+
+      /* Music Player */
+      .music-player {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: var(--player-bg);
+        backdrop-filter: blur(20px);
+        border-top: 1px solid var(--glass-border);
+        padding: 1.5rem;
+        z-index: 20;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .player-controls {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        justify-content: space-between;
+      }
+
+      .play-btn {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: var(--gradient-1);
+        border: none;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+      }
+
+      .play-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 16px rgba(56, 189, 248, 0.4);
+      }
+
+      .play-btn svg {
+        width: 20px;
+        height: 20px;
+        fill: currentColor;
+      }
+
+      .progress-container {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .time-display {
+        font-family: "Space Grotesk", monospace;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        min-width: 45px;
+      }
+
+      .progress-bar-wrapper {
+        flex-grow: 1;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+        cursor: pointer;
+        position: relative;
+      }
+
+      .progress-bar {
+        height: 100%;
+        background: var(--gradient-1);
+        border-radius: 3px;
+        width: 0%;
+        position: relative;
+      }
+
+      .progress-bar::after {
+        content: "";
+        position: absolute;
+        right: -4px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 10px;
+        height: 10px;
+        background: white;
+        border-radius: 50%;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+
+      .progress-bar-wrapper:hover .progress-bar::after {
+        opacity: 1;
+      }
+
+      /* Initial State Message */
+      .empty-state {
+        text-align: center;
+        color: var(--text-secondary);
+        padding-top: 4rem;
+      }
+
+      .empty-state-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .container {
+          grid-template-columns: 1fr;
+        }
+
+        .info-panel {
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          top: auto;
+          border-radius: 24px 24px 0 0;
+          z-index: 100;
+          height: 60vh;
+          border-top: 1px solid var(--accent-color);
+          background: #0f172a;
+        }
+
+        .lyrics-column {
+          padding-bottom: 60vh; /* Space for the fixed panel */
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="nav-brand">LearningSong</div>
+      <div class="nav-links">
+        <a href="interactive_lyrics.html" class="active">🎵 Demo</a>
+        <a href="kiro-showcase.html">🛠️ Built with Kiro</a>
+      </div>
+    </nav>
+
+    <header>
+      <h1>Learning Song Demo</h1>
+      <p class="subtitle">
+        Exploring the 2025 Nobel Prize in Physiology or Medicine through Music
+      </p>
+    </header>
+
+    <div class="container">
+      <!-- Left Column: Lyrics -->
+      <div class="lyrics-column">
+        <div class="lyric-card" data-target="verse1">
+          <span class="section-title">Verse 1</span>
+          <p class="lyric-text">
+            In the world of science, a prize was won,
+            By Brunkow, Ramsdell, and Sakaguchi’s fun,
+            They found a way to keep our bodies safe,
+            From the immune system going on a rampage.
+
+            With T cells in action, they defend our health,
+            Helper and Killer, they're the immune wealth,
+            But don't forget the Regulators in the fight,
+            Keeping balance in our system, making everything right.
+          </p>
+        </div>
+
+        <div class="lyric-card" data-target="chorus">
+          <span class="section-title">Chorus</span>
+          <p class="lyric-text">
+            Oh, immune tolerance, we’re learning so much,
+            Protecting our bodies with a gentle touch,
+            From autoimmune storms, we find a way,
+            With T cells guiding us, we’re here to stay!
+          </p>
+        </div>
+
+        <div class="lyric-card" data-target="verse2">
+          <span class="section-title">Verse 2</span>
+          <p class="lyric-text">
+            Regulatory T cells, the guards in our team,
+            With CD4 and CD25, they fulfill a dream,
+            Keeping watch, they won’t let us fall,
+            Preventing our bodies from attacking at all.
+
+            In scurfy mice, a mystery was found,
+            A mutation in genes that turned life around,
+            With FOXP3, they showed us the key,
+            Unlocking the secrets of immune harmony.
+          </p>
+        </div>
+
+        <div class="lyric-card" data-target="chorus">
+          <span class="section-title">Chorus</span>
+          <p class="lyric-text">
+            Oh, immune tolerance, we’re learning so much,
+            Protecting our bodies with a gentle touch,
+            From autoimmune storms, we find a way,
+            With T cells guiding us, we’re here to stay!
+          </p>
+        </div>
+
+        <div class="lyric-card" data-target="bridge">
+          <span class="section-title">Bridge</span>
+          <p class="lyric-text">
+            Now researchers are dreaming, with new pathways in sight,
+            Treating diseases, making everything right,
+            By boosting those T cells, we’re taking a stand,
+            Using our own defenses, to heal this land.
+          </p>
+        </div>
+
+        <div class="lyric-card" data-target="final-chorus">
+          <span class="section-title">Final Chorus</span>
+          <p class="lyric-text">
+            Oh, immune tolerance, we’re learning so much,
+            Protecting our bodies with a gentle touch,
+            From autoimmune storms, we find a way,
+            With T cells guiding us, we’re here to stay!
+            Yes, with T cells guiding us, we’re here to stay!
+          </p>
+        </div>
+      </div>
+
+      <!-- Right Column: Scientific Context -->
+      <div class="info-column">
+        <div class="info-panel">
+          <div class="info-scroll-container">
+            <div id="initial-message" class="empty-state">
+              <div class="empty-state-icon">🧬</div>
+              <h3>Select a verse to explore the science behind it.</h3>
+            </div>
+
+            <!-- Verse 1 Content -->
+            <div id="verse1" class="info-content">
+              <h2 class="info-title">The Laureates & The Immune System</h2>
+              <div class="split-layout">
+                <img src="verse1_nobel_laureates.jpg" alt="Nobel Prize winners with T cells" class="info-image" />
+                <div>
+                  <div class="info-body">
+                    <p>
+                      The 2025 Nobel Prize honors
+                      <strong
+                        >Mary E. Brunkow, Fred Ramsdell, and Shimon Sakaguchi</strong
+                      >
+                      for discovering <strong>Peripheral Immune Tolerance</strong>.
+                    </p>
+                    <br />
+                    <p>Before their work, we knew about:</p>
+                    <ul>
+                      <li>
+                        <strong>Helper T Cells (CD4+):</strong> The commanders that
+                        alert the immune system.
+                      </li>
+                      <li>
+                        <strong>Killer T Cells (CD8+):</strong> The soldiers that
+                        destroy infected cells.
+                      </li>
+                    </ul>
+                    <p>
+                      The laureates identified the missing piece:
+                      <strong>Regulatory T Cells (Tregs)</strong>. These are the
+                      "peacekeepers" that prevent the immune system from attacking the
+                      body's own healthy tissues.
+                    </p>
+                  </div>
+                  <div>
+                    <span class="tag">Nobel Prize 2025</span>
+                    <span class="tag">T Cells</span>
+                    <span class="tag">Immunology</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chorus Content -->
+            <div id="chorus" class="info-content">
+              <h2 class="info-title">What is Immune Tolerance?</h2>
+              <div class="split-layout">
+                <img src="chorus_immune_tolerance.jpg" alt="Immune tolerance process" class="info-image" />
+                <div>
+                  <div class="info-body">
+                    <p>
+                      <strong>Immune Tolerance</strong> is the body's ability to
+                      distinguish "self" from "non-self".
+                    </p>
+                    <br />
+                    <p>There are two layers of defense:</p>
+                    <ul>
+                      <li>
+                        <strong>Central Tolerance:</strong> Happens in the thymus (an
+                        organ in the chest), filtering out most self-reactive cells
+                        early on.
+                      </li>
+                      <li>
+                        <strong>Peripheral Tolerance:</strong> The laureates'
+                        discovery. This happens in the rest of the body, where
+                        Regulatory T cells suppress any rogue immune cells that
+                        escaped the first filter.
+                      </li>
+                    </ul>
+                    <p>
+                      Without this, we face
+                      <strong>"autoimmune storms"</strong>—diseases where the body
+                      attacks itself.
+                    </p>
+                  </div>
+                  <div>
+                    <span class="tag">Peripheral Tolerance</span>
+                    <span class="tag">Autoimmunity</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Verse 2 Content -->
+            <div id="verse2" class="info-content">
+              <h2 class="info-title">The Genetic Key: FOXP3</h2>
+              <div class="split-layout">
+                <img src="verse2_foxp3_discovery.jpg" alt="FOXP3 gene discovery" class="info-image" />
+                <div>
+                  <div class="info-body">
+                    <p>
+                      <strong>Shimon Sakaguchi</strong> discovered how to identify
+                      these peacekeepers: they carry the markers
+                      <strong>CD4</strong> and <strong>CD25</strong> on their surface.
+                    </p>
+                    <br />
+                    <p>
+                      Meanwhile, <strong>Brunkow and Ramsdell</strong> investigated
+                      <strong>"Scurfy Mice"</strong>, which died from severe
+                      autoimmunity. They traced the cause to a mutation in a gene
+                      called <strong>FOXP3</strong>.
+                    </p>
+                    <p>
+                      <strong>FOXP3</strong> turns out to be the "master switch" for
+                      Regulatory T cells. Without it, the body has no peacekeepers,
+                      leading to chaos.
+                    </p>
+                  </div>
+                  <div>
+                    <span class="tag">FOXP3</span>
+                    <span class="tag">Scurfy Mice</span>
+                    <span class="tag">Genetics</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bridge Content -->
+            <div id="bridge" class="info-content">
+              <h2 class="info-title">Healing the Future</h2>
+              <div class="split-layout">
+                <img src="bridge_future_medicine.jpg" alt="Future medical applications" class="info-image" />
+                <div>
+                  <div class="info-body">
+                    <p>These discoveries are revolutionizing medicine:</p>
+                    <ul>
+                      <li>
+                        <strong>Autoimmune Diseases:</strong> Researchers are finding
+                        ways to <strong>"boost"</strong> Regulatory T cells to calm
+                        down overactive immune systems (e.g., in Lupus or Rheumatoid
+                        Arthritis).
+                      </li>
+                      <li>
+                        <strong>Transplants:</strong> Boosting Tregs can help the body
+                        accept a new organ without rejection.
+                      </li>
+                      <li>
+                        <strong>Cancer:</strong> Conversely, blocking Tregs near
+                        tumors can "unleash" the immune system to attack cancer cells
+                        more effectively.
+                      </li>
+                    </ul>
+                  </div>
+                  <div>
+                    <span class="tag">Immunotherapy</span>
+                    <span class="tag">Future Medicine</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Final Chorus Content (Reusing Chorus Info) -->
+            <div id="final-chorus" class="info-content">
+              <h2 class="info-title">What is Immune Tolerance?</h2>
+              <div class="split-layout">
+                <img src="chorus_immune_tolerance.jpg" alt="Immune tolerance process" class="info-image" />
+                <div>
+                  <div class="info-body">
+                    <p>
+                      <strong>Immune Tolerance</strong> is the body's ability to
+                      distinguish "self" from "non-self".
+                    </p>
+                    <br />
+                    <p>There are two layers of defense:</p>
+                    <ul>
+                      <li>
+                        <strong>Central Tolerance:</strong> Happens in the thymus (an
+                        organ in the chest), filtering out most self-reactive cells
+                        early on.
+                      </li>
+                      <li>
+                        <strong>Peripheral Tolerance:</strong> The laureates'
+                        discovery. This happens in the rest of the body, where
+                        Regulatory T cells suppress any rogue immune cells that
+                        escaped the first filter.
+                      </li>
+                    </ul>
+                    <p>
+                      Without this, we face
+                      <strong>"autoimmune storms"</strong>—diseases where the body
+                      attacks itself.
+                    </p>
+                  </div>
+                  <div>
+                    <span class="tag">Peripheral Tolerance</span>
+                    <span class="tag">Autoimmunity</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Music Player -->
+          <div class="music-player">
+            <div class="player-controls">
+              <button id="play-pause-btn" class="play-btn">
+                <svg id="play-icon" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+                <svg id="pause-icon" viewBox="0 0 24 24" style="display: none">
+                  <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                </svg>
+              </button>
+              <div class="progress-container">
+                <span id="current-time" class="time-display">0:00</span>
+                <div class="progress-bar-wrapper" id="progress-wrapper">
+                  <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <span id="duration" class="time-display">0:00</span>
+              </div>
+            </div>
+          </div>
+          <audio id="audio-player" src="song.mp3"></audio>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const cards = document.querySelectorAll(".lyric-card");
+        const contents = document.querySelectorAll(".info-content");
+        const initialMessage = document.getElementById("initial-message");
+        const infoScrollContainer = document.querySelector(".info-scroll-container");
+        
+        // Music Player Elements
+        const audio = document.getElementById("audio-player");
+        const playPauseBtn = document.getElementById("play-pause-btn");
+        const playIcon = document.getElementById("play-icon");
+        const pauseIcon = document.getElementById("pause-icon");
+        const progressBar = document.getElementById("progress-bar");
+        const progressWrapper = document.getElementById("progress-wrapper");
+        const currentTimeEl = document.getElementById("current-time");
+        const durationEl = document.getElementById("duration");
+
+        let lyricLines = []; // Store all lyric line elements
+        let lyricTimestamps = []; // Store start/end times for each line
+
+        // --- 1. Load and Parse VTT ---
+        fetch('lyrics.vtt')
+            .then(response => response.text())
+            .then(vttText => {
+                console.log("Loaded lyrics VTT");
+                parseVTT(vttText);
+            })
+            .catch(err => {
+                console.error("Error loading lyrics VTT:", err);
+                // Fallback to mock timestamps if VTT fails
+                audio.addEventListener("loadedmetadata", () => {
+                    generateMockTimestamps(audio.duration);
+                }, { once: true });
+            });
+
+        // --- 2. Audio Player Logic ---
+        
+        const header = document.querySelector('header');
+
+        playPauseBtn.addEventListener("click", () => {
+            if (audio.paused) {
+                audio.play();
+                playIcon.style.display = "none";
+                pauseIcon.style.display = "block";
+                // Hide header and scroll info panel to top
+                header.classList.add('hidden');
+                if (infoScrollContainer) {
+                    infoScrollContainer.scrollTop = 0;
+                }
+            } else {
+                audio.pause();
+                playIcon.style.display = "block";
+                pauseIcon.style.display = "none";
+                // Show header when paused
+                header.classList.remove('hidden');
+            }
+        });
+
+        audio.addEventListener("loadedmetadata", () => {
+            durationEl.textContent = formatTime(audio.duration);
+        });
+
+        audio.addEventListener("timeupdate", () => {
+            const percent = (audio.currentTime / audio.duration) * 100;
+            progressBar.style.width = `${percent}%`;
+            currentTimeEl.textContent = formatTime(audio.currentTime);
+            
+            highlightLyrics(audio.currentTime);
+        });
+
+        audio.addEventListener("ended", () => {
+            playIcon.style.display = "block";
+            pauseIcon.style.display = "none";
+            progressBar.style.width = "0%";
+            // Reset highlights
+            lyricLines.forEach(line => line.classList.remove("highlight"));
+            // Show header when song ends
+            header.classList.remove('hidden');
+        });
+
+        progressWrapper.addEventListener("click", (e) => {
+            const rect = progressWrapper.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const width = rect.width;
+            const newTime = (clickX / width) * audio.duration;
+            audio.currentTime = newTime;
+        });
+
+        function formatTime(seconds) {
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return `${min}:${sec < 10 ? "0" : ""}${sec}`;
+        }
+
+        // --- 3. VTT Parsing & Sync Logic ---
+
+        function parseTime(timeStr) {
+            // Format: HH:MM:SS.mmm or MM:SS.mmm
+            const parts = timeStr.split(':');
+            let seconds = 0;
+            if (parts.length === 3) {
+                seconds += parseInt(parts[0]) * 3600;
+                seconds += parseInt(parts[1]) * 60;
+                seconds += parseFloat(parts[2]);
+            } else if (parts.length === 2) {
+                seconds += parseInt(parts[0]) * 60;
+                seconds += parseFloat(parts[1]);
+            }
+            return seconds;
+        }
+
+        function parseVTT(vttText) {
+            const lines = vttText.split(/\r?\n/);
+            const cues = [];
+            let currentCue = null;
+
+            // Simple VTT parser
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (line === "WEBVTT" || line === "") continue;
+
+                // Check for timestamp line (00:00:00.000 --> 00:00:00.000)
+                if (line.includes('-->')) {
+                    const times = line.split('-->');
+                    currentCue = {
+                        start: parseTime(times[0].trim()),
+                        end: parseTime(times[1].trim()),
+                        text: []
+                    };
+                    cues.push(currentCue);
+                } else if (currentCue) {
+                    // Text line (could be multiple lines per cue)
+                    // Skip cue numbers if they exist (digits only)
+                    if (/^\d+$/.test(line)) continue;
+                    currentCue.text.push(line);
+                }
+            }
+
+            // Process cues to merge sentences and populate cards
+            processCues(cues);
+        }
+
+        // Comments removed for clarity
+       
+       function processCues(cues) {
+            // Clear all cards first
+            cards.forEach(card => {
+                const textP = card.querySelector(".lyric-text");
+                textP.innerHTML = '';
+            });
+
+            let currentCardIndex = 0;
+            let currentCard = cards[0];
+            let currentSentence = { text: "", start: null, end: null };
+            
+            const flushSentence = () => {
+                if (currentSentence.text) {
+                    const textP = currentCard.querySelector(".lyric-text");
+                    const span = document.createElement('span');
+                    span.className = 'lyric-line';
+                    span.textContent = currentSentence.text.trim();
+                    
+                    const lineIndex = lyricLines.length;
+                    span.dataset.lineIndex = lineIndex;
+                    
+                    // Capture the timestamp value to avoid closure issues
+                    const sentenceStart = currentSentence.start;
+                    span.onclick = (e) => {
+                        e.stopPropagation();
+                        audio.currentTime = sentenceStart;
+                        if (audio.paused) {
+                            audio.play();
+                            playIcon.style.display = "none";
+                            pauseIcon.style.display = "block";
+                            // Hide header and scroll to top when clicking a lyric line
+                            const header = document.querySelector('header');
+                            header.classList.add('hidden');
+                            if (infoScrollContainer) {
+                                infoScrollContainer.scrollTop = 0;
+                            }
+                        }
+                    };
+
+                    textP.appendChild(span);
+                    lyricLines.push(span);
+                    
+                    lyricTimestamps.push({
+                        start: currentSentence.start,
+                        end: currentSentence.end,
+                        element: span,
+                        card: currentCard
+                    });
+                    
+                    currentSentence = { text: "", start: null, end: null };
+                }
+            };
+
+            cues.forEach(cue => {
+                const text = cue.text.join(' ').trim();
+                
+                // Check for section markers
+                if (text.includes('[Verse') || text.includes('[Chorus') || text.includes('[Bridge') || text.includes('[Final Chorus')) {
+                    flushSentence();
+                    
+                    // Find matching card
+                    let targetType = '';
+                    if (text.includes('Verse 1')) targetType = 'verse1';
+                    else if (text.includes('Verse 2')) targetType = 'verse2';
+                    else if (text.includes('Final Chorus')) targetType = 'final-chorus';
+                    else if (text.includes('Chorus')) targetType = 'chorus';
+                    else if (text.includes('Bridge')) targetType = 'bridge';
+                    
+                    // Search forward for card
+                    for (let i = 0; i < cards.length; i++) {
+                        // We can search from 0 or from current? 
+                        // VTT is sequential. HTML is sequential.
+                        // So we should search from currentCardIndex?
+                        // But sometimes markers might be out of sync?
+                        // Let's search from currentCardIndex.
+                        // Actually, let's just search from 0 to be safe, but pick the first one that hasn't been "passed"?
+                        // No, simplest is: Find the first card of that type that is at or after currentCardIndex.
+                    }
+                    
+                    // Better: Just find the next card in DOM order that matches the targetType.
+                    // We start search from currentCardIndex.
+                    for (let i = currentCardIndex; i < cards.length; i++) {
+                        if (cards[i].dataset.target === targetType) {
+                            currentCard = cards[i];
+                            currentCardIndex = i;
+                            break;
+                        }
+                    }
+                    return;
+                }
+
+                if (currentSentence.start === null) currentSentence.start = cue.start;
+                currentSentence.end = cue.end;
+                currentSentence.text += (currentSentence.text ? " " : "") + text;
+
+                if (/[.?!,]$/.test(text) || text.endsWith(']')) {
+                    flushSentence();
+                }
+            });
+            
+            flushSentence();
+            console.log(`Generated ${lyricLines.length} lyric lines`);
+        }
+
+        function generateMockTimestamps(totalDuration) {
+            // ... (keep existing fallback logic)
+             console.log("Using mock timestamps as fallback");
+             // ...
+        }
+
+        function highlightLyrics(currentTime) {
+            // Find the current line
+            const activeLineIndex = lyricTimestamps.findIndex(t => currentTime >= t.start && currentTime < t.end);
+            
+            if (activeLineIndex !== -1) {
+                const activeData = lyricTimestamps[activeLineIndex];
+                
+                if (!activeData.element.classList.contains("highlight")) {
+                    lyricLines.forEach(line => line.classList.remove("highlight"));
+                    activeData.element.classList.add("highlight");
+                    
+                    activeData.element.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+
+                    // Activate card
+                    if (!activeData.card.classList.contains("active")) {
+                        activateCard(activeData.card);
+                    }
+                }
+            }
+        }
+
+        // --- 4. Interaction Logic ---
+
+        function activateCard(card) {
+             cards.forEach((c) => c.classList.remove("active"));
+             card.classList.add("active");
+             if (initialMessage) initialMessage.style.display = "none";
+
+             contents.forEach((content) => {
+               content.classList.remove("active");
+               setTimeout(() => {
+                 if (!content.classList.contains("active")) {
+                   content.style.display = "none";
+                 }
+               }, 400);
+             });
+
+             const targetId = card.getAttribute("data-target");
+             const targetContent = document.getElementById(targetId);
+
+             if (targetContent) {
+               targetContent.style.display = "block";
+               requestAnimationFrame(() => {
+                 targetContent.classList.add("active");
+               });
+             }
+
+             if (infoScrollContainer) {
+                 infoScrollContainer.scrollTop = 0;
+             }
+        }
+
+        cards.forEach((card) => {
+          card.addEventListener("click", () => {
+             activateCard(card);
+             // Seek to start of first line in this card
+             // We need to find the first line that belongs to this card
+             const firstLineEntry = lyricTimestamps.find(t => t.card === card);
+             if (firstLineEntry) {
+                 audio.currentTime = firstLineEntry.start;
+             }
+          });
+        });
+
+        // Activate the first card by default
+        if (cards.length > 0) {
+           const firstCard = cards[0];
+           activateCard(firstCard);
+        }
+      });
+    </script>
+  </body>
+</html>

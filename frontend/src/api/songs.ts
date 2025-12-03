@@ -202,3 +202,29 @@ export const fetchVariationTimestampedLyrics = async (
     )
   )
 }
+
+/**
+ * Song history summary for display in history list
+ * Requirements: 6.2
+ */
+export interface SongHistorySummary {
+  song_id: string
+  style: MusicStyle
+  created_at: string  // ISO datetime
+  expires_at: string  // ISO datetime
+  lyrics_preview: string  // First 100 characters
+  has_variations: boolean
+  primary_variation_index: number
+}
+
+/**
+ * Get user's song history (non-expired songs)
+ * Requirements: 6.1
+ * @returns List of SongHistorySummary ordered by created_at DESC
+ * @throws ApiError with 401 if unauthenticated
+ */
+export const getSongHistory = async (): Promise<SongHistorySummary[]> => {
+  return retryWithBackoff(() =>
+    apiClient.get<SongHistorySummary[]>('/api/songs/history')
+  )
+}

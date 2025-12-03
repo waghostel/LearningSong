@@ -20,6 +20,7 @@ from app.models.songs import (
     ShareLinkResponse,
     UpdatePrimaryVariationRequest,
     SongVariation,
+    SongHistorySummary,
 )
 from app.core.auth import get_current_user
 from app.services.cache import check_song_cache
@@ -55,6 +56,165 @@ router = APIRouter(
 async def songs_health():
     """Health check endpoint for songs service."""
     return {"status": "healthy", "service": "songs"}
+
+
+@router.get("/history", response_model=list[SongHistorySummary])
+async def get_song_history(
+    user_id: str = Depends(get_current_user),
+    limit: int = 20
+) -> list[SongHistorySummary]:
+    """
+    Get user's song history (non-expired songs).
+    
+    This endpoint:
+    1. Queries Firestore for user's songs ordered by created_at DESC
+    2. Filters out expired songs
+    3. Limits results to 20 most recent songs
+    4. Returns list of SongHistorySummary
+    
+    Args:
+        user_id: Authenticated user ID from Firebase token
+        limit: Maximum number of songs to return (default: 20, max: 20)
+        
+    Returns:
+        List of SongHistorySummary ordered by created_at DESC
+        
+    Raises:
+        HTTPException: 401 if unauthenticated
+        HTTPException: 500 if Firestore query fails
+        
+    Requirements: 6.1, 6.2, 6.3, 6.4, 6.5
+    """
+    from datetime import datetime, timezone
+    
+    # Enforce limit maximum
+    limit = min(limit, 20)
+    
+    logger.info(
+        f"Song history request from user: {user_id[:8]}...",
+        extra={
+            'extra_fields': {
+                'user_id': user_id,
+                'limit': limit,
+                'operation': 'get_song_history'
+            }
+        }
+    )
+    
+    # Step 1: Query Firestore for user's songs
+    # Note: We query with a higher limit to account for expired songs being filtered out
+    try:
+        from app.services.song_storage import get_user_tasks
+        
+        # Query with a higher limit to account for filtering
+        tasks = await get_user_tasks(user_id, limit=limit * 2)
+    except Exception as e:
+        logger.error(
+            f"Failed to query Firestore for user songs: {user_id[:8]}...",
+            extra={
+                'extra_fields': {
+                    'user_id': user_id,
+                    'error': str(e),
+                    'operation': 'get_song_history'
+                }
+            }
+        )
+        raise HTTPException(
+            status_code=500,
+            detail={
+                'error': 'Internal error',
+                'message': 'Failed to retrieve song history. Please try again.'
+            }
+        )
+    
+    # Step 2: Filter out expired songs and songs without audio
+    current_time = datetime.now(timezone.utc)
+    history_items = []
+    
+    for task in tasks:
+        # Check if song has expired
+        expires_at = task.get('expires_at')
+        if expires_at:
+            # Handle both datetime objects and Firestore timestamps
+            if hasattr(expires_at, 'timestamp'):
+                expires_at_dt = datetime.fromtimestamp(expires_at.timestamp(), tz=timezone.utc)
+            elif isinstance(expires_at, datetime):
+                expires_at_dt = expires_at if expires_at.tzinfo else expires_at.replace(tzinfo=timezone.utc)
+            else:
+                expires_at_dt = datetime.fromisoformat(str(expires_at).replace('Z', '+00:00'))
+            
+            # Skip expired songs
+            if current_time > expires_at_dt:
+                logger.debug(
+                    f"Skipping expired song: {task.get('task_id')}",
+                    extra={
+                        'extra_fields': {
+                            'task_id': task.get('task_id'),
+                            'expires_at': expires_at_dt.isoformat()
+                        }
+                    }
+                )
+                continue
+        
+        # Skip songs without audio (not yet generated or failed)
+        if not task.get('song_url'):
+            logger.debug(
+                f"Skipping song without audio: {task.get('task_id')}",
+                extra={
+                    'extra_fields': {
+                        'task_id': task.get('task_id'),
+                        'status': task.get('status')
+                    }
+                }
+            )
+            continue
+        
+        # Parse created_at
+        created_at = task.get('created_at')
+        if hasattr(created_at, 'timestamp'):
+            created_at_dt = datetime.fromtimestamp(created_at.timestamp(), tz=timezone.utc)
+        elif isinstance(created_at, datetime):
+            created_at_dt = created_at if created_at.tzinfo else created_at.replace(tzinfo=timezone.utc)
+        else:
+            created_at_dt = datetime.fromisoformat(str(created_at).replace('Z', '+00:00'))
+        
+        # Create lyrics preview (first 100 characters)
+        lyrics = task.get('lyrics', '')
+        lyrics_preview = lyrics[:100]
+        
+        # Check if song has variations
+        variations = task.get('variations', [])
+        has_variations = len(variations) >= 2
+        
+        # Create SongHistorySummary
+        history_item = SongHistorySummary(
+            song_id=task.get('task_id'),
+            style=task.get('style', 'pop'),
+            created_at=created_at_dt,
+            expires_at=expires_at_dt,
+            lyrics_preview=lyrics_preview,
+            has_variations=has_variations,
+            primary_variation_index=task.get('primary_variation_index', 0)
+        )
+        
+        history_items.append(history_item)
+    
+    # Step 3: Enforce limit on final results
+    history_items = history_items[:limit]
+    
+    logger.info(
+        f"Returning {len(history_items)} songs from history for user: {user_id[:8]}...",
+        extra={
+            'extra_fields': {
+                'user_id': user_id,
+                'total_tasks': len(tasks),
+                'returned_items': len(history_items),
+                'operation': 'get_song_history'
+            }
+        }
+    )
+    
+    return history_items
 
 
 @router.get("/{song_id}/details", response_model=SongDetails)

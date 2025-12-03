@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { TextInputPage } from '@/pages/TextInputPage'
 import { LyricsEditingPage } from '@/pages/LyricsEditingPage'
 import { SongPlaybackPage } from '@/pages/SongPlaybackPage'
+import { SongHistoryPage } from '@/pages/SongHistoryPage'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { Toaster } from '@/components/ui/sonner'
 import { Button } from '@/components/ui/button'
@@ -16,6 +17,9 @@ function App() {
           
           {/* Lyrics editing page */}
           <Route path="/lyrics-edit" element={<LyricsEditingPage />} />
+
+          {/* Song history page */}
+          <Route path="/history" element={<SongHistoryPage />} />
 
           {/* Song playback page - direct song access */}
           <Route path="/playback/:songId" element={<SongPlaybackPage />} />

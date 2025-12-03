@@ -3,7 +3,7 @@
  * Using fast-check for property-based testing
  */
 import * as fc from 'fast-check'
-import { formatTime, generateDownloadFilename } from '@/components/AudioPlayer'
+import { formatTime, generateDownloadFilename } from '@/lib/audio-player-utils'
 
 describe('AudioPlayer Property Tests', () => {
   /**

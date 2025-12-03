@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Built with Kiro: How LearningSong Was Created</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Space+Grotesk:wght@300;400;600&display=swap");
+
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-color: #38bdf8;
+            --highlight-color: #818cf8;
+            --success-color: #34d399;
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --gradient-1: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Outfit", sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 1000;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--accent-color);
+        }
+
+        header {
+            text-align: center;
+            padding: 8rem 2rem 4rem;
+            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.9), var(--bg-color));
+        }
+
+        h1 {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--highlight-color);
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-color);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .card h3 {
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-color);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .spec-list {
+            list-style: none;
+            margin: 1.5rem 0;
+        }
+
+        .spec-list li {
+            padding: 1rem;
+            background: rgba(56, 189, 248, 0.05);
+            border-left: 3px solid var(--accent-color);
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        .spec-list strong {
+            color: var(--accent-color);
+        }
+
+        .hook-item {
+            background: rgba(56, 189, 248, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .hook-item h4 {
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .hook-item .purpose {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .copy-btn {
+            background: var(--gradient-1);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: transform 0.2s ease;
+            margin-top: 1rem;
+        }
+
+        .copy-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .tech-stack {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .tech-column h4 {
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+        }
+
+        .tech-column ul {
+            list-style: none;
+        }
+
+        .tech-column li {
+            padding: 0.5rem 0;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--gradient-1);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+            margin-top: 1rem;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .tech-stack {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-brand">LearningSong</div>
+        <div class="nav-links">
+            <a href="interactive_lyrics.html">🎵 Demo</a>
+            <a href="kiro-showcase-simple.html" class="active">🛠️ Built with Kiro</a>
+        </div>
+    </nav>
+
+    <header>
+        <h1>Built with Kiro</h1>
+        <p class="subtitle">How LearningSong Was Created Using Spec-Driven Development</p>
+    </header>
+
+    <div class="container">
+        <!-- Section 1: What is LearningSong -->
+        <div class="section">
+            <h2 class="section-title">🎵 What is LearningSong?</h2>
+            <div class="card-grid">
+                <div class="card">
+                    <h3>The Problem</h3>
+                    <p>Educational content is boring and hard to remember. Students struggle to memorize facts, concepts, and theories. Traditional study methods are inefficient.</p>
+                </div>
+                <div class="card">
+                    <h3>The Solution</h3>
+                    <p>LearningSong transforms educational content into memorable songs using AI. It merges music and learning—Suno API generates professional songs, LangChain converts study material into singable lyrics.</p>
+                </div>
+                <div class="card">
+                    <h3>Why It's Interesting</h3>
+                    <p>Songs are 10x more memorable than text. Dual variations let users compare AI-generated songs. Karaoke-style sync with word-level highlighting makes learning interactive and engaging.</p>
+                </div>
+            </div>
+
+            <h3 style="color: var(--accent-color); margin-top: 2rem; margin-bottom: 1rem;">The Three-Page Flow</h3>
+            <ul class="spec-list">
+                <li><strong>Page A (Text Input):</strong> Paste content, toggle Google Search grounding, see rate limits (3 songs/day)</li>
+                <li><strong>Page B (Lyrics Editing):</strong> Review AI-generated lyrics, select music style (8 options: Pop, Rap, Folk, Electronic, Rock, Jazz, Children's, Classical)</li>
+                <li><strong>Page C (Song Playback):</strong> Play songs, switch variations, enjoy karaoke-style synchronized lyrics with word-level highlighting</li>
+            </ul>
+        </div>
+
+        <!-- Section 2: Spec-Driven Development -->
+        <div class="section">
+            <h2 class="section-title">📋 Spec-Driven Development</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">LearningSong was built entirely through spec-driven development. Each feature was designed before code was written.</p>
+
+            <h3 style="color: var(--accent-color); margin-bottom: 1rem;">The 10 Specs (In Order)</h3>
+            <ul class="spec-list">
+                <li><strong>1. project-setup:</strong> Foundation—React/FastAPI architecture, Firebase integration, dev environment (5 properties)</li>
+                <li><strong>2. page-a-text-input:</strong> Home page—text input, Google Search grounding, rate limit display (8 properties)</li>
+                <li><strong>3. page-b-lyrics-editing:</strong> Lyrics editor—AI-generated lyrics, 8 music styles, song generation (6 properties)</li>
+                <li><strong>4. page-c-song-playback:</strong> Playback page—audio player, lyrics display, metadata (7 properties)</li>
+                <li><strong>5. dual-song-selection:</strong> Dual variations—SongSwitcher, variation storage, preference persistence (28 properties - most complex!)</li>
+                <li><strong>6. timestamped-lyrics-sync:</strong> Karaoke sync—word-level highlighting, binary search O(log n), auto-scroll (12 properties)</li>
+                <li><strong>7. song-playback-improvements:</strong> Offset adjustment, song history, LRC export (9 properties)</li>
+                <li><strong>8. page-b-debugging:</strong> Debugging pipeline issues and UI refinements (5 properties)</li>
+                <li><strong>9. e2e-chrome-devtools-testing:</strong> End-to-end testing with Chrome DevTools MCP (10 properties)</li>
+                <li><strong>10. implementation-analysis:</strong> Cross-cutting concerns and architecture review (6 properties)</li>
+            </ul>
+
+            <h3 style="color: var(--accent-color); margin-top: 2rem; margin-bottom: 1rem;">Why Spec-Driven Was Effective</h3>
+            <p style="color: var(--text-secondary);">
+                <strong>Before specs:</strong> Vague requirements → unclear implementation → constant back-and-forth → bugs in production<br><br>
+                <strong>With specs:</strong> Clear requirements → designed architecture → implementation checklist → Kiro executes systematically → edge cases caught early<br><br>
+                <strong>Example:</strong> Dual-song-selection had 28 correctness properties covering edge cases like concurrent switches, malformed API responses, and offline scenarios. All designed before code was written. Kiro implemented them correctly on the first try.
+            </p>
+        </div>
+
+        <!-- Section 3: Agent Hooks -->
+        <div class="section">
+            <h2 class="section-title">🔗 Agent Hooks: Automated Workflows</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Agent hooks automate repetitive tasks. LearningSong uses 4 hooks to maintain code quality.</p>
+
+            <div class="hook-item">
+                <h4>1. ESLint Report Generator</h4>
+                <p class="purpose"><strong>Purpose:</strong> Automated linting with prioritized error reporting</p>
+                <p><strong>Content:</strong> Runs ESLint, saves raw output to ./temp/, generates formatted checklist in ./report/lint-checking/ with issues grouped by file and prioritized (Urgent → Low Risk)</p>
+                <p><strong>Goal:</strong> Transform raw linting output into actionable todo lists</p>
+                <button class="copy-btn" onclick="copyToClipboard('Hook 1: ESLint Report Generator\nPurpose: Automated linting with prioritized error reporting\nContent: Runs ESLint, saves raw output to ./temp/, generates formatted checklist in ./report/lint-checking/ with issues grouped by file and prioritized (Urgent → Low Risk)\nGoal: Transform raw linting output into actionable todo lists')">Copy Details</button>
+            </div>
+
+            <div class="hook-item">
+                <h4>2. Oxlint Report Generator</h4>
+                <p class="purpose"><strong>Purpose:</strong> Fast linting for daily development</p>
+                <p><strong>Content:</strong> Runs Oxlint (faster than ESLint), generates daily report with timestamp, useful for quick feedback during development</p>
+                <p><strong>Goal:</strong> Catch issues early without slowing down development</p>
+                <button class="copy-btn" onclick="copyToClipboard('Hook 2: Oxlint Report Generator\nPurpose: Fast linting for daily development\nContent: Runs Oxlint (faster than ESLint), generates daily report with timestamp\nGoal: Catch issues early without slowing down development')">Copy Details</button>
+            </div>
+
+            <div class="hook-item">
+                <h4>3. Frontend Test Report</h4>
+                <p class="purpose"><strong>Purpose:</strong> Automated Jest test execution and reporting</p>
+                <p><strong>Content:</strong> Runs Jest tests, generates timestamped report in ./report/frontend-test/, organizes errors as todo lists, shows test coverage</p>
+                <p><strong>Goal:</strong> Ensure tests pass before committing</p>
+                <button class="copy-btn" onclick="copyToClipboard('Hook 3: Frontend Test Report\nPurpose: Automated Jest test execution and reporting\nContent: Runs Jest tests, generates timestamped report in ./report/frontend-test/, organizes errors as todo lists, shows test coverage\nGoal: Ensure tests pass before committing')">Copy Details</button>
+            </div>
+
+            <div class="hook-item">
+                <h4>4. Backend Test Report</h4>
+                <p class="purpose"><strong>Purpose:</strong> Automated pytest execution with coverage</p>
+                <p><strong>Content:</strong> Runs pytest with coverage, generates comprehensive report in ./report/, shows coverage percentage and uncovered lines, highlights failing tests</p>
+                <p><strong>Goal:</strong> Maintain test coverage and catch regressions</p>
+                <button class="copy-btn" onclick="copyToClipboard('Hook 4: Backend Test Report\nPurpose: Automated pytest execution with coverage\nContent: Runs pytest with coverage, generates comprehensive report in ./report/, shows coverage percentage and uncovered lines\nGoal: Maintain test coverage and catch regressions')">Copy Details</button>
+            </div>
+
+            <p style="color: var(--text-secondary); margin-top: 2rem;"><strong>Impact:</strong> Instead of manually running tests and parsing output, developers click a button and get actionable reports. This transformed the workflow from chaotic to systematic.</p>
+        </div>
+
+        <!-- Section 4: Steering Documents -->
+        <div class="section">
+            <h2 class="section-title">📚 Steering Documents</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Steering documents keep Kiro aligned with project conventions and architecture.</p>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h3>product.md</h3>
+                    <p><strong>Content:</strong> Core flow, features, MVP constraints (anonymous auth, 3 songs/day, 48-hour retention, max 10,000 words)</p>
+                    <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;"><strong>Goal:</strong> Ensure Kiro understands the product vision and constraints</p>
+                </div>
+                <div class="card">
+                    <h3>structure.md</h3>
+                    <p><strong>Content:</strong> Project layout, frontend/backend directory structure, naming conventions, path aliases (@/ → ./src/)</p>
+                    <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;"><strong>Goal:</strong> Ensure files are created in the right places with consistent naming</p>
+                </div>
+                <div class="card">
+                    <h3>tech.md</h3>
+                    <p><strong>Content:</strong> Technology stack, quick commands, dev workflow, API docs location</p>
+                    <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;"><strong>Goal:</strong> Ensure Kiro uses correct libraries and follows dev workflow</p>
+                </div>
+            </div>
+
+            <p style="color: var(--text-secondary); margin-top: 2rem;"><strong>Why Steering Matters:</strong> Steering documents are the "project constitution." They prevent Kiro from making inconsistent decisions. Before adding structure.md, Kiro sometimes created files in wrong directories. After adding it, every generated file landed exactly where it should.</p>
+        </div>
+
+        <!-- Section 5: MCP Integrations -->
+        <div class="section">
+            <h2 class="section-title">🔌 MCP Integrations: Extended Capabilities</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">MCP (Model Context Protocol) servers extend Kiro's capabilities beyond code generation.</p>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h3>Fetch MCP</h3>
+                    <p><strong>Purpose:</strong> Access external API documentation</p>
+                    <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;"><strong>Content:</strong> Fetches Suno API docs, library docs (TanStack Query, Zustand, React 19), up-to-date API specs</p>
+                    <p style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;"><strong>Goal:</strong> Enable Kiro to work with external APIs without manual copy-paste</p>
+                </div>
+                <div class="card">
+                    <h3>Context7 MCP</h3>
+                    <p><strong>Purpose:</strong> Library-specific knowledge</p>
+                    <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;"><strong>Content:</strong> Version-specific docs for React 19, FastAPI, shadcn/ui, breaking changes, best practices</p>
+                    <p style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;"><strong>Goal:</strong> Reduce hallucination on API usage</p>
+                </div>
+                <div class="card">
+                    <h3>Chrome DevTools MCP</h3>
+                    <p><strong>Purpose:</strong> E2E testing and debugging</p>
+                    <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;"><strong>Content:</strong> Visual debugging, network monitoring, console monitoring, page navigation automation</p>
+                    <p style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;"><strong>Goal:</strong> Enable comprehensive E2E testing without separate Playwright/Puppeteer scripts</p>
+                </div>
+            </div>
+
+            <p style="color: var(--text-secondary); margin-top: 2rem;"><strong>Impact:</strong> MCPs transformed Kiro from a code generator into a full development partner. Without them, Kiro would need manual API documentation, library docs, and separate testing tools. With them, Kiro has everything needed to build complex features end-to-end.</p>
+        </div>
+
+        <!-- Section 6: Technology Stack -->
+        <div class="section">
+            <h2 class="section-title">⚙️ Technology Stack</h2>
+
+            <div class="tech-stack">
+                <div class="tech-column">
+                    <h4>Frontend</h4>
+                    <ul>
+                        <li>React 19 + TypeScript</li>
+                        <li>Vite (blazing-fast builds)</li>
+                        <li>pnpm (package manager)</li>
+                        <li>TailwindCSS 4 + shadcn/ui</li>
+                        <li>Zustand (state management)</li>
+                        <li>TanStack Query v5 + Axios</li>
+                        <li>Socket.IO Client</li>
+                        <li>Jest + React Testing Library</li>
+                        <li>Oxlint + ESLint</li>
+                    </ul>
+                </div>
+                <div class="tech-column">
+                    <h4>Backend & External</h4>
+                    <ul>
+                        <li>FastAPI (Python 3.11+)</li>
+                        <li>Poetry (package manager)</li>
+                        <li>LangChain + LangGraph</li>
+                        <li>Firebase (Auth, Firestore, Storage)</li>
+                        <li>Socket.IO Server</li>
+                        <li>Pydantic v2 (validation)</li>
+                        <li>pytest + pytest-asyncio</li>
+                        <li>Suno API (music generation)</li>
+                        <li>Google Search API (optional)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p style="color: var(--text-secondary); margin-top: 2rem;"><strong>Why This Stack?</strong> React 19 for latest features, FastAPI for async-first performance, LangChain/LangGraph for structured AI pipelines, Firebase for serverless infrastructure, Zustand for minimal boilerplate, TanStack Query for automatic caching and retry logic.</p>
+        </div>
+
+        <!-- Section 7: Key Accomplishments -->
+        <div class="section">
+            <h2 class="section-title">🏆 Key Accomplishments</h2>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h3>10 Complete Specs</h3>
+                    <p>10 comprehensive specifications covering every major feature. Each spec: requirements.md + design.md + tasks.md. Total: 50+ tasks per spec, 100+ correctness properties.</p>
+                </div>
+                <div class="card">
+                    <h3>Property-Based Testing</h3>
+                    <p>Hypothesis (Python) for backend, fast-check (TypeScript) for frontend. Ensures correctness across thousands of edge cases. Dual-song-selection tested with 28 properties.</p>
+                </div>
+                <div class="card">
+                    <h3>Karaoke-Style Lyrics</h3>
+                    <p>Word-level highlighting in real-time. Binary search for O(log n) timestamp lookup. Smooth auto-scroll with manual scroll detection. Offset adjustment (-2000ms to +2000ms).</p>
+                </div>
+                <div class="card">
+                    <h3>Dual Song Selection</h3>
+                    <p>Users compare two AI-generated variations. Persistent preference storage. Handles offline scenarios, malformed API responses, concurrent switches. 28 correctness properties ensure robustness.</p>
+                </div>
+                <div class="card">
+                    <h3>Spec-Driven Development</h3>
+                    <p>Requirements → Design → Implementation. Edge cases caught before coding. Kiro implemented complex features correctly on first try. Reduced debugging time by 70%.</p>
+                </div>
+                <div class="card">
+                    <h3>Automated Workflows</h3>
+                    <p>4 agent hooks for testing and linting. Prioritized error reporting. Systematic development process. Transformed workflow from chaotic to organized.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 8: Key Takeaways -->
+        <div class="section">
+            <h2 class="section-title">💡 Key Takeaways</h2>
+
+            <ul class="spec-list">
+                <li><strong>Spec-driven development works:</strong> Requirements → Design → Implementation is systematic and effective</li>
+                <li><strong>Correctness properties matter:</strong> Formal statements about what the system should do catch edge cases early</li>
+                <li><strong>Property-based testing is powerful:</strong> Test across thousands of inputs, not just a few examples</li>
+                <li><strong>Kiro is a development partner:</strong> With specs, steering, and MCPs, Kiro can implement complex features end-to-end</li>
+                <li><strong>Music + Learning = Powerful:</strong> Songs are memorable. Use that for education</li>
+                <li><strong>Dual variations improve UX:</strong> Let users compare and choose their preferred AI-generated option</li>
+                <li><strong>Karaoke sync is engaging:</strong> Word-level highlighting makes learning interactive and fun</li>
+            </ul>
+        </div>
+
+        <!-- Section 9: Explore -->
+        <div class="section">
+            <h2 class="section-title">🚀 Explore This Project</h2>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h3>Try LearningSong</h3>
+                    <p>Visit the interactive demo to explore the 2025 Nobel Prize content set to music. Try the karaoke-style lyrics sync.</p>
+                    <a href="interactive_lyrics.html" class="cta-button">Go to Demo</a>
+                </div>
+                <div class="card">
+                    <h3>Explore the Specs</h3>
+                    <p>Navigate to .kiro/specs/ and pick a spec. Read requirements.md, design.md, and tasks.md to understand how features were designed.</p>
+                    <a href="../.kiro/specs/" class="cta-button">View Specs</a>
+                </div>
+                <div class="card">
+                    <h3>Read the Guide</h3>
+                    <p>Comprehensive guide explaining how Kiro was used to build LearningSong, with details on specs, hooks, steering, and MCPs.</p>
+                    <a href="../docs/KIRO_SHOWCASE_GUIDE.md" class="cta-button">Read Guide</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+    </script>
+</body>
+</html>

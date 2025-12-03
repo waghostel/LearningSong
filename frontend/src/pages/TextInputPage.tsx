@@ -83,7 +83,7 @@ export function TextInputPage() {
           {/* Page Title and Description */}
           <div className="space-y-1 text-left mb-3 shrink-0">
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-semibold">Paste Your Learning Material</h2>
+              <h2 className="text-xl font-semibold">Create Your Learning Song</h2>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>

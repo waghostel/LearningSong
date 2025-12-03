@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Built with Kiro - LearningSong</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Space+Grotesk:wght@300;400;600&display=swap");
+
+      :root {
+        --bg-color: #0f172a;
+        --card-bg: rgba(30, 41, 59, 0.7);
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --accent-color: #38bdf8;
+        --highlight-color: #818cf8;
+        --success-color: #34d399;
+        --warning-color: #fbbf24;
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --gradient-1: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+        --gradient-2: linear-gradient(135deg, #34d399 0%, #38bdf8 100%);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Outfit", sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-primary);
+        line-height: 1.7;
+        overflow-x: hidden;
+        background-image: radial-gradient(
+            circle at 10% 20%,
+            rgba(56, 189, 248, 0.1) 0%,
+            transparent 20%
+          ),
+          radial-gradient(
+            circle at 90% 80%,
+            rgba(129, 140, 248, 0.1) 0%,
+            transparent 20%
+          );
+      }
+
+      /* Navigation */
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--glass-border);
+        z-index: 1000;
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .nav-brand {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: var(--gradient-1);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 2rem;
+      }
+
+      .nav-links a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .nav-links a:hover,
+      .nav-links a.active {
+        color: var(--accent-color);
+      }
+
+      /* Hero Section */
+      header {
+        text-align: center;
+        padding: 8rem 2rem 4rem;
+        background: linear-gradient(
+          to bottom,
+          rgba(15, 23, 42, 0.9),
+          var(--bg-color)
+        );
+      }
+
+      h1 {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 3.5rem;
+        font-weight: 700;
+        background: var(--gradient-1);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+      }
+
+      .subtitle {
+        font-size: 1.3rem;
+        color: var(--text-secondary);
+        max-width: 700px;
+        margin: 0 auto 2rem;
+      }
+
+      .kiro-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1.5rem;
+        background: var(--gradient-2);
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      /* Main Content */
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      section {
+        margin-bottom: 4rem;
+      }
+
+      h2 {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 2rem;
+        color: var(--highlight-color);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      h2 .icon {
+        font-size: 1.5rem;
+      }
+
+      h3 {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.3rem;
+        color: var(--accent-color);
+        margin: 1.5rem 0 1rem;
+      }
+
+      p {
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+      }
+
+      /* Cards */
+      .card {
+        background: var(--card-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        backdrop-filter: blur(10px);
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(56, 189, 248, 0.3);
+      }
+
+      .card-title {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.1rem;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .card-description {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+      }
+
+      /* Tags */
+      .tag {
+        display: inline-block;
+        padding: 0.3rem 0.8rem;
+        background: rgba(56, 189, 248, 0.1);
+        color: var(--accent-color);
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .tag.green {
+        background: rgba(52, 211, 153, 0.1);
+        color: var(--success-color);
+      }
+
+      .tag.purple {
+        background: rgba(129, 140, 248, 0.1);
+        color: var(--highlight-color);
+      }
+
+      .tag.yellow {
+        background: rgba(251, 191, 36, 0.1);
+        color: var(--warning-color);
+      }
+
+      /* Spec Timeline */
+      .timeline {
+        position: relative;
+        padding-left: 2rem;
+      }
+
+      .timeline::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--gradient-1);
+      }
+
+      .timeline-item {
+        position: relative;
+        padding-bottom: 1.5rem;
+      }
+
+      .timeline-item::before {
+        content: "";
+        position: absolute;
+        left: -2rem;
+        top: 0.5rem;
+        width: 12px;
+        height: 12px;
+        background: var(--accent-color);
+        border-radius: 50%;
+        transform: translateX(-5px);
+      }
+
+      .timeline-number {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 0.8rem;
+        color: var(--accent-color);
+        font-weight: 600;
+      }
+
+      .timeline-title {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+      }
+
+      .timeline-desc {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+      }
+
+      /* Timeline Card Container */
+      .timeline-card-container {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+      }
+
+      .timeline-card {
+        max-width: 800px;
+        width: 100%;
+      }
+
+
+      /* Code Block */
+      .code-block {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        padding: 1rem;
+        font-family: "Fira Code", monospace;
+        font-size: 0.85rem;
+        overflow-x: auto;
+        position: relative;
+      }
+
+      .code-block pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+      .copy-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: var(--accent-color);
+        color: var(--bg-color);
+        border: none;
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+
+      .copy-btn:hover {
+        background: var(--highlight-color);
+      }
+
+      .copy-btn.copied {
+        background: var(--success-color);
+      }
+
+      /* Grid */
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+      }
+
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+      }
+
+      @media (max-width: 768px) {
+        .grid-2,
+        .grid-3 {
+          grid-template-columns: 1fr;
+        }
+
+        h1 {
+          font-size: 2.5rem;
+        }
+
+        nav {
+          flex-direction: column;
+          gap: 1rem;
+        }
+      }
+
+      /* Modal */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 2000;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .modal-overlay.active {
+        display: flex;
+      }
+
+      .modal {
+        background: var(--bg-color);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        max-width: 700px;
+        max-height: 80vh;
+        overflow: auto;
+        padding: 2rem;
+        position: relative;
+      }
+
+      .modal-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 1.5rem;
+        cursor: pointer;
+      }
+
+      .modal-close:hover {
+        color: var(--text-primary);
+      }
+
+      .modal h3 {
+        margin-top: 0;
+      }
+
+      /* Clickable card */
+      .clickable {
+        cursor: pointer;
+      }
+
+      /* Tech Stack Grid */
+      .tech-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 0.75rem;
+      }
+
+      .tech-item {
+        background: rgba(56, 189, 248, 0.05);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        padding: 0.75rem;
+        text-align: center;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        transition: all 0.2s ease;
+      }
+
+      .tech-item:hover {
+        background: rgba(56, 189, 248, 0.1);
+        border-color: var(--accent-color);
+        color: var(--text-primary);
+      }
+
+      /* Highlight box */
+      .highlight-box {
+        background: linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(129, 140, 248, 0.1) 100%);
+        border: 1px solid rgba(56, 189, 248, 0.3);
+        border-radius: 16px;
+        padding: 2rem;
+        margin: 2rem 0;
+      }
+
+      .highlight-box h3 {
+        margin-top: 0;
+      }
+
+      ul {
+        color: var(--text-secondary);
+        padding-left: 1.5rem;
+      }
+
+      li {
+        margin-bottom: 0.5rem;
+      }
+
+      strong {
+        color: var(--text-primary);
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="nav-brand">LearningSong</div>
+      <div class="nav-links">
+        <a href="interactive_lyrics.html">🎵 Demo</a>
+        <a href="kiro-showcase.html" class="active">🛠️ Built with Kiro</a>
+      </div>
+    </nav>
+
+    <header>
+      <h1>Built with Kiro</h1>
+      <p class="subtitle">
+        How we used spec-driven development, agent hooks, steering docs, and MCP to build LearningSong entirely with AI assistance
+      </p>
+      <span class="kiro-badge">✨ 100% Kiro-Powered Development</span>
+    </header>
+
+    <div class="container">
+      <!-- What is LearningSong -->
+      <section id="about">
+        <h2><span class="icon">🎵</span> What is LearningSong?</h2>
+        <p>
+          <strong>LearningSong</strong> transforms educational content into memorable songs using AI. 
+          It merges two powerful domains: <strong>music</strong> and <strong>learning</strong>.
+        </p>
+        <p>
+          We've all struggled to memorize dry educational content. Songs stick in our heads effortlessly—why not harness that for learning? 
+          LearningSong was born from the idea that AI could bridge the gap between boring study material and memorable musical experiences.
+        </p>
+        
+        <div class="highlight-box">
+          <h3>🎯 The Core Flow</h3>
+          <ul>
+            <li><strong>Page A (Text Input):</strong> Paste educational content (up to 10,000 words). Optional Google Search grounding enriches short queries.</li>
+            <li><strong>Page B (Lyrics Editing):</strong> AI-generated lyrics appear for review and editing. Choose from 8 music styles.</li>
+            <li><strong>Page C (Song Playback):</strong> Suno API generates two song variations with karaoke-style synchronized lyrics.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- How We Built It -->
+      <section id="spec-driven">
+        <h2><span class="icon">📋</span> Spec-Driven Development</h2>
+        <p>
+          We built LearningSong entirely through <strong>spec-driven development</strong> with Kiro, creating 10 comprehensive specs from project setup to E2E testing.
+          Each spec followed a rigorous 3-document structure:
+        </p>
+        
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-title">📄 requirements.md</div>
+            <div class="card-description">
+              EARS-compliant acceptance criteria with formal WHEN/THEN/SHALL syntax for unambiguous requirements
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">🏗️ design.md</div>
+            <div class="card-description">
+              Architecture diagrams, component interfaces, data models, and correctness properties
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">✅ tasks.md</div>
+            <div class="card-description">
+              Numbered implementation checklist with hierarchical tasks referencing specific requirements
+            </div>
+          </div>
+        </div>
+
+        <h3>The 10 Specs (in order)</h3>
+        <div class="timeline-card-container">
+          <div class="card timeline-card">
+            <div class="timeline">
+              <div class="timeline-item">
+                <span class="timeline-number">1</span>
+                <div class="timeline-title">project-setup</div>
+                <div class="timeline-desc">Foundation—React/FastAPI architecture, Firebase integration, dev environment</div>
+              </div>
+              <div class="timeline-item">
+                <span class="timeline-number">2</span>
+                <div class="timeline-title">page-a-text-input</div>
+                <div class="timeline-desc">Home page—text input, Google Search grounding toggle, rate limit display</div>
+              </div>
+              <div class="timeline-item">
+                <span class="timeline-number">3</span>
+                <div class="timeline-title">page-b-lyrics-editing</div>
+                <div class="timeline-desc">Lyrics editor—AI-generated lyrics, 8 music style selection, song generation</div>
+              </div>
+              <div class="timeline-item">
+                <span class="timeline-number">4</span>
+                <div class="timeline-title">page-c-song-playback</div>
+                <div class="timeline-desc">Playback page—audio player, basic lyrics display, song metadata</div>
+              </div>
+              <div class="timeline-item">
+                <span class="timeline-number">5</span>
+                <div class="timeline-title">dual-song-selection</div>
+                <div class="timeline-desc">Dual variations—SongSwitcher component, variation storage, user preference persistence</div>
+              </div>
+              <div class="timeline-item">
+                <span class="timeline-number">6</span>
+                <div class="timeline-title">timestamped-lyrics-sync</div>
+                <div class="timeline-desc">Karaoke sync—word-level highlighting, binary search for O(log n) lookup, auto-scroll</div>
+              </div>
+              <div class="timeline-item">
+                <span class="timeline-number">7</span>
+                <div class="timeline-title">song-playback-improvements</div>
+                <div class="timeline-desc">Offset adjustment, song history, LRC export</div>
+              </div>
+              <div class="timeline-item">
+                <span class="timeline-number">8</span>
+                <div class="timeline-title">page-b-debugging</div>
+                <div class="timeline-desc">Debugging pipeline issues and UI refinements</div>
+              </div>
+              <div class="timeline-item">
+                <span class="timeline-number">9</span>
+                <div class="timeline-title">e2e-chrome-devtools-testing</div>
+                <div class="timeline-desc">End-to-end testing with Chrome DevTools MCP</div>
+              </div>
+              <div class="timeline-item">
+                <span class="timeline-number">10</span>
+                <div class="timeline-title">implementation-analysis</div>
+                <div class="timeline-desc">Cross-cutting concerns and architecture review</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Agent Hooks -->
+      <section id="hooks">
+        <h2><span class="icon">🪝</span> Agent Hooks</h2>
+        <p>
+          We created 4 agent hooks to automate testing and linting workflows. Click any card to view the hook configuration.
+        </p>
+        
+        <div class="grid-2">
+          <div class="card clickable" onclick="showModal('eslint-hook')">
+            <div class="card-title">🔍 ESLint Report Generator</div>
+            <div class="card-description">
+              Runs ESLint, saves raw output to <code>./temp/</code>, generates formatted checklist in <code>./report/lint-checking/</code> with issues grouped by file and prioritized (Urgent → Low Risk)
+            </div>
+            <div style="margin-top: 0.75rem;">
+              <span class="tag">Linting</span>
+              <span class="tag green">User Triggered</span>
+            </div>
+          </div>
+          
+          <div class="card clickable" onclick="showModal('oxlint-hook')">
+            <div class="card-title">⚡ Oxlint Report Generator</div>
+            <div class="card-description">
+              Fast linting for daily development. Runs oxlint and saves formatted report with timestamp, grouped by file path with errors prioritized at top
+            </div>
+            <div style="margin-top: 0.75rem;">
+              <span class="tag">Linting</span>
+              <span class="tag green">User Triggered</span>
+            </div>
+          </div>
+          
+          <div class="card clickable" onclick="showModal('frontend-hook')">
+            <div class="card-title">🧪 Frontend Test Report</div>
+            <div class="card-description">
+              Runs Jest tests, generates timestamped reports in <code>./report/frontend-test/</code> with errors organized as todo lists from urgent to low risk
+            </div>
+            <div style="margin-top: 0.75rem;">
+              <span class="tag purple">Testing</span>
+              <span class="tag green">User Triggered</span>
+            </div>
+          </div>
+          
+          <div class="card clickable" onclick="showModal('backend-hook')">
+            <div class="card-title">🐍 Backend Test Report</div>
+            <div class="card-description">
+              Runs pytest with coverage, generates comprehensive test reports with coverage metrics
+            </div>
+            <div style="margin-top: 0.75rem;">
+              <span class="tag purple">Testing</span>
+              <span class="tag green">User Triggered</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Steering Documents -->
+      <section id="steering">
+        <h2><span class="icon">🧭</span> Steering Documents</h2>
+        <p>
+          Three concise steering files in <code>.kiro/steering/</code> kept Kiro aligned with our architecture and conventions.
+          Click any card to view the full content.
+        </p>
+        
+        <div class="grid-3">
+          <div class="card clickable" onclick="showModal('product-steering')">
+            <div class="card-title">📦 product.md</div>
+            <div class="card-description">
+              Core flow, features, MVP constraints (anonymous auth, 3 songs/day, 48-hour retention, max 10,000 words)
+            </div>
+            <div style="margin-top: 0.75rem;">
+              <span class="tag yellow">Product</span>
+            </div>
+          </div>
+          
+          <div class="card clickable" onclick="showModal('structure-steering')">
+            <div class="card-title">📁 structure.md</div>
+            <div class="card-description">
+              Project layout, frontend/backend directory structure, naming conventions, <code>@/</code> alias
+            </div>
+            <div style="margin-top: 0.75rem;">
+              <span class="tag">Architecture</span>
+            </div>
+          </div>
+          
+          <div class="card clickable" onclick="showModal('tech-steering')">
+            <div class="card-title">⚙️ tech.md</div>
+            <div class="card-description">
+              Technology stack, quick commands, dev workflow (backend :8000, frontend :5173)
+            </div>
+            <div style="margin-top: 0.75rem;">
+              <span class="tag purple">Tech Stack</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MCP Integration -->
+      <section id="mcp">
+        <h2><span class="icon">🔌</span> MCP Integration</h2>
+        <p>
+          We integrated 3 MCP servers that extended Kiro's capabilities beyond the IDE.
+        </p>
+        
+        <div class="card clickable" onclick="showModal('fetch-mcp')">
+          <div class="card-title">🌐 Fetch MCP</div>
+          <div class="card-description">
+            <strong>Purpose:</strong> External API documentation access<br>
+            <strong>Usage:</strong> Fetched Suno API documentation to understand response formats and endpoints. Retrieved library docs (TanStack Query, Zustand) for correct usage patterns. Enabled Kiro to work with up-to-date API specs without manual copy-paste.
+          </div>
+        </div>
+        
+        <div class="card clickable" onclick="showModal('context7-mcp')">
+          <div class="card-title">📚 Context7 MCP</div>
+          <div class="card-description">
+            <strong>Purpose:</strong> Library-specific knowledge<br>
+            <strong>Usage:</strong> Provided accurate, version-specific documentation for React 19, FastAPI, and shadcn/ui. Helped resolve breaking changes between library versions. Reduced hallucination on API usage—Kiro generated correct code on first try.
+          </div>
+        </div>
+        
+        <div class="card clickable" onclick="showModal('chrome-mcp')">
+          <div class="card-title">🔧 Chrome DevTools MCP</div>
+          <div class="card-description">
+            <strong>Purpose:</strong> E2E testing and debugging<br>
+            <strong>Usage:</strong> Visual debugging with screenshots, network monitoring, console capture, page navigation automation. Essential for testing the complete user flow across all 3 pages.
+          </div>
+        </div>
+      </section>
+
+      <!-- Tech Stack -->
+      <section id="tech">
+        <h2><span class="icon">🛠️</span> Tech Stack</h2>
+        
+        <h3>Frontend</h3>
+        <div class="tech-grid">
+          <div class="tech-item">React 19</div>
+          <div class="tech-item">TypeScript</div>
+          <div class="tech-item">Vite</div>
+          <div class="tech-item">TailwindCSS 4</div>
+          <div class="tech-item">shadcn/ui</div>
+          <div class="tech-item">Zustand</div>
+          <div class="tech-item">TanStack Query</div>
+          <div class="tech-item">Socket.IO</div>
+          <div class="tech-item">Jest + RTL</div>
+          <div class="tech-item">Oxlint</div>
+          <div class="tech-item">ESLint</div>
+          <div class="tech-item">pnpm</div>
+        </div>
+        
+        <h3>Backend</h3>
+        <div class="tech-grid">
+          <div class="tech-item">FastAPI</div>
+          <div class="tech-item">Python 3.11+</div>
+          <div class="tech-item">Poetry</div>
+          <div class="tech-item">LangChain</div>
+          <div class="tech-item">LangGraph</div>
+          <div class="tech-item">Pydantic v2</div>
+          <div class="tech-item">pytest</div>
+          <div class="tech-item">Hypothesis</div>
+        </div>
+        
+        <h3>External Services</h3>
+        <div class="tech-grid">
+          <div class="tech-item">Suno API</div>
+          <div class="tech-item">Firebase Auth</div>
+          <div class="tech-item">Firestore</div>
+          <div class="tech-item">Google Search API</div>
+          <div class="tech-item">Redis</div>
+        </div>
+      </section>
+
+      <!-- Key Accomplishments -->
+      <section id="accomplishments">
+        <h2><span class="icon">🏆</span> Key Accomplishments</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">📋 10 Complete Specs</div>
+            <div class="card-description">Covering every major feature from project setup to E2E testing</div>
+          </div>
+          <div class="card">
+            <div class="card-title">🧪 Property-Based Testing</div>
+            <div class="card-description">Hypothesis (Python) and fast-check (TypeScript) ensuring correctness across edge cases</div>
+          </div>
+          <div class="card">
+            <div class="card-title">🎤 Karaoke-Style Lyrics</div>
+            <div class="card-description">Word-level highlighting with smooth auto-scroll and binary search O(log n) lookup</div>
+          </div>
+          <div class="card">
+            <div class="card-title">🎵 Dual Song Selection</div>
+            <div class="card-description">Compare and choose between two AI-generated song variations</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="modal-overlay">
+      <div class="modal">
+        <button class="modal-close" onclick="closeModal()">×</button>
+        <div id="modal-content"></div>
+      </div>
+    </div>
+
+    <script>
+
+      const modalData = {
+        'eslint-hook': {
+          title: '🔍 ESLint Report Generator Hook',
+          content: `{
+  "enabled": true,
+  "name": "ESLint Report Generator",
+  "description": "Runs ESLint on the entire codebase, saves raw output to ./temp folder, then generates a formatted checklist report in ./report/lint-checking/ with timestamp. The report groups issues by file path and prioritizes files with errors (Urgent) over warnings (Low Risk).",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "cd frontend && pnpm lint-report"
+  }
+}`
+        },
+        'oxlint-hook': {
+          title: '⚡ Oxlint Report Generator Hook',
+          content: `{
+  "enabled": true,
+  "name": "Oxlint Report Generator",
+  "description": "Runs oxlint on the entire codebase and saves a formatted report to ./report/lint-checking/ with timestamp. The report is formatted as a checklist grouped by file path, with files containing errors prioritized at the top (Urgent) and files with only warnings below (Low Risk).",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "cd frontend && pnpm oxlint-report"
+  }
+}`
+        },
+        'frontend-hook': {
+          title: '🧪 Frontend Test Report Hook',
+          content: `{
+  "enabled": true,
+  "name": "Frontend Test Report Generator",
+  "description": "Runs pnpm test in the frontend directory and generates a timestamped test report in ./report/frontend-test with errors organized as a todo list from urgent to low risk",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "node scripts/run-frontend-test-report.js"
+  }
+}`
+        },
+        'backend-hook': {
+          title: '🐍 Backend Test Report Hook',
+          content: `{
+  "enabled": true,
+  "name": "Backend Test Report",
+  "description": "Runs the full backend test suite using pytest and generates a comprehensive test report in ./report/backend-test/",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "cd backend && poetry run pytest --cov=app --cov-report=term --cov-report=html -v > ../temp/backend-test-output-$(date +%Y%m%d-%H%M%S).txt 2>&1 && node ../scripts/generate-backend-test-report.js"
+  }
+}`
+        },
+        'product-steering': {
+          title: '📦 product.md Steering Document',
+          content: `# Product Overview
+
+LearningSong transforms learning materials into memorable songs using AI.
+
+## Core Flow
+1. User pastes educational content (Page A: Text Input)
+2. AI generates singable lyrics via LangChain/LangGraph
+3. User edits lyrics if needed (Page B: Lyrics Editing)
+4. Suno API creates the final song
+
+## Features
+- **Text-to-Lyrics**: LangGraph pipeline converts content to structured lyrics
+- **Music Generation**: Suno API with 8 styles (Pop, Rap, Folk, Electronic, Rock, Jazz, Children's, Classical)
+- **Google Search Grounding**: Optional enrichment for short content
+- **Real-time Updates**: WebSocket status + browser notifications
+
+## MVP Constraints
+- Anonymous auth only (Firebase)
+- 3 songs/day rate limit
+- 48-hour data retention
+- Max 10,000 words input
+- Content caching for cost reduction`
+        },
+        'structure-steering': {
+          title: '📁 structure.md Steering Document',
+          content: `# Project Structure
+
+## Layout
+/
+├── frontend/     # React + TypeScript + Vite
+├── backend/      # Python + FastAPI
+├── docs/         # Documentation + Suno API docs
+├── user-need/    # Product requirements
+├── report/       # Generated reports
+└── scripts/      # Dev utilities
+
+## Frontend (frontend/src/)
+api/          # client.ts, lyrics.ts, songs.ts
+components/   # UI components
+  ui/         # shadcn/ui primitives
+hooks/        # useAuth, useLyrics, useWebSocket, useSongGeneration, etc.
+lib/          # firebase.ts, utils.ts, toast-utils.ts
+pages/        # TextInputPage, LyricsEditingPage
+stores/       # textInputStore, lyricsEditingStore (Zustand)
+
+## Backend (backend/app/)
+api/          # lyrics.py, songs.py, websocket.py
+core/         # auth.py, firebase.py, logging.py
+models/       # lyrics.py, songs.py, user.py
+services/     # ai_pipeline, suno_client, google_search, cache, rate_limiter, song_storage
+
+## Conventions
+- **Frontend**: Functional components, Zustand state, TanStack Query, @/ alias
+- **Backend**: Async FastAPI, Pydantic validation, services for business logic
+- **Testing**: Jest+RTL (frontend), pytest (backend), mock external APIs
+- **Reports**: Output to ./report/, no markdown summaries in chat`
+        },
+        'tech-steering': {
+          title: '⚙️ tech.md Steering Document',
+          content: `# Technology Stack
+
+## Frontend
+- React 19 + TypeScript, Vite, pnpm
+- TailwindCSS 4 + shadcn/ui, Zustand, Axios + TanStack Query v5
+- Socket.IO Client, Jest + RTL
+- Linting: Oxlint (fast) + ESLint (thorough)
+- Path alias: @/ → ./src/
+
+## Backend
+- FastAPI (Python 3.11+), Poetry
+- LangChain + LangGraph, Firebase (Auth, Firestore, Storage)
+- Pydantic v2, pytest + pytest-asyncio + pytest-cov
+
+## External Services
+- Suno API (music generation)
+- Google Search API (optional grounding)
+- Firebase, Redis (optional caching)
+
+## Quick Commands
+
+# Frontend (cd frontend)
+pnpm dev          # Dev server :5173
+pnpm lint         # Oxlint
+pnpm test         # Jest
+
+# Backend (cd backend)
+poetry run uvicorn app.main:app --reload  # Dev server :8000
+poetry run pytest                          # Tests
+poetry run pytest --cov=app               # Coverage
+
+## Dev Workflow
+1. Backend first (:8000), then frontend (:5173)
+2. Frontend proxies /api to backend
+3. API docs: http://localhost:8000/docs`
+        },
+        'fetch-mcp': {
+          title: '🌐 Fetch MCP Configuration',
+          content: `{
+  "mcpServers": {
+    "fetch": {
+      "command": "uvx",
+      "args": ["mcp-server-fetch"],
+      "disabled": false,
+      "autoApprove": [
+        "fetch"
+      ]
+    }
+  }
+}
+
+## Purpose
+External API documentation access
+
+## Usage in LearningSong
+- Fetched Suno API documentation to understand response formats and endpoints
+- Retrieved library docs (TanStack Query, Zustand) for correct usage patterns
+- Enabled Kiro to work with up-to-date API specs without manual copy-paste
+
+## Available Tools
+- **fetch**: Fetch content from any URL and return it in a format suitable for LLM consumption`
+        },
+        'context7-mcp': {
+          title: '📚 Context7 MCP Configuration',
+          content: `{
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"],
+      "disabled": false,
+      "autoApprove": [
+        "resolve-library-id",
+        "get-library-docs"
+      ]
+    }
+  }
+}
+
+## Purpose
+Library-specific knowledge and documentation
+
+## Usage in LearningSong
+- Provided accurate, version-specific documentation for React 19, FastAPI, and shadcn/ui
+- Helped resolve breaking changes between library versions
+- Reduced hallucination on API usage—Kiro generated correct code on first try
+
+## Available Tools
+- **resolve-library-id**: Find the correct library ID for documentation lookup
+- **get-library-docs**: Retrieve up-to-date documentation for specific libraries`
+        },
+        'chrome-mcp': {
+          title: '🔧 Chrome DevTools MCP Configuration',
+          content: `{
+  "mcpServers": {
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "chrome-devtools-mcp@latest",
+        "--browserUrl=http://127.0.0.1:9222"
+      ],
+      "disabled": true,
+      "autoApprove": [
+        "inspect_element",
+        "get_page_state",
+        "take_screenshot",
+        "list_network_requests",
+        "get_network_request",
+        "new_page",
+        "list_pages",
+        "navigate_page",
+        "take_snapshot",
+        "fill",
+        "list_console_messages",
+        "evaluate_script",
+        "wait_for",
+        "get_console_message",
+        "click",
+        "press_key",
+        "emulate",
+        "resize_page"
+      ]
+    }
+  }
+}
+
+## Available Tools:
+- **inspect_element**: Inspect DOM elements
+- **get_page_state**: Get current page state
+- **take_screenshot**: Capture visual state at each test step
+- **list_network_requests**: Monitor API calls during test flows
+- **get_network_request**: Inspect specific request details
+- **list_console_messages**: Capture JavaScript errors and warnings
+- **evaluate_script**: Run JavaScript in page context
+- **click/fill/press_key**: Automate user interactions
+- **emulate/resize_page**: Test responsive layouts`
+        }
+      };
+
+      function showModal(id) {
+        const data = modalData[id];
+        if (!data) return;
+        
+        const modalContent = document.getElementById('modal-content');
+        modalContent.innerHTML = `
+          <h3>${data.title}</h3>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <pre>${escapeHtml(data.content)}</pre>
+          </div>
+        `;
+        
+        document.getElementById('modal-overlay').classList.add('active');
+      }
+
+      function closeModal() {
+        document.getElementById('modal-overlay').classList.remove('active');
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      function copyCode(btn) {
+        const pre = btn.nextElementSibling;
+        navigator.clipboard.writeText(pre.textContent).then(() => {
+          btn.textContent = 'Copied!';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.textContent = 'Copy';
+            btn.classList.remove('copied');
+          }, 2000);
+        });
+      }
+
+      // Close modal on overlay click
+      document.getElementById('modal-overlay').addEventListener('click', (e) => {
+        if (e.target.id === 'modal-overlay') {
+          closeModal();
+        }
+      });
+
+      // Close modal on Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeModal();
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -18,6 +18,28 @@ export interface AnalyticsEvent {
   [key: string]: unknown
 }
 
+// Helper to safely check environment variables
+// Works in both Vite (import.meta.env) and Jest (process.env) environments
+function getEnvVar(key: string): string | undefined {
+  // Try Vite's import.meta.env first
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const meta = (globalThis as any).import?.meta
+    if (meta?.env?.[key] !== undefined) {
+      return meta.env[key]
+    }
+  } catch {
+    // Ignore errors
+  }
+  
+  // Fall back to process.env for Jest/Node
+  if (typeof process !== 'undefined' && process.env?.[key] !== undefined) {
+    return process.env[key]
+  }
+  
+  return undefined
+}
+
 /**
  * Log an analytics event
  * 
@@ -34,7 +56,10 @@ function logEvent(event: AnalyticsEvent): void {
   
   // For development, events are tracked but not logged to console
   // to avoid console clutter. Enable logging if needed for debugging.
-  if (import.meta.env.DEV && import.meta.env.VITE_DEBUG_ANALYTICS) {
+  const isDev = getEnvVar('DEV') === 'true' || getEnvVar('NODE_ENV') === 'development'
+  const debugAnalytics = getEnvVar('VITE_DEBUG_ANALYTICS') === 'true'
+  
+  if (isDev && debugAnalytics) {
     console.warn('[Analytics]', event)
   }
 }

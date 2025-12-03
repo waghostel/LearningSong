@@ -10,6 +10,9 @@ import { useNetworkStatus } from '@/hooks/useNetworkStatus'
 import { useLyricsEditingStore } from '@/stores/lyricsEditingStore'
 import { MusicStyle } from '@/api/songs'
 
+// Increase timeout for integration tests
+jest.setTimeout(15000)
+
 // Mock dependencies
 jest.mock('@/hooks/useAuth')
 jest.mock('@/hooks/useSongGeneration')

@@ -2,16 +2,16 @@
  * Unit tests for SongSwitcher component
  */
 import { render, screen, fireEvent } from '@testing-library/react'
-import { axe } from 'jest-axe'
+import { axe, toHaveNoViolations } from 'jest-axe'
 import { SongSwitcher } from '@/components/SongSwitcher'
 import type { SongVariation } from '@/api/songs'
 
-// Type augmentation for jest-axe
-declare module 'jest-axe' {
-  interface Matchers<R> {
-    toHaveNoViolations(): R
-  }
-}
+// Extend expect with jest-axe matchers
+expect.extend(toHaveNoViolations)
+
+// Type helper for jest-axe assertions
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const expectAxe = (results: any) => expect(results) as any
 
 describe('SongSwitcher Component', () => {
   const mockVariations: SongVariation[] = [
@@ -283,7 +283,7 @@ describe('SongSwitcher Component', () => {
         />
       )
 
-      const switcher = screen.getByRole('group', { name: 'Song version switcher' })
+      const switcher = screen.getByRole('group', { name: 'Song Version' })
       expect(switcher).toBeInTheDocument()
     })
 
@@ -324,7 +324,7 @@ describe('SongSwitcher Component', () => {
       )
 
       const results = await axe(container)
-      expect(results).toHaveNoViolations()
+      expectAxe(results).toHaveNoViolations()
     })
 
     it('should have no accessibility violations when loading', async () => {
@@ -338,7 +338,7 @@ describe('SongSwitcher Component', () => {
       )
 
       const results = await axe(container)
-      expect(results).toHaveNoViolations()
+      expectAxe(results).toHaveNoViolations()
     })
 
     it('should have no accessibility violations when disabled', async () => {
@@ -352,7 +352,7 @@ describe('SongSwitcher Component', () => {
       )
 
       const results = await axe(container)
-      expect(results).toHaveNoViolations()
+      expectAxe(results).toHaveNoViolations()
     })
 
     it('should support keyboard navigation with Tab key', () => {

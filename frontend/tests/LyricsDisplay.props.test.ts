@@ -6,7 +6,7 @@ import * as fc from 'fast-check'
 import {
   parseLyricsIntoSections,
   calculateCurrentSection,
-} from '@/components/LyricsDisplay'
+} from '@/lib/lyrics-display-utils'
 
 describe('LyricsDisplay Property Tests', () => {
   /**

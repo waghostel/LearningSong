@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useNetworkStatus } from '@/hooks/useNetworkStatus'
@@ -8,11 +8,14 @@ import { useSongSwitcher } from '@/hooks/useSongSwitcher'
 import { Button } from '@/components/ui/button'
 import { AudioPlayer } from '@/components/AudioPlayer'
 import { LyricsDisplay } from '@/components/LyricsDisplay'
+import { LineLyricsDisplay } from '@/components/LineLyricsDisplay'
 import { SongMetadata } from '@/components/SongMetadata'
 import { ShareButton } from '@/components/ShareButton'
 import { SongSwitcher } from '@/components/SongSwitcher'
 import { OffsetControl } from '@/components/OffsetControl'
 import { MarkerVisibilityToggle, loadMarkerVisibility } from '@/components/MarkerVisibilityToggle'
+import { SyncModeToggle, loadSyncMode, saveSyncMode, type SyncMode } from '@/components/SyncModeToggle'
+import { VttDownloadButton } from '@/components/VttDownloadButton'
 import { RateLimitIndicator } from '@/components/RateLimitIndicator'
 import { OfflineIndicator } from '@/components/OfflineIndicator'
 import { PageNavigation } from '@/components/PageNavigation'
@@ -21,6 +24,7 @@ import { getTimeRemaining } from '@/lib/song-metadata-utils'
 import { mapErrorToUserFriendly } from '@/lib/error-mapping-utils'
 import { loadOffset, saveOffset } from '@/lib/offset-storage'
 import { hasMarkers } from '@/lib/section-marker-utils'
+import { aggregateWordsToLines } from '@/lib/vtt-generator'
 
 export function SongPlaybackPage() {
   const { songId: songIdParam, shareToken } = useParams<{ songId?: string; shareToken?: string }>()
@@ -57,11 +61,17 @@ export function SongPlaybackPage() {
   
   // Offset state for lyrics timing adjustment
   // Requirements: 2.3, 2.4
+  // Note: We'll load the offset in an effect after songId is available
   const [offset, setOffset] = useState<number>(0)
+  const [offsetLoaded, setOffsetLoaded] = useState(false)
   
   // Marker visibility state
   // Requirements: 14.1, 14.4, 14.5
   const [showMarkers, setShowMarkers] = useState<boolean>(() => loadMarkerVisibility())
+  
+  // Sync mode state for word vs line-level highlighting
+  // Requirements: 9.5
+  const [syncMode, setSyncMode] = useState<SyncMode>(() => loadSyncMode())
 
   // Initialize song switcher hook
   // Requirements: 3.1, 3.2, 3.3, 3.4, 3.6, 6.5
@@ -118,11 +128,12 @@ export function SongPlaybackPage() {
   // Load offset from localStorage when song changes
   // Requirements: 2.4
   useEffect(() => {
-    if (songId) {
+    if (songId && !offsetLoaded) {
       const savedOffset = loadOffset(songId)
       setOffset(savedOffset)
+      setOffsetLoaded(true)
     }
-  }, [songId])
+  }, [songId, offsetLoaded])
 
   // Handle offset changes and persist to localStorage
   // Requirements: 2.3
@@ -134,6 +145,41 @@ export function SongPlaybackPage() {
       }
     },
     [songId]
+  )
+
+  // Handle sync mode changes and persist to localStorage
+  // Requirements: 9.5
+  const handleSyncModeChange = useCallback(
+    (newMode: SyncMode) => {
+      setSyncMode(newMode)
+      saveSyncMode(newMode)
+    },
+    []
+  )
+
+  // Generate line cues from aligned words and edited lyrics
+  // Requirements: 7.2, 7.3, 7.4
+  const lineCues = useMemo(() => {
+    if (!alignedWords || alignedWords.length === 0 || !lyrics) {
+      return []
+    }
+    try {
+      return aggregateWordsToLines(alignedWords, lyrics)
+    } catch (error) {
+      console.error('Failed to aggregate words to lines:', error)
+      return []
+    }
+  }, [alignedWords, lyrics])
+
+  // Handle line click navigation
+  // Requirements: 8.2, 8.3, 8.5
+  const handleLineClick = useCallback(
+    (startTime: number) => {
+      // This will be connected to the audio player's seek functionality
+      // The AudioPlayer component will handle the actual seeking
+      setCurrentTime(startTime)
+    },
+    [setCurrentTime]
   )
 
   // Handle time updates from audio player
@@ -262,8 +308,8 @@ export function SongPlaybackPage() {
       {/* Main Content */}
       <main id="main-content" className="container mx-auto px-4 py-8" role="main" tabIndex={-1}>
         <div className="max-w-4xl mx-auto space-y-6">
-          {/* Back Button */}
-          <nav aria-label="Page navigation">
+          {/* Back Button and History Link */}
+          <nav aria-label="Page navigation" className="flex gap-2">
             <Button
               variant="outline"
               onClick={handleBack}
@@ -272,6 +318,14 @@ export function SongPlaybackPage() {
             >
               <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
               Back to Home
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/history')}
+              className="focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              aria-label="Go to my songs history"
+            >
+              My Songs
             </Button>
           </nav>
 
@@ -360,17 +414,44 @@ export function SongPlaybackPage() {
             </section>
           )}
 
-          {/* Lyrics Display */}
+          {/* Sync Mode Toggle - positioned near lyrics panel */}
+          {/* Requirements: 9.5 - Show toggle when line cues available */}
+          {lineCues.length > 0 && (
+            <section aria-labelledby="sync-mode-section-title">
+              <h2 id="sync-mode-section-title" className="sr-only">Lyrics synchronization mode</h2>
+              <SyncModeToggle
+                mode={syncMode}
+                onChange={handleSyncModeChange}
+                disabled={isExpired}
+              />
+            </section>
+          )}
+
+          {/* Lyrics Display - conditionally render based on sync mode */}
+          {/* Requirements: 7.1, 8.1, 9.1 */}
           <section aria-labelledby="lyrics-section-title">
             <h2 id="lyrics-section-title" className="text-lg font-semibold mb-3">Lyrics</h2>
-            <LyricsDisplay
-              lyrics={lyrics}
-              currentTime={currentTime}
-              duration={duration}
-              alignedWords={alignedWords}
-              offset={offset}
-              showMarkers={showMarkers}
-            />
+            
+            {syncMode === 'line' && lineCues.length > 0 ? (
+              // Line-level sync display
+              <LineLyricsDisplay
+                lineCues={lineCues}
+                currentTime={currentTime}
+                onLineClick={handleLineClick}
+                showMarkers={showMarkers}
+                offset={offset}
+              />
+            ) : (
+              // Word-level sync display (default)
+              <LyricsDisplay
+                lyrics={lyrics}
+                currentTime={currentTime}
+                duration={duration}
+                alignedWords={alignedWords}
+                offset={offset}
+                showMarkers={showMarkers}
+              />
+            )}
           </section>
 
           {/* Action Buttons */}
@@ -380,6 +461,18 @@ export function SongPlaybackPage() {
             {/* Share Button - only show for owners */}
             {isOwner && songId && !isExpired && (
               <ShareButton songId={songId} disabled={!isOnline} />
+            )}
+
+            {/* VTT Download Button - show when line cues available */}
+            {/* Requirements: 10.1, 10.2, 10.3, 10.4, 10.5 */}
+            {lineCues.length > 0 && style && createdAt && (
+              <VttDownloadButton
+                lineCues={lineCues}
+                songStyle={style}
+                createdAt={createdAt}
+                offset={offset}
+                disabled={isExpired}
+              />
             )}
 
             {/* Regenerate Button */}

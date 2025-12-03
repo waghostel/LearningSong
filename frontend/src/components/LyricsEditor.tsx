@@ -39,7 +39,14 @@ export const LyricsEditor: React.FC = () => {
   return (
     <Card className="flex-1 flex flex-col min-h-0">
       <CardContent className="p-4 flex-1 flex flex-col min-h-0 gap-2">
-
+        <div role="group" aria-labelledby="lyrics-editor-label">
+          <label 
+            id="lyrics-editor-label" 
+            htmlFor="lyrics-editor"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2 block"
+          >
+            Edit Lyrics
+          </label>
         
         <Textarea
           id="lyrics-editor"
@@ -97,6 +104,7 @@ export const LyricsEditor: React.FC = () => {
         >
           Use Ctrl+Z to undo and Ctrl+Y or Ctrl+Shift+Z to redo changes.
         </p>
+        </div>
       </CardContent>
     </Card>
   )

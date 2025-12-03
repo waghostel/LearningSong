@@ -151,10 +151,14 @@ describe('SongSwitcher Property Tests', () => {
             const switcher = container.querySelector('[data-testid="song-switcher"]')
             expect(switcher).toBeInTheDocument()
 
+            // Find the ToggleGroup element (role="group")
+            const toggleGroup = switcher?.querySelector('[role="group"]')
+            expect(toggleGroup).toBeInTheDocument()
+
             // Test ArrowRight - should move to next variation (or wrap to 0)
             const expectedNextIndex = initialIndex < variations.length - 1 ? initialIndex + 1 : 0
             const arrowRightEvent = new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true })
-            switcher?.dispatchEvent(arrowRightEvent)
+            toggleGroup?.dispatchEvent(arrowRightEvent)
             
             if (expectedNextIndex !== initialIndex) {
               expect(mockOnSwitch).toHaveBeenCalledWith(expectedNextIndex)
@@ -189,10 +193,14 @@ describe('SongSwitcher Property Tests', () => {
             const switcher = container.querySelector('[data-testid="song-switcher"]')
             expect(switcher).toBeInTheDocument()
 
+            // Find the ToggleGroup element (role="group")
+            const toggleGroup = switcher?.querySelector('[role="group"]')
+            expect(toggleGroup).toBeInTheDocument()
+
             // Test ArrowLeft - should move to previous variation (or wrap to last)
             const expectedPrevIndex = initialIndex > 0 ? initialIndex - 1 : variations.length - 1
             const arrowLeftEvent = new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true })
-            switcher?.dispatchEvent(arrowLeftEvent)
+            toggleGroup?.dispatchEvent(arrowLeftEvent)
             
             if (expectedPrevIndex !== initialIndex) {
               expect(mockOnSwitch).toHaveBeenCalledWith(expectedPrevIndex)
@@ -227,9 +235,13 @@ describe('SongSwitcher Property Tests', () => {
             const switcher = container.querySelector('[data-testid="song-switcher"]')
             expect(switcher).toBeInTheDocument()
 
+            // Find the ToggleGroup element (role="group")
+            const toggleGroup = switcher?.querySelector('[role="group"]')
+            expect(toggleGroup).toBeInTheDocument()
+
             // Test Home key - should jump to first variation (index 0)
             const homeEvent = new KeyboardEvent('keydown', { key: 'Home', bubbles: true })
-            switcher?.dispatchEvent(homeEvent)
+            toggleGroup?.dispatchEvent(homeEvent)
             
             expect(mockOnSwitch).toHaveBeenCalledWith(0)
 
@@ -262,9 +274,13 @@ describe('SongSwitcher Property Tests', () => {
             const switcher = container.querySelector('[data-testid="song-switcher"]')
             expect(switcher).toBeInTheDocument()
 
+            // Find the ToggleGroup element (role="group")
+            const toggleGroup = switcher?.querySelector('[role="group"]')
+            expect(toggleGroup).toBeInTheDocument()
+
             // Test End key - should jump to last variation (index 1)
             const endEvent = new KeyboardEvent('keydown', { key: 'End', bubbles: true })
-            switcher?.dispatchEvent(endEvent)
+            toggleGroup?.dispatchEvent(endEvent)
             
             expect(mockOnSwitch).toHaveBeenCalledWith(variations.length - 1)
 
@@ -534,8 +550,12 @@ describe('SongSwitcher Property Tests', () => {
             )
 
             const switcher = container.querySelector('[data-testid="song-switcher"]')
-            expect(switcher).toHaveAttribute('role', 'group')
-            expect(switcher).toHaveAttribute('aria-label', 'Song version switcher')
+            expect(switcher).toBeInTheDocument()
+            
+            // The ToggleGroup has the role="group" and aria-label
+            const toggleGroup = switcher?.querySelector('[role="group"]')
+            expect(toggleGroup).toHaveAttribute('role', 'group')
+            expect(toggleGroup).toHaveAttribute('aria-label', 'Song version switcher')
 
             cleanup()
           }

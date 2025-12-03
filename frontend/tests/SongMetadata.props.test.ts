@@ -3,7 +3,7 @@
  * Using fast-check for property-based testing
  */
 import * as fc from 'fast-check'
-import { getTimeRemaining, formatDate } from '@/components/SongMetadata'
+import { getTimeRemaining, formatDate } from '@/lib/song-metadata-utils'
 
 describe('SongMetadata Property Tests', () => {
   /**

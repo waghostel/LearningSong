@@ -258,6 +258,51 @@ class UpdatePrimaryVariationRequest(BaseModel):
     )
 
 
+class SongHistorySummary(BaseModel):
+    """Summary of a song for history list.
+    
+    Requirements: 6.2
+    """
+    
+    song_id: str = Field(
+        ...,
+        description="Unique identifier for the song"
+    )
+    style: MusicStyle = Field(
+        ...,
+        description="Music style of the song"
+    )
+    created_at: datetime = Field(
+        ...,
+        description="Timestamp when the song was created"
+    )
+    expires_at: datetime = Field(
+        ...,
+        description="Timestamp when the song will expire"
+    )
+    lyrics_preview: str = Field(
+        ...,
+        description="First 100 characters of lyrics",
+        max_length=100
+    )
+    has_variations: bool = Field(
+        ...,
+        description="Whether the song has multiple variations"
+    )
+    primary_variation_index: int = Field(
+        ...,
+        description="Index of the user's selected primary variation",
+        ge=0,
+        le=1
+    )
+    
+    model_config = {
+        "json_encoders": {
+            datetime: lambda v: v.isoformat()
+        }
+    }
+
+
 class ShareLinkResponse(BaseModel):
     """Response for share link creation.
     

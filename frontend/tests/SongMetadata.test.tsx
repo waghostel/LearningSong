@@ -1,5 +1,6 @@
 import { render, screen, act } from '@testing-library/react'
-import { SongMetadata, formatDate, getTimeRemaining } from '@/components/SongMetadata'
+import { SongMetadata } from '@/components/SongMetadata'
+import { formatDate, getTimeRemaining } from '@/lib/song-metadata-utils'
 import { MusicStyle } from '@/api/songs'
 
 // Mock timers for countdown testing

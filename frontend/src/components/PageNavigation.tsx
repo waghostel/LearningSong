@@ -10,6 +10,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { path: '/', label: 'Text Input', shortLabel: 'Input' },
   { path: '/lyrics-edit', label: 'Lyrics Editing', shortLabel: 'Lyrics' },
+  { path: '/history', label: 'My Songs', shortLabel: 'Songs' },
   { path: '/playback', label: 'Song Playback', shortLabel: 'Playback' },
 ]
 
