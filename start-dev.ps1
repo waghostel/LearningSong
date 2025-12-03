@@ -73,7 +73,7 @@ Stop-UvicornProcesses
 
 # Clear ports before starting
 Write-Host "🔍 Checking for occupied ports..." -ForegroundColor Cyan
-Stop-ProcessOnPort -Port 8000 -ServiceName "Backend"
+Stop-ProcessOnPort -Port 8001 -ServiceName "Backend"
 Stop-ProcessOnPort -Port 5173 -ServiceName "Frontend"
 Stop-ProcessOnPort -Port 5174 -ServiceName "Frontend (alt)"
 
@@ -126,15 +126,15 @@ Write-Host ""
 Write-Host "✅ Dependencies installed successfully!" -ForegroundColor Green
 Write-Host ""
 Write-Host "🎯 Starting servers..." -ForegroundColor Cyan
-Write-Host "  → Backend:  http://localhost:8000" -ForegroundColor Gray
+Write-Host "  → Backend:  http://localhost:8001" -ForegroundColor Gray
 Write-Host "  → Frontend: http://localhost:5173" -ForegroundColor Gray
-Write-Host "  → API Docs: http://localhost:8000/docs" -ForegroundColor Gray
+Write-Host "  → API Docs: http://localhost:8001/docs" -ForegroundColor Gray
 Write-Host ""
 Write-Host "Press Ctrl+C to stop all servers" -ForegroundColor Yellow
 Write-Host ""
 
 # Start backend in a new window
-$backendJob = Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PWD\backend'; Write-Host '🐍 Backend Server Starting...' -ForegroundColor Magenta; poetry run uvicorn app.main:app --reload" -PassThru
+$backendJob = Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PWD\backend'; Write-Host '🐍 Backend Server Starting...' -ForegroundColor Magenta; poetry run uvicorn app.main:app --reload --port 8001" -PassThru
 
 # Wait a moment for backend to start
 Start-Sleep -Seconds 2

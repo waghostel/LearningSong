@@ -100,20 +100,57 @@ This feature addresses four improvements to the Song Playback page in LearningSo
 4. WHEN a user has no songs THEN the system SHALL return an empty array
 5. WHEN the request is unauthenticated THEN the system SHALL return a 401 error
 
-### Requirement 7: LRC Subtitle File Export
+### Requirement 7: VTT Subtitle File Generation
 
-**User Story:** As a user, I want to download an LRC file with synchronized lyrics, so that I can use it with my music player for karaoke-style playback.
+**User Story:** As a user, I want the system to generate a VTT subtitle file with line-by-line timestamps, so that I can see lyrics displayed sentence by sentence during playback and click on any line to jump to that position.
 
 #### Acceptance Criteria
 
-1. WHEN timestamped lyrics are available THEN the system SHALL display a download button for the LRC file
-2. WHEN the user clicks the download button THEN the system SHALL generate an LRC file with word-level timestamps
-3. WHEN generating the LRC file THEN the system SHALL format timestamps in standard LRC format [mm:ss.xx]
-4. WHEN generating the LRC file THEN the system SHALL include metadata tags for title, artist, and album
-5. WHEN the LRC file is downloaded THEN the system SHALL name the file using the song style and creation date
-6. WHEN timestamped lyrics are not available THEN the system SHALL hide the download button
+1. WHEN the Song Playback page loads THEN the system SHALL retrieve the edited lyrics from the Lyrics Editing page
+2. WHEN timestamped lyrics are available from Suno API THEN the system SHALL aggregate word-level timestamps into line-level timestamps
+3. WHEN aggregating timestamps THEN the system SHALL use the first word's startS as the line start time and the last word's endS as the line end time
+4. WHEN generating line timestamps THEN the system SHALL match each line from the edited lyrics to the corresponding words in the Suno timestamp data
+5. WHEN the VTT file is generated THEN the system SHALL format timestamps in standard WebVTT format (HH:MM:SS.mmm)
+6. WHEN the VTT file is generated THEN the system SHALL save it for use in the lyrics display component
+7. WHEN displaying lyrics THEN the system SHALL highlight the current line based on playback time using the VTT timestamps
 
-### Requirement 8: Accessibility
+### Requirement 8: Clickable Lyrics Navigation
+
+**User Story:** As a user, I want to click on any lyrics line to jump to that position in the song, so that I can easily navigate to specific parts of the song.
+
+#### Acceptance Criteria
+
+1. WHEN displaying line-by-line lyrics THEN the system SHALL make each line clickable
+2. WHEN the user clicks on a lyrics line THEN the system SHALL seek the audio player to the start time of that line
+3. WHEN the user clicks on a lyrics line THEN the system SHALL update the current line highlight immediately
+4. WHEN a line is clickable THEN the system SHALL display a hover effect to indicate interactivity
+5. WHEN navigating via click THEN the system SHALL continue playback from the new position if audio was playing
+
+### Requirement 9: Line-Level Lyrics Synchronization
+
+**User Story:** As a user, I want to see lyrics highlighted line by line during playback, so that I can follow along with the song more naturally than word-by-word highlighting.
+
+#### Acceptance Criteria
+
+1. WHEN the audio plays THEN the system SHALL highlight the current line based on the VTT timestamps
+2. WHEN the current line changes THEN the system SHALL auto-scroll to keep the current line visible
+3. WHEN displaying lyrics THEN the system SHALL show section markers (Verse, Chorus, Bridge) as non-highlighted labels
+4. WHEN the playback time is between lines THEN the system SHALL highlight the most recently passed line
+5. WHEN the user toggles between word-level and line-level sync THEN the system SHALL switch highlighting modes accordingly
+
+### Requirement 10: VTT File Export
+
+**User Story:** As a user, I want to download the VTT subtitle file, so that I can use it with external video players or for accessibility purposes.
+
+#### Acceptance Criteria
+
+1. WHEN line-level timestamps are available THEN the system SHALL display a download button for the VTT file
+2. WHEN the user clicks the download button THEN the system SHALL generate a VTT file with line-level timestamps
+3. WHEN generating the VTT file THEN the system SHALL include the WEBVTT header
+4. WHEN the VTT file is downloaded THEN the system SHALL name the file using the song style and creation date
+5. WHEN line-level timestamps are not available THEN the system SHALL hide the download button
+
+### Requirement 11: Accessibility
 
 **User Story:** As a user with accessibility needs, I want the song history and offset controls to be fully accessible, so that I can use them with assistive technologies.
 
@@ -125,7 +162,7 @@ This feature addresses four improvements to the Song Playback page in LearningSo
 4. WHEN a song item receives focus THEN the system SHALL display visible focus indicators
 5. WHEN the offset value changes THEN the system SHALL announce the new value to screen readers
 
-### Requirement 9: Offset Persistence
+### Requirement 12: Offset Persistence
 
 **User Story:** As a user, I want my offset adjustments to be remembered per song, so that I don't have to readjust every time I return.
 
@@ -136,7 +173,7 @@ This feature addresses four improvements to the Song Playback page in LearningSo
 3. WHEN the offset storage exceeds 50 entries THEN the system SHALL remove the oldest entries to prevent storage bloat
 4. WHEN clearing browser data THEN the system SHALL gracefully handle missing offset values by defaulting to 0ms
 
-### Requirement 10: Section Marker Detection and Handling
+### Requirement 13: Section Marker Detection and Handling
 
 **User Story:** As a user, I want section markers (like **Verse**, **Chorus**) to be handled separately from actual lyrics, so that the highlighting accurately follows the vocal timing rather than staying on markers.
 
@@ -149,7 +186,7 @@ This feature addresses four improvements to the Song Playback page in LearningSo
 5. WHEN calculating the current word index THEN the system SHALL exclude section markers from the highlighting sequence
 6. WHEN a section marker appears THEN the system SHALL display it inline but not apply the "current word" highlight effect to it
 
-### Requirement 11: Section Marker Skip Option
+### Requirement 14: Section Marker Skip Option
 
 **User Story:** As a user, I want the option to show or hide section markers in the lyrics display, so that I can focus on just the singable lyrics if preferred.
 

@@ -228,6 +228,18 @@ async def get_song_details(
     
     # Convert variations from dict to Pydantic models
     variations_data = song_data.get('variations', [])
+    logger.info(
+        f"Retrieved {len(variations_data)} variations from Firestore for song: {song_id}",
+        extra={
+            'extra_fields': {
+                'song_id': song_id,
+                'variations_count': len(variations_data),
+                'variation_indices': [v.get('variation_index') for v in variations_data],
+                'operation': 'get_song_details'
+            }
+        }
+    )
+    
     variations_models = [
         SongVariation(
             audio_url=var.get('audio_url'),
@@ -237,6 +249,17 @@ async def get_song_details(
         for var in variations_data
         if var.get('audio_url') and var.get('audio_id')
     ]
+    
+    logger.info(
+        f"Returning {len(variations_models)} valid variations for song: {song_id}",
+        extra={
+            'extra_fields': {
+                'song_id': song_id,
+                'valid_variations_count': len(variations_models),
+                'operation': 'get_song_details'
+            }
+        }
+    )
     
     return SongDetails(
         song_id=song_id,

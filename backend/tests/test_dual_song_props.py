@@ -310,7 +310,7 @@ class TestVariationStorage:
             max_size=2,
         )
     )
-    @settings(max_examples=100)
+    @settings(max_examples=100, suppress_health_check=[HealthCheck.too_slow])
     @pytest.mark.asyncio
     async def test_all_variations_stored_with_complete_data(self, variations: list[dict]):
         """

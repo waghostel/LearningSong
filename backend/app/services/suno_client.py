@@ -435,12 +435,25 @@ class SunoClient:
             
             if status == "SUCCESS":
                 suno_data = task_data.get("response", {}).get("sunoData", [])
-                print(f"✅ [SUNO] Found {len(suno_data)} song variations")
+                print(f"✅ [SUNO] Found {len(suno_data)} song variations in sunoData array")
+                logger.info(
+                    f"Extracting variations from Suno response for task {task_id}",
+                    extra={
+                        'extra_fields': {
+                            'task_id': task_id,
+                            'suno_data_count': len(suno_data),
+                            'operation': 'get_task_status'
+                        }
+                    }
+                )
                 
                 # Extract all variations (up to 2)
+                # Requirements: 1.1, 1.2 - Extract both song variations from sunoData array
                 for idx, track in enumerate(suno_data[:2]):
                     audio_url = track.get("audioUrl")
                     track_audio_id = track.get("id")
+                    
+                    print(f"🔍 [SUNO] Processing track {idx}: audioUrl={audio_url is not None}, id={track_audio_id is not None}")
                     
                     if audio_url and track_audio_id:
                         variation = SongVariation(
@@ -450,11 +463,24 @@ class SunoClient:
                         )
                         variations.append(variation)
                         print(f"✅ [SUNO] Variation {idx}: URL={audio_url[:50]}..., ID={track_audio_id}")
+                        logger.info(
+                            f"Extracted variation {idx} for task {task_id}",
+                            extra={
+                                'extra_fields': {
+                                    'task_id': task_id,
+                                    'variation_index': idx,
+                                    'audio_id': track_audio_id,
+                                    'operation': 'get_task_status'
+                                }
+                            }
+                        )
                     else:
                         logger.warning(
                             f"Skipping malformed variation {idx}: "
                             f"audioUrl={audio_url is not None}, id={track_audio_id is not None}"
                         )
+                
+                print(f"✅ [SUNO] Total variations extracted: {len(variations)}")
                 
                 # Set deprecated fields for backward compatibility
                 if variations:

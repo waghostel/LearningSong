@@ -11,12 +11,16 @@ import { LyricsDisplay } from '@/components/LyricsDisplay'
 import { SongMetadata } from '@/components/SongMetadata'
 import { ShareButton } from '@/components/ShareButton'
 import { SongSwitcher } from '@/components/SongSwitcher'
+import { OffsetControl } from '@/components/OffsetControl'
+import { MarkerVisibilityToggle, loadMarkerVisibility } from '@/components/MarkerVisibilityToggle'
 import { RateLimitIndicator } from '@/components/RateLimitIndicator'
 import { OfflineIndicator } from '@/components/OfflineIndicator'
 import { PageNavigation } from '@/components/PageNavigation'
 import { RefreshCw, ArrowLeft, AlertCircle } from 'lucide-react'
 import { getTimeRemaining } from '@/lib/song-metadata-utils'
 import { mapErrorToUserFriendly } from '@/lib/error-mapping-utils'
+import { loadOffset, saveOffset } from '@/lib/offset-storage'
+import { hasMarkers } from '@/lib/section-marker-utils'
 
 export function SongPlaybackPage() {
   const { songId: songIdParam, shareToken } = useParams<{ songId?: string; shareToken?: string }>()
@@ -50,6 +54,14 @@ export function SongPlaybackPage() {
 
   const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false)
   const [audioError, setAudioError] = useState<Error | null>(null)
+  
+  // Offset state for lyrics timing adjustment
+  // Requirements: 2.3, 2.4
+  const [offset, setOffset] = useState<number>(0)
+  
+  // Marker visibility state
+  // Requirements: 14.1, 14.4, 14.5
+  const [showMarkers, setShowMarkers] = useState<boolean>(() => loadMarkerVisibility())
 
   // Initialize song switcher hook
   // Requirements: 3.1, 3.2, 3.3, 3.4, 3.6, 6.5
@@ -102,6 +114,27 @@ export function SongPlaybackPage() {
 
     loadData()
   }, [songIdParam, shareToken, loadSong, loadSharedSong, navigate])
+
+  // Load offset from localStorage when song changes
+  // Requirements: 2.4
+  useEffect(() => {
+    if (songId) {
+      const savedOffset = loadOffset(songId)
+      setOffset(savedOffset)
+    }
+  }, [songId])
+
+  // Handle offset changes and persist to localStorage
+  // Requirements: 2.3
+  const handleOffsetChange = useCallback(
+    (newOffset: number) => {
+      setOffset(newOffset)
+      if (songId) {
+        saveOffset(songId, newOffset)
+      }
+    },
+    [songId]
+  )
 
   // Handle time updates from audio player
   const handleTimeUpdate = useCallback(
@@ -301,6 +334,32 @@ export function SongPlaybackPage() {
             </section>
           )}
 
+          {/* Offset Control - positioned near lyrics panel */}
+          {/* Requirements: 3.1 - Show only when timestamped lyrics available */}
+          {alignedWords && alignedWords.length > 0 && (
+            <section aria-labelledby="offset-section-title">
+              <h2 id="offset-section-title" className="sr-only">Lyrics timing adjustment</h2>
+              <OffsetControl
+                offset={offset}
+                onChange={handleOffsetChange}
+                disabled={isExpired}
+              />
+            </section>
+          )}
+
+          {/* Marker Visibility Toggle - positioned near lyrics panel */}
+          {/* Requirements: 14.1 - Show toggle only when section markers exist */}
+          {alignedWords && hasMarkers(alignedWords) && (
+            <section aria-labelledby="marker-toggle-section-title">
+              <h2 id="marker-toggle-section-title" className="sr-only">Section marker visibility</h2>
+              <MarkerVisibilityToggle
+                showMarkers={showMarkers}
+                onChange={setShowMarkers}
+                disabled={isExpired}
+              />
+            </section>
+          )}
+
           {/* Lyrics Display */}
           <section aria-labelledby="lyrics-section-title">
             <h2 id="lyrics-section-title" className="text-lg font-semibold mb-3">Lyrics</h2>
@@ -309,6 +368,8 @@ export function SongPlaybackPage() {
               currentTime={currentTime}
               duration={duration}
               alignedWords={alignedWords}
+              offset={offset}
+              showMarkers={showMarkers}
             />
           </section>
 

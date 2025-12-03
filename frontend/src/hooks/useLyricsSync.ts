@@ -4,15 +4,20 @@
  * 
  * **Feature: timestamped-lyrics-sync**
  * **Validates: Requirements 1.2, 4.2**
+ * 
+ * **Feature: song-playback-improvements**
+ * **Validates: Requirements 13.4, 13.5**
  */
 
 import { useMemo } from 'react'
 import type { AlignedWord, WordState } from '@/types/lyrics'
 import { findWordAtTime, calculateWordProgress, classifyWordState } from '@/lib/lyrics-sync'
+import { isSectionMarker, findNextNonMarkerIndex } from '@/lib/section-marker-utils'
 
 export interface UseLyricsSyncOptions {
   alignedWords: AlignedWord[]
   currentTime: number
+  skipMarkers?: boolean  // Skip section markers when highlighting
 }
 
 export interface UseLyricsSyncResult {
@@ -34,25 +39,50 @@ export interface UseLyricsSyncResult {
  * @param options - Configuration options
  * @param options.alignedWords - Array of aligned words sorted by startS
  * @param options.currentTime - Current playback time in seconds
+ * @param options.skipMarkers - If true, skip section markers when highlighting (default: false)
  * @returns Sync result with current word info and utilities
  * 
  * @example
  * ```tsx
  * const { currentWordIndex, currentWord, progress } = useLyricsSync({
  *   alignedWords: song.alignedWords,
- *   currentTime: audioRef.current?.currentTime ?? 0
+ *   currentTime: audioRef.current?.currentTime ?? 0,
+ *   skipMarkers: true
  * })
  * ```
  */
 export function useLyricsSync({
   alignedWords,
   currentTime,
+  skipMarkers = false,
 }: UseLyricsSyncOptions): UseLyricsSyncResult {
   // Memoize the word lookup result to avoid recalculating on every render
-  // Only recalculate when alignedWords or currentTime changes
+  // Only recalculate when alignedWords, currentTime, or skipMarkers changes
   const lookupResult = useMemo(() => {
-    return findWordAtTime(alignedWords, currentTime)
-  }, [alignedWords, currentTime])
+    const result = findWordAtTime(alignedWords, currentTime)
+    
+    // If skipMarkers is enabled and the current word is a marker,
+    // find the next non-marker word
+    if (skipMarkers && result.index !== -1 && result.word) {
+      if (isSectionMarker(result.word.word)) {
+        const nextNonMarkerIndex = findNextNonMarkerIndex(alignedWords, result.index)
+        
+        if (nextNonMarkerIndex !== -1) {
+          const nextWord = alignedWords[nextNonMarkerIndex]
+          return {
+            index: nextNonMarkerIndex,
+            word: nextWord,
+            state: classifyWordState(nextWord, currentTime) as WordState,
+          }
+        }
+        
+        // No non-marker word found, return -1
+        return { index: -1, word: null, state: 'upcoming' as WordState }
+      }
+    }
+    
+    return result
+  }, [alignedWords, currentTime, skipMarkers])
 
   // Memoize progress calculation
   const progress = useMemo(() => {

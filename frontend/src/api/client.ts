@@ -5,7 +5,7 @@ import { auth, isDevelopmentMode } from '@/lib/firebase'
 
 // Get API base URL from environment
 // Vite exposes import.meta.env, but we'll use a fallback for test environments
-const API_BASE_URL = 'http://localhost:8000' // Default for development and tests
+const API_BASE_URL = 'http://localhost:8001' // Default for development and tests
 
 // Development mode token for mock authentication
 const DEV_AUTH_TOKEN = 'dev-token-local'

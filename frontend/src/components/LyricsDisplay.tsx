@@ -7,12 +7,15 @@ import {
   calculateCurrentSection, 
   getWordStateClasses 
 } from '@/lib/lyrics-display-utils'
+import { isSectionMarker } from '@/lib/section-marker-utils'
 
 export interface LyricsDisplayProps {
   lyrics: string
   currentTime: number
   duration: number
   alignedWords?: AlignedWord[]  // Optional prop for word-level timestamps
+  offset?: number  // Offset in milliseconds to adjust timing
+  showMarkers?: boolean  // Show or hide section markers (default: true)
   onManualScroll?: () => void
 }
 
@@ -23,6 +26,8 @@ export function LyricsDisplay({
   currentTime,
   duration,
   alignedWords,
+  offset = 0,
+  showMarkers = true,
   onManualScroll,
 }: LyricsDisplayProps) {
   const containerRef = React.useRef<HTMLDivElement>(null)
@@ -36,9 +41,12 @@ export function LyricsDisplay({
   const hasTimestamps = alignedWords && alignedWords.length > 0
 
   // Use lyrics sync hook for word-level highlighting
+  // Apply offset to currentTime (convert milliseconds to seconds)
+  const adjustedTime = currentTime + (offset / 1000)
   const { currentWordIndex, getWordState } = useLyricsSync({
     alignedWords: alignedWords ?? [],
-    currentTime,
+    currentTime: adjustedTime,
+    skipMarkers: true,  // Skip section markers when highlighting
   })
 
   // Parse lyrics into sections (for fallback mode)
@@ -163,6 +171,13 @@ export function LyricsDisplay({
       >
         <div className="leading-relaxed font-mono text-sm">
           {alignedWords.map((alignedWord, index) => {
+            const isMarker = isSectionMarker(alignedWord.word)
+            
+            // Hide markers if showMarkers is false
+            if (isMarker && !showMarkers) {
+              return null
+            }
+            
             const wordState = getWordState(index)
             const isCurrent = index === currentWordIndex
             
@@ -174,11 +189,14 @@ export function LyricsDisplay({
                 }}
                 className={cn(
                   'transition-all duration-150 inline',
-                  getWordStateClasses(wordState)
+                  isMarker
+                    ? 'text-muted-foreground text-xs opacity-60 font-normal'  // Marker styling
+                    : getWordStateClasses(wordState)  // Regular lyric styling
                 )}
-                aria-current={isCurrent ? 'true' : undefined}
+                aria-current={isCurrent && !isMarker ? 'true' : undefined}
                 data-word-index={index}
-                data-word-state={wordState}
+                data-word-state={isMarker ? 'marker' : wordState}
+                data-is-marker={isMarker}
               >
                 {alignedWord.word}
               </span>
@@ -192,6 +210,13 @@ export function LyricsDisplay({
             ? `Now singing: ${alignedWords[currentWordIndex].word}`
             : 'Waiting for lyrics'}
         </div>
+        
+        {/* Screen reader announcement for offset changes */}
+        {offset !== 0 && (
+          <div className="sr-only" aria-live="polite" aria-atomic="true">
+            {`Lyrics timing offset: ${offset > 0 ? '+' : ''}${offset} milliseconds`}
+          </div>
+        )}
       </div>
     )
   }

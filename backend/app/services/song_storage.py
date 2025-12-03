@@ -200,6 +200,17 @@ async def update_task_status(
     # Handle variations (Requirements: 1.2, 7.3)
     if variations is not None:
         update_data["variations"] = variations
+        logger.info(
+            f"Storing {len(variations)} variations for task: {task_id}",
+            extra={
+                "extra_fields": {
+                    "task_id": task_id,
+                    "variations_count": len(variations),
+                    "variation_indices": [v.get("variation_index") for v in variations],
+                    "operation": "update_task_status",
+                }
+            },
+        )
         # Set song_url to first variation for backward compatibility
         if variations and len(variations) > 0:
             update_data["song_url"] = variations[0].get("audio_url")

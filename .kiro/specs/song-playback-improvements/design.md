@@ -10,14 +10,15 @@ This feature enhances the Song Playback page with four key improvements:
 
 3. **Song History Access**: Provide a song history page allowing users to access and replay previously created songs within the 48-hour retention period.
 
-4. **LRC Subtitle File Export**: Enable users to download synchronized lyrics as LRC files for use with external music players.
+4. **VTT Subtitle Generation & Line-Level Sync**: Generate VTT subtitle files from word-level Suno timestamps aggregated into line-level timestamps, enabling sentence-by-sentence lyrics display with clickable navigation.
 
 ### Key Design Goals
 
 1. **Fix Existing Functionality**: Ensure the SongSwitcher displays when two variations exist
 2. **User Control**: Allow fine-tuning of lyrics synchronization via offset adjustment
 3. **Data Persistence**: Remember user preferences and provide access to song history
-4. **Interoperability**: Export lyrics in standard LRC format for external players
+4. **Line-Level Sync**: Aggregate word timestamps into line timestamps for natural lyrics following
+5. **Clickable Navigation**: Allow users to click any lyrics line to jump to that position
 
 ## Architecture
 
@@ -42,9 +43,10 @@ This feature enhances the Song Playback page with four key improvements:
 │  │  Offset Control: [-] ═══════●═══════ [+]  -150ms  [Reset]   ││
 │  └─────────────────────────────────────────────────────────────┘│
 │                                                                  │
-│  ┌─────────────────┐                                            │
-│  │  Download LRC   │                                            │
-│  └─────────────────┘                                            │
+│  ┌─────────────────┐  ┌─────────────────┐                       │
+│  │  Download VTT   │  │  Sync Mode      │                       │
+│  │                 │  │  [Word] [Line]  │                       │
+│  └─────────────────┘  └─────────────────┘                       │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -114,29 +116,83 @@ export function OffsetControl({
 }
 ```
 
-#### 2. LrcDownloadButton Component (`frontend/src/components/LrcDownloadButton.tsx`)
+#### 2. VttDownloadButton Component (`frontend/src/components/VttDownloadButton.tsx`)
 
 **New Component:**
 
 ```typescript
-interface LrcDownloadButtonProps {
-  alignedWords: AlignedWord[]
+interface VttDownloadButtonProps {
+  lineCues: LineCue[]         // Line-level timestamps
   songStyle: string
   createdAt: Date
-  offset?: number            // Apply offset to timestamps
+  offset?: number             // Apply offset to timestamps
   disabled?: boolean
 }
 
-export function LrcDownloadButton({
-  alignedWords,
+export function VttDownloadButton({
+  lineCues,
   songStyle,
   createdAt,
   offset = 0,
   disabled = false
-}: LrcDownloadButtonProps) {
-  // Generates LRC file content
+}: VttDownloadButtonProps) {
+  // Generates VTT file content
   // Triggers download with proper filename
-  // Hidden when alignedWords is empty
+  // Hidden when lineCues is empty
+}
+```
+
+#### 2b. LineLyricsDisplay Component (`frontend/src/components/LineLyricsDisplay.tsx`)
+
+**New Component:**
+
+```typescript
+interface LineCue {
+  lineIndex: number
+  text: string                // Full line text (e.g., "In the world of science, a prize was won,")
+  startTime: number           // Start time in seconds (from first word's startS)
+  endTime: number             // End time in seconds (from last word's endS)
+  isMarker: boolean           // True if this is a section marker like **[Verse 1]**
+}
+
+interface LineLyricsDisplayProps {
+  lineCues: LineCue[]
+  currentTime: number
+  onLineClick: (startTime: number) => void  // Seek to line start
+  showMarkers?: boolean
+  offset?: number
+}
+
+export function LineLyricsDisplay({
+  lineCues,
+  currentTime,
+  onLineClick,
+  showMarkers = true,
+  offset = 0
+}: LineLyricsDisplayProps) {
+  // Renders lyrics line by line
+  // Highlights current line based on currentTime + offset
+  // Each line is clickable to seek
+  // Auto-scrolls to current line
+  // Section markers rendered with distinct styling
+}
+```
+
+#### 2c. SyncModeToggle Component (`frontend/src/components/SyncModeToggle.tsx`)
+
+**New Component:**
+
+```typescript
+type SyncMode = 'word' | 'line'
+
+interface SyncModeToggleProps {
+  mode: SyncMode
+  onChange: (mode: SyncMode) => void
+}
+
+export function SyncModeToggle({ mode, onChange }: SyncModeToggleProps) {
+  // Toggle between word-level and line-level sync
+  // Persists preference to localStorage
 }
 ```
 
@@ -274,27 +330,65 @@ interface SongHistorySummary {
 }
 ```
 
-### LRC File Format
+### LineCue Model
+
+```typescript
+interface LineCue {
+  lineIndex: number           // 0-based index
+  text: string                // Full line text
+  startTime: number           // Start time in seconds
+  endTime: number             // End time in seconds
+  isMarker: boolean           // True for section markers
+}
+```
+
+### VTT File Format
 
 ```
-[ti:LearningSong - Pop]
-[ar:AI Generated]
-[al:LearningSong]
-[by:LearningSong App]
-[offset:0]
+WEBVTT
 
-[00:20.40]In 
-[00:20.30]the 
-[00:20.40]world 
-[00:20.78]of 
-[00:21.06]science, 
+00:10.212 --> 00:14.792
+In the world of science, a prize was won,
+
+00:14.856 --> 00:18.966
+By Brunkow, Ramsdell, and Sakaguchi's fun,
+
+00:19.012 --> 00:22.602
+They found a way to keep our bodies safe,
+
+00:22.636 --> 00:31.170
+From the immune system going on a rampage.
 ```
 
 **Format Rules:**
-- Timestamps: `[mm:ss.xx]` where xx is centiseconds
-- One word per line for word-level sync
-- Metadata tags at the top
-- Offset tag reflects user's adjustment
+- Header: `WEBVTT` on first line
+- Timestamps: `HH:MM:SS.mmm --> HH:MM:SS.mmm` (hours optional)
+- One line of lyrics per cue
+- Blank line between cues
+- Section markers excluded from VTT output
+
+### Line Aggregation Algorithm
+
+```typescript
+function aggregateWordsToLines(
+  alignedWords: AlignedWord[],
+  editedLyrics: string
+): LineCue[] {
+  // 1. Parse editedLyrics into lines (split by newline)
+  // 2. For each line:
+  //    a. Find matching words in alignedWords by text content
+  //    b. Use first word's startS as line startTime
+  //    c. Use last word's endS as line endTime
+  //    d. Detect if line is a section marker (**...**)
+  // 3. Return array of LineCue objects
+}
+```
+
+**Matching Strategy:**
+- Words in alignedWords contain trailing whitespace/newlines
+- Strip whitespace and compare normalized text
+- Handle word splits (e.g., "we're" split as "we'" + "re")
+- Skip section markers in alignedWords (e.g., `**[Verse 1]**`)
 
 ## Correctness Properties
 
@@ -326,11 +420,11 @@ interface SongHistorySummary {
 
 ### Property 7: Offset persistence round-trip
 *For any* offset value saved to localStorage for a song_id, loading that song should restore the same offset value.
-**Validates: Requirements 2.3, 2.4, 9.1, 9.2**
+**Validates: Requirements 2.3, 2.4, 12.1, 12.2**
 
 ### Property 8: Offset storage LRU eviction
 *For any* offset storage with more than 50 entries, the oldest entries (by updatedAt) should be removed to maintain the 50-entry limit.
-**Validates: Requirements 9.3**
+**Validates: Requirements 12.3**
 
 ### Property 9: Song history ordering
 *For any* list of songs returned by the history API, they should be ordered by created_at in descending order (newest first).
@@ -348,41 +442,57 @@ interface SongHistorySummary {
 *For any* history API response, the number of songs should not exceed 20.
 **Validates: Requirements 6.3**
 
-### Property 13: LRC timestamp format
-*For any* timestamp in the generated LRC file, it should match the pattern `[mm:ss.xx]` where mm is minutes (00-99), ss is seconds (00-59), and xx is centiseconds (00-99).
-**Validates: Requirements 7.3**
+### Property 13: Line aggregation timestamp bounds
+*For any* line aggregated from aligned words, the line's startTime should equal the first word's startS and the line's endTime should equal the last word's endS.
+**Validates: Requirements 7.2, 7.3**
 
-### Property 14: LRC content completeness
-*For any* generated LRC file, it should contain metadata tags (ti, ar, al, by, offset) followed by timestamped lyrics lines.
-**Validates: Requirements 7.4**
+### Property 14: VTT timestamp format
+*For any* timestamp in the generated VTT file, it should match the pattern `HH:MM:SS.mmm` or `MM:SS.mmm` where hours are optional.
+**Validates: Requirements 7.5**
 
-### Property 15: LRC download visibility
-*For any* song with alignedWords.length > 0, the download button should be visible; for alignedWords.length === 0, it should be hidden.
-**Validates: Requirements 7.1, 7.6**
+### Property 15: VTT download visibility
+*For any* song with lineCues.length > 0, the download button should be visible; for lineCues.length === 0, it should be hidden.
+**Validates: Requirements 10.1, 10.5**
+
+### Property 22: Line click navigation
+*For any* click on a lyrics line, the audio player should seek to that line's startTime.
+**Validates: Requirements 8.2**
+
+### Property 23: Current line highlighting
+*For any* playback time T, the highlighted line should be the line where startTime <= T < endTime, or the most recently passed line if T is between lines.
+**Validates: Requirements 9.1, 9.4**
+
+### Property 24: Line aggregation completeness
+*For any* set of edited lyrics lines and aligned words, every non-empty lyrics line should have a corresponding LineCue with valid timestamps.
+**Validates: Requirements 7.2, 7.4**
+
+### Property 25: Sync mode toggle persistence
+*For any* sync mode preference saved to localStorage, loading the playback page should restore the same sync mode.
+**Validates: Requirements 9.5**
 
 ### Property 16: Offset control accessibility
 *For any* rendered OffsetControl component, it should have aria-label, aria-valuemin, aria-valuemax, and aria-valuenow attributes.
-**Validates: Requirements 8.1**
+**Validates: Requirements 11.1**
 
 ### Property 17: Screen reader offset announcement
 *For any* offset value change, the new value should be announced via an aria-live region.
-**Validates: Requirements 8.5**
+**Validates: Requirements 11.5**
 
 ### Property 18: Section marker detection
 *For any* aligned word with text matching the pattern `**...**` (text surrounded by double asterisks), the system should classify it as a section marker.
-**Validates: Requirements 10.1, 10.2**
+**Validates: Requirements 13.1, 13.2**
 
 ### Property 19: Section marker highlighting skip
 *For any* playback time that falls within a section marker's timestamp range, the current word highlight should be applied to the next non-marker word instead of the marker.
-**Validates: Requirements 10.4, 10.5**
+**Validates: Requirements 13.4, 13.5**
 
 ### Property 20: Section marker visibility toggle
 *For any* toggle of marker visibility, the display should immediately update to show or hide all section markers while preserving the highlighting of actual lyrics.
-**Validates: Requirements 11.2, 11.3**
+**Validates: Requirements 14.2, 14.3**
 
 ### Property 21: Section marker visibility persistence
 *For any* marker visibility preference saved to localStorage, loading the lyrics display should restore the same visibility state.
-**Validates: Requirements 11.4, 11.5**
+**Validates: Requirements 14.4, 14.5**
 
 ## Error Handling
 

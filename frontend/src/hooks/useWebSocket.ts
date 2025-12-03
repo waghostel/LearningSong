@@ -34,7 +34,7 @@ interface UseWebSocketReturn {
 
 // Get WebSocket URL from environment
 // Vite exposes import.meta.env, but we'll use a fallback for test environments
-const WS_URL = 'http://localhost:8000' // Default for development and tests
+const WS_URL = 'http://localhost:8001' // Default for development and tests
 const MAX_RECONNECT_ATTEMPTS = 5
 const INITIAL_RECONNECT_DELAY = 1000 // 1 second
 const MAX_RECONNECT_DELAY = 30000 // 30 seconds

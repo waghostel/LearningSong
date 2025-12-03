@@ -19,7 +19,7 @@ Object.defineProperty(global, 'import', {
   value: {
     meta: {
       env: {
-        VITE_API_URL: 'http://localhost:8000',
+        VITE_API_URL: 'http://localhost:8001',
       },
     },
   },
@@ -99,3 +99,6 @@ jest.mock('@/api/client', () => ({
     patch: jest.fn(),
   },
 }))
+
+// Mock scrollIntoView for components that use auto-scroll
+Element.prototype.scrollIntoView = jest.fn()

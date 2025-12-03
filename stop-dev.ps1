@@ -29,9 +29,9 @@ foreach ($proc in $pythonProcesses) {
     }
 }
 
-# Stop processes on port 8000 (Backend)
+# Stop processes on port 8001 (Backend)
 try {
-    $backendProcess = Get-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique
+    $backendProcess = Get-NetTCPConnection -LocalPort 8001 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique
     if ($backendProcess) {
         foreach ($pid in $backendProcess) {
             $process = Get-Process -Id $pid -ErrorAction SilentlyContinue

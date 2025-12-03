@@ -3,7 +3,7 @@
  * Using fast-check for property-based testing
  */
 import * as fc from 'fast-check'
-import { mapErrorToUserFriendly } from '@/pages/SongPlaybackPage'
+import { mapErrorToUserFriendly } from '@/lib/error-mapping-utils'
 
 describe('SongPlaybackPage Property Tests', () => {
   /**

@@ -35,8 +35,8 @@ export default {
     'import.meta': {
       env: {
         DEV: false,
-        VITE_API_URL: 'http://localhost:8000',
-        VITE_WS_URL: 'http://localhost:8000',
+        VITE_API_URL: 'http://localhost:8001',
+        VITE_WS_URL: 'http://localhost:8001',
       },
     },
   },
