@@ -513,6 +513,8 @@
   - Test sync mode toggle switches between word and line display
   - Test current line highlighting during playback
 
-- [ ] 14. Final checkpoint - Ensure all tests pass
+- [-] 14. Final checkpoint - Ensure all tests pass
+
+
   - Ensure all tests pass, ask the user if questions arise.
 
