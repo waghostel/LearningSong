@@ -168,7 +168,7 @@ describe('Section Marker Integration Tests', () => {
 
     await waitFor(() => {
       const marker = screen.getByText(/\*\*\[Verse 1\]\*\*/)
-      const regularLyric = screen.getByText(/First line/)
+      const regularLyric = screen.getByText('First')
       
       // Markers should have different styling
       expect(marker.className).not.toBe(regularLyric.className)

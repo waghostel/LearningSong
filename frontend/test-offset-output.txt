@@ -1,0 +1,194 @@
+
+> frontend@0.0.0 test C:\Users\Cheney\Documents\Github\LearningSong\frontend
+> jest "SongPlaybackPage.offset.test.tsx" "--forceExit"
+
+  console.error
+    Error: AggregateError
+        at Object.dispatchError (C:\Users\Cheney\Documents\Github\LearningSong\frontend\node_modules\.pnpm\jsdom@26.1.0\node_modules\jsdom\lib\jsdom\living\xhr\xhr-utils.js:62:19)
+        at Request.<anonymous> (C:\Users\Cheney\Documents\Github\LearningSong\frontend\node_modules\.pnpm\jsdom@26.1.0\node_modules\jsdom\lib\jsdom\living\xhr\XMLHttpRequest-impl.js:655:18)
+        at Request.emit (node:events:530:35)
+        at ClientRequest.<anonymous> (C:\Users\Cheney\Documents\Github\LearningSong\frontend\node_modules\.pnpm\jsdom@26.1.0\node_modules\jsdom\lib\jsdom\living\helpers\http-request.js:127:14)
+        at ClientRequest.emit (node:events:518:28)
+        at emitErrorEvent (node:_http_client:104:11)
+        at Socket.socketErrorListener (node:_http_client:518:5)
+        at Socket.emit (node:events:518:28)
+        at emitErrorNT (node:internal/streams/destroy:170:8)
+        at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+        at processTicksAndRejections (node:internal/process/task_queues:90:21) {
+      type: 'XMLHttpRequest'
+    }
+
+      at VirtualConsole.<anonymous> (node_modules/.pnpm/@jest+environment-jsdom-abstract@30.2.0_jsdom@26.1.0/node_modules/@jest/environment-jsdom-abstract/build/index.js:87:23)
+      at Object.dispatchError (node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/living/xhr/xhr-utils.js:65:53)
+      at Request.<anonymous> (node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/living/xhr/XMLHttpRequest-impl.js:655:18)
+      at ClientRequest.<anonymous> (node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/living/helpers/http-request.js:127:14)
+
+  console.error
+    Error: AggregateError
+        at Object.dispatchError (C:\Users\Cheney\Documents\Github\LearningSong\frontend\node_modules\.pnpm\jsdom@26.1.0\node_modules\jsdom\lib\jsdom\living\xhr\xhr-utils.js:62:19)
+        at Request.<anonymous> (C:\Users\Cheney\Documents\Github\LearningSong\frontend\node_modules\.pnpm\jsdom@26.1.0\node_modules\jsdom\lib\jsdom\living\xhr\XMLHttpRequest-impl.js:655:18)
+        at Request.emit (node:events:530:35)
+        at ClientRequest.<anonymous> (C:\Users\Cheney\Documents\Github\LearningSong\frontend\node_modules\.pnpm\jsdom@26.1.0\node_modules\jsdom\lib\jsdom\living\helpers\http-request.js:127:14)
+        at ClientRequest.emit (node:events:518:28)
+        at emitErrorEvent (node:_http_client:104:11)
+        at Socket.socketErrorListener (node:_http_client:518:5)
+        at Socket.emit (node:events:518:28)
+        at emitErrorNT (node:internal/streams/destroy:170:8)
+        at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+        at processTicksAndRejections (node:internal/process/task_queues:90:21) {
+      type: 'XMLHttpRequest'
+    }
+
+      at VirtualConsole.<anonymous> (node_modules/.pnpm/@jest+environment-jsdom-abstract@30.2.0_jsdom@26.1.0/node_modules/@jest/environment-jsdom-abstract/build/index.js:87:23)
+      at Object.dispatchError (node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/living/xhr/xhr-utils.js:65:53)
+      at Request.<anonymous> (node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/living/xhr/XMLHttpRequest-impl.js:655:18)
+      at ClientRequest.<anonymous> (node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/living/helpers/http-request.js:127:14)
+
+  console.error
+    Error: AggregateError
+        at Object.dispatchError (C:\Users\Cheney\Documents\Github\LearningSong\frontend\node_modules\.pnpm\jsdom@26.1.0\node_modules\jsdom\lib\jsdom\living\xhr\xhr-utils.js:62:19)
+        at Request.<anonymous> (C:\Users\Cheney\Documents\Github\LearningSong\frontend\node_modules\.pnpm\jsdom@26.1.0\node_modules\jsdom\lib\jsdom\living\xhr\XMLHttpRequest-impl.js:655:18)
+        at Request.emit (node:events:530:35)
+        at ClientRequest.<anonymous> (C:\Users\Cheney\Documents\Github\LearningSong\frontend\node_modules\.pnpm\jsdom@26.1.0\node_modules\jsdom\lib\jsdom\living\helpers\http-request.js:127:14)
+        at ClientRequest.emit (node:events:518:28)
+        at emitErrorEvent (node:_http_client:104:11)
+        at Socket.socketErrorListener (node:_http_client:518:5)
+        at Socket.emit (node:events:518:28)
+        at emitErrorNT (node:internal/streams/destroy:170:8)
+        at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+        at processTicksAndRejections (node:internal/process/task_queues:90:21) {
+      type: 'XMLHttpRequest'
+    }
+
+      at VirtualConsole.<anonymous> (node_modules/.pnpm/@jest+environment-jsdom-abstract@30.2.0_jsdom@26.1.0/node_modules/@jest/environment-jsdom-abstract/build/index.js:87:23)
+      at Object.dispatchError (node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/living/xhr/xhr-utils.js:65:53)
+      at Request.<anonymous> (node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/living/xhr/XMLHttpRequest-impl.js:655:18)
+      at ClientRequest.<anonymous> (node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/living/helpers/http-request.js:127:14)
+
+  console.error
+    Error: AggregateError
+        at Object.dispatchError (C:\Users\Cheney\Documents\Github\LearningSong\frontend\node_modules\.pnpm\jsdom@26.1.0\node_modules\jsdom\lib\jsdom\living\xhr\xhr-utils.js:62:19)
+        at Request.<anonymous> (C:\Users\Cheney\Documents\Github\LearningSong\frontend\node_modules\.pnpm\jsdom@26.1.0\node_modules\jsdom\lib\jsdom\living\xhr\XMLHttpRequest-impl.js:655:18)
+        at Request.emit (node:events:530:35)
+        at ClientRequest.<anonymous> (C:\Users\Cheney\Documents\Github\LearningSong\frontend\node_modules\.pnpm\jsdom@26.1.0\node_modules\jsdom\lib\jsdom\living\helpers\http-request.js:127:14)
+        at ClientRequest.emit (node:events:518:28)
+        at emitErrorEvent (node:_http_client:104:11)
+        at Socket.socketErrorListener (node:_http_client:518:5)
+        at Socket.emit (node:events:518:28)
+        at emitErrorNT (node:internal/streams/destroy:170:8)
+        at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+        at processTicksAndRejections (node:internal/process/task_queues:90:21) {
+      type: 'XMLHttpRequest'
+    }
+
+      at VirtualConsole.<anonymous> (node_modules/.pnpm/@jest+environment-jsdom-abstract@30.2.0_jsdom@26.1.0/node_modules/@jest/environment-jsdom-abstract/build/index.js:87:23)
+      at Object.dispatchError (node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/living/xhr/xhr-utils.js:65:53)
+      at Request.<anonymous> (node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/living/xhr/XMLHttpRequest-impl.js:655:18)
+      at ClientRequest.<anonymous> (node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/living/helpers/http-request.js:127:14)
+
+  console.error
+    Error: AggregateError
+        at Object.dispatchError (C:\Users\Cheney\Documents\Github\LearningSong\frontend\node_modules\.pnpm\jsdom@26.1.0\node_modules\jsdom\lib\jsdom\living\xhr\xhr-utils.js:62:19)
+        at Request.<anonymous> (C:\Users\Cheney\Documents\Github\LearningSong\frontend\node_modules\.pnpm\jsdom@26.1.0\node_modules\jsdom\lib\jsdom\living\xhr\XMLHttpRequest-impl.js:655:18)
+        at Request.emit (node:events:530:35)
+        at ClientRequest.<anonymous> (C:\Users\Cheney\Documents\Github\LearningSong\frontend\node_modules\.pnpm\jsdom@26.1.0\node_modules\jsdom\lib\jsdom\living\helpers\http-request.js:127:14)
+        at ClientRequest.emit (node:events:518:28)
+        at emitErrorEvent (node:_http_client:104:11)
+        at Socket.socketErrorListener (node:_http_client:518:5)
+        at Socket.emit (node:events:518:28)
+        at emitErrorNT (node:internal/streams/destroy:170:8)
+        at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+        at processTicksAndRejections (node:internal/process/task_queues:90:21) {
+      type: 'XMLHttpRequest'
+    }
+
+      at VirtualConsole.<anonymous> (node_modules/.pnpm/@jest+environment-jsdom-abstract@30.2.0_jsdom@26.1.0/node_modules/@jest/environment-jsdom-abstract/build/index.js:87:23)
+      at Object.dispatchError (node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/living/xhr/xhr-utils.js:65:53)
+      at Request.<anonymous> (node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/living/xhr/XMLHttpRequest-impl.js:655:18)
+      at ClientRequest.<anonymous> (node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/living/helpers/http-request.js:127:14)
+
+  console.error
+    Error: AggregateError
+        at Object.dispatchError (C:\Users\Cheney\Documents\Github\LearningSong\frontend\node_modules\.pnpm\jsdom@26.1.0\node_modules\jsdom\lib\jsdom\living\xhr\xhr-utils.js:62:19)
+        at Request.<anonymous> (C:\Users\Cheney\Documents\Github\LearningSong\frontend\node_modules\.pnpm\jsdom@26.1.0\node_modules\jsdom\lib\jsdom\living\xhr\XMLHttpRequest-impl.js:655:18)
+        at Request.emit (node:events:530:35)
+        at ClientRequest.<anonymous> (C:\Users\Cheney\Documents\Github\LearningSong\frontend\node_modules\.pnpm\jsdom@26.1.0\node_modules\jsdom\lib\jsdom\living\helpers\http-request.js:127:14)
+        at ClientRequest.emit (node:events:518:28)
+        at emitErrorEvent (node:_http_client:104:11)
+        at Socket.socketErrorListener (node:_http_client:518:5)
+        at Socket.emit (node:events:518:28)
+        at emitErrorNT (node:internal/streams/destroy:170:8)
+        at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+        at processTicksAndRejections (node:internal/process/task_queues:90:21) {
+      type: 'XMLHttpRequest'
+    }
+
+      at VirtualConsole.<anonymous> (node_modules/.pnpm/@jest+environment-jsdom-abstract@30.2.0_jsdom@26.1.0/node_modules/@jest/environment-jsdom-abstract/build/index.js:87:23)
+      at Object.dispatchError (node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/living/xhr/xhr-utils.js:65:53)
+      at Request.<anonymous> (node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/living/xhr/XMLHttpRequest-impl.js:655:18)
+      at ClientRequest.<anonymous> (node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/living/helpers/http-request.js:127:14)
+
+  console.error
+    Error: AggregateError
+        at Object.dispatchError (C:\Users\Cheney\Documents\Github\LearningSong\frontend\node_modules\.pnpm\jsdom@26.1.0\node_modules\jsdom\lib\jsdom\living\xhr\xhr-utils.js:62:19)
+        at Request.<anonymous> (C:\Users\Cheney\Documents\Github\LearningSong\frontend\node_modules\.pnpm\jsdom@26.1.0\node_modules\jsdom\lib\jsdom\living\xhr\XMLHttpRequest-impl.js:655:18)
+        at Request.emit (node:events:530:35)
+        at ClientRequest.<anonymous> (C:\Users\Cheney\Documents\Github\LearningSong\frontend\node_modules\.pnpm\jsdom@26.1.0\node_modules\jsdom\lib\jsdom\living\helpers\http-request.js:127:14)
+        at ClientRequest.emit (node:events:518:28)
+        at emitErrorEvent (node:_http_client:104:11)
+        at Socket.socketErrorListener (node:_http_client:518:5)
+        at Socket.emit (node:events:518:28)
+        at emitErrorNT (node:internal/streams/destroy:170:8)
+        at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+        at processTicksAndRejections (node:internal/process/task_queues:90:21) {
+      type: 'XMLHttpRequest'
+    }
+
+      at VirtualConsole.<anonymous> (node_modules/.pnpm/@jest+environment-jsdom-abstract@30.2.0_jsdom@26.1.0/node_modules/@jest/environment-jsdom-abstract/build/index.js:87:23)
+      at Object.dispatchError (node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/living/xhr/xhr-utils.js:65:53)
+      at Request.<anonymous> (node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/living/xhr/XMLHttpRequest-impl.js:655:18)
+      at ClientRequest.<anonymous> (node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/living/helpers/http-request.js:127:14)
+
+FAIL tests/SongPlaybackPage.offset.test.tsx
+  SongPlaybackPage Offset Integration
+    Offset Control Visibility
+      ??shows offset control when aligned words are available (193 ms)
+      ??hides offset control when no aligned words (143 ms)
+      ??hides offset control when aligned words array is empty (66 ms)
+    Offset State Management
+      ??initializes offset to 0 by default (122 ms)
+      ??loads saved offset from localStorage on mount (79 ms)
+      ? updates offset when slider changes (59 ms)
+      ??persists offset to localStorage when changed (136 ms)
+    Offset Passed to LyricsDisplay
+      ??passes offset prop to LyricsDisplay component (51 ms)
+    Offset Control Disabled State
+      ??disables offset control when song is expired (61 ms)
+
+  ??SongPlaybackPage Offset Integration ??Offset State Management ??updates offset when slider changes
+
+    clear()` is only supported on editable elements.
+
+      194 |       const slider = screen.getByTestId('offset-slider') as HTMLInputElement
+      195 |       // Use fireEvent to directly change the slider value
+    > 196 |       await user.clear(slider)
+          |                  ^
+      197 |       await user.type(slider, '500')
+      198 |
+      199 |       await waitFor(() => {
+
+      at Object.clear (node_modules/.pnpm/@testing-library+user-event_1ca100c7362ccf0b1358603d616c282d/node_modules/@testing-library/user-event/dist/cjs/utility/clear.js:19:15)
+      at node_modules/.pnpm/@testing-library+user-event_1ca100c7362ccf0b1358603d616c282d/node_modules/@testing-library/user-event/dist/cjs/setup/setup.js:85:45
+      at Object.asyncWrapper (node_modules/.pnpm/@testing-library+react@16.3_ce6abeed40b71d24f89e1a1fb3ab855b/node_modules/@testing-library/react/dist/pure.js:88:28)
+      at Object.wrapAsync (node_modules/.pnpm/@testing-library+user-event_1ca100c7362ccf0b1358603d616c282d/node_modules/@testing-library/user-event/dist/cjs/setup/wrapAsync.js:8:28)
+      at Object.method [as clear] (node_modules/.pnpm/@testing-library+user-event_1ca100c7362ccf0b1358603d616c282d/node_modules/@testing-library/user-event/dist/cjs/setup/setup.js:85:26)
+      at tests/SongPlaybackPage.offset.test.tsx:196:18
+      at fulfilled (tests/SongPlaybackPage.offset.test.tsx:5:58)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 8 passed, 9 total
+Snapshots:   0 total
+Time:        4.225 s
+Ran all test suites matching SongPlaybackPage.offset.test.tsx.
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?
+?LIFECYCLE??Test failed. See above for more details.

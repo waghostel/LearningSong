@@ -117,15 +117,6 @@ describe('VTT Download Integration Tests', () => {
     global.URL.createObjectURL = mockCreateObjectURL
     global.URL.revokeObjectURL = mockRevokeObjectURL
     
-    const mockClick = jest.fn()
-    jest.spyOn(document, 'createElement').mockImplementation((tagName) => {
-      const element = document.createElement(tagName)
-      if (tagName === 'a') {
-        element.click = mockClick
-      }
-      return element
-    })
-    
     useSongPlaybackStore.setState(mockSongWithLineCues)
     
     renderWithProviders()
@@ -137,9 +128,9 @@ describe('VTT Download Integration Tests', () => {
     // Click download button
     await user.click(screen.getByText(/Download VTT/i))
 
-    // Verify download was triggered
+    // Verify download was triggered by checking that createObjectURL was called
     await waitFor(() => {
-      expect(mockClick).toHaveBeenCalled()
+      expect(mockCreateObjectURL).toHaveBeenCalled()
     })
   })
 

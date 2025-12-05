@@ -76,3 +76,9 @@ logs/
 .DS_Store
 Thumbs.db
 backend/firebase-credentials.json.json
+
+# Security audit reports (may contain sensitive data)
+SECURITY_AUDIT_REPORT.md
+
+
+temp/

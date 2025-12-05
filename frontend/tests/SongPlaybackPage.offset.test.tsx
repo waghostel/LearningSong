@@ -4,7 +4,7 @@
  * Tests the integration of offset state management, persistence,
  * and passing to LyricsDisplay component.
  */
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -133,7 +133,7 @@ describe('SongPlaybackPage Offset Integration', () => {
       renderWithProviders('/playback/song-123')
 
       await waitFor(() => {
-        expect(screen.getByText('Lyrics')).toBeInTheDocument()
+        expect(screen.getByRole('heading', { name: /LearningSong/i })).toBeInTheDocument()
       })
 
       expect(screen.queryByTestId('offset-control')).not.toBeInTheDocument()
@@ -148,7 +148,7 @@ describe('SongPlaybackPage Offset Integration', () => {
       renderWithProviders('/playback/song-123')
 
       await waitFor(() => {
-        expect(screen.getByText('Lyrics')).toBeInTheDocument()
+        expect(screen.getByRole('heading', { name: /LearningSong/i })).toBeInTheDocument()
       })
 
       expect(screen.queryByTestId('offset-control')).not.toBeInTheDocument()
@@ -182,7 +182,6 @@ describe('SongPlaybackPage Offset Integration', () => {
     })
 
     it('updates offset when slider changes', async () => {
-      const user = userEvent.setup()
       useSongPlaybackStore.setState(mockSongData)
       
       renderWithProviders('/playback/song-123')
@@ -191,13 +190,14 @@ describe('SongPlaybackPage Offset Integration', () => {
         expect(screen.getByTestId('offset-slider')).toBeInTheDocument()
       })
 
-      const slider = screen.getByTestId('offset-slider')
-      await user.clear(slider)
-      await user.type(slider, '100')
+      const slider = screen.getByTestId('offset-slider') as HTMLInputElement
+      // Use fireEvent to directly change the slider value (range inputs don't support user.clear)
+      fireEvent.change(slider, { target: { value: '500' } })
 
       await waitFor(() => {
         const offsetValue = screen.getByTestId('offset-value')
-        expect(offsetValue).toHaveTextContent('100ms')
+        // Value should have changed from 0ms to 500ms
+        expect(offsetValue.textContent).toContain('500ms')
       })
     })
 

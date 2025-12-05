@@ -13,6 +13,11 @@ import { MusicStyle } from '@/api/songs'
 
 jest.mock('@/hooks/useAuth')
 jest.mock('@/hooks/useNetworkStatus')
+jest.mock('@/api/songs', () => ({
+  ...jest.requireActual('@/api/songs'),
+  updatePrimaryVariation: jest.fn().mockResolvedValue({ success: true, primary_variation_index: 1 }),
+  fetchVariationTimestampedLyrics: jest.fn().mockResolvedValue({ aligned_words: [], waveform_data: [] }),
+}))
 
 const mockedUseAuth = useAuth as jest.MockedFunction<typeof useAuth>
 const mockedUseNetworkStatus = useNetworkStatus as jest.MockedFunction<typeof useNetworkStatus>
@@ -79,8 +84,16 @@ describe('Song Switcher Integration Tests', () => {
       duration: 0,
       isLoading: false,
       error: null,
+      songVariations: [],
+      primaryVariationIndex: 0,
       loadSong: jest.fn().mockResolvedValue(undefined),
       loadSharedSong: jest.fn().mockResolvedValue(undefined),
+      setPrimaryVariationIndex: jest.fn((index: number) => {
+        useSongPlaybackStore.setState({ primaryVariationIndex: index })
+      }),
+      setSongVariations: jest.fn(),
+      setTimestampedLyrics: jest.fn(),
+      clearTimestampedLyrics: jest.fn(),
     })
     
     mockedUseAuth.mockReturnValue({
@@ -143,8 +156,11 @@ describe('Song Switcher Integration Tests', () => {
     const version2Button = screen.getByLabelText(/Version 2/)
     await user.click(version2Button)
 
-    // Verify button is now active
+    // Verify button is now active by checking the store was updated
     await waitFor(() => {
+      const state = useSongPlaybackStore.getState()
+      expect(state.primaryVariationIndex).toBe(1)
+      // Also verify the button has the aria-current attribute
       expect(version2Button).toHaveAttribute('aria-current', 'true')
     })
   })
