@@ -1,0 +1,10 @@
+{
+  "name": "interactive-lyrics-project",
+  "version": "1.0.0",
+  "description": "Interactive lyrics learning application for the 2025 Nobel Prize",
+  "private": true,
+  "scripts": {
+    "dev": "python -m http.server 8000",
+    "deploy": "vercel --prod"
+  }
+}
