@@ -80,5 +80,8 @@ backend/firebase-credentials.json.json
 # Security audit reports (may contain sensitive data)
 SECURITY_AUDIT_REPORT.md
 
-
+# Generated reports and temporary files
+report/
 temp/
+
+

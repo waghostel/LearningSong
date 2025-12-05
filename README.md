@@ -1,5 +1,7 @@
 # LearningSong
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Create music based on learning material
 
 ## Project Structure
@@ -361,4 +363,14 @@ Feature specifications are located in `.kiro/specs/`:
 
 ## License
 
-[Add your license here]
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+### What does this mean?
+
+The MIT License is a permissive open source license that allows you to:
+- ✅ Use the software for any purpose (commercial or personal)
+- ✅ Modify the source code
+- ✅ Distribute copies
+- ✅ Sublicense the software
+
+The only requirement is that you include the original copyright notice and license in any copies or substantial portions of the software.

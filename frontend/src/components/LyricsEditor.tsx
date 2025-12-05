@@ -39,11 +39,11 @@ export const LyricsEditor: React.FC = () => {
   return (
     <Card className="flex-1 flex flex-col min-h-0">
       <CardContent className="p-4 flex-1 flex flex-col min-h-0 gap-2">
-        <div role="group" aria-labelledby="lyrics-editor-label">
+        <div role="group" aria-labelledby="lyrics-editor-label" className="flex-1 flex flex-col min-h-0">
           <label 
             id="lyrics-editor-label" 
             htmlFor="lyrics-editor"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2 block"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2 block shrink-0"
           >
             Edit Lyrics
           </label>
@@ -54,7 +54,7 @@ export const LyricsEditor: React.FC = () => {
           onChange={handleChange}
           placeholder="Enter your lyrics here..."
           className={cn(
-            "flex-1 min-h-[150px] resize-none font-mono",
+            "flex-1 min-h-[200px] h-full resize-none font-mono",
             "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
             isError && "border-red-600 dark:border-red-500 focus-visible:ring-red-600 dark:focus-visible:ring-red-500",
             isWarning && "border-amber-600 dark:border-amber-500 focus-visible:ring-amber-600 dark:focus-visible:ring-amber-500"
@@ -66,7 +66,7 @@ export const LyricsEditor: React.FC = () => {
           spellCheck="true"
         />
         
-        <div className="flex items-center justify-between shrink-0">
+        <div className="flex items-center justify-between shrink-0 mt-2">
           <p 
             id="lyrics-help" 
             className={cn(
