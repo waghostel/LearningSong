@@ -6,8 +6,8 @@ import time
 from typing import TypedDict, Optional
 from langgraph.graph import StateGraph, END
 from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
 from app.services.google_search import get_search_service
+from app.prompts import SUMMARIZE_CONTENT_PROMPT, CONVERT_TO_LYRICS_PROMPT
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -254,14 +254,7 @@ class LyricsPipeline:
         )
         state["current_stage"] = "summarizing"
         
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", """You are an educational content expert. Extract 3-5 key learning points 
-            from the provided content. Keep the summary concise (max 500 words) and focus on 
-            the most important concepts that would be valuable to remember in a song."""),
-            ("user", "{content}")
-        ])
-        
-        chain = prompt | self.llm
+        chain = SUMMARIZE_CONTENT_PROMPT | self.llm
         
         try:
             response = await chain.ainvoke({"content": state["cleaned_text"]})
@@ -377,23 +370,7 @@ class LyricsPipeline:
         )
         state["current_stage"] = "converting"
         
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", """You are a creative songwriter specializing in educational songs. 
-            Convert the provided learning points into engaging, memorable song lyrics.
-            
-            Requirements:
-            - Use a clear song structure (Verse 1, Chorus, Verse 2, Chorus, Bridge, Final Chorus)
-            - Make it rhyme naturally and have good rhythm
-            - Keep the educational content accurate
-            - Make it catchy and easy to remember
-            - Aim for 200-400 words total
-            - Use simple, clear language
-            
-            Format the output with clear section labels like [Verse 1], [Chorus], etc."""),
-            ("user", "{summary}")
-        ])
-        
-        chain = prompt | self.llm
+        chain = CONVERT_TO_LYRICS_PROMPT | self.llm
         
         try:
             response = await chain.ainvoke({"summary": state["summary"]})
