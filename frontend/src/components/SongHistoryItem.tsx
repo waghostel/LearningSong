@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { Music, Calendar, Clock, ChevronRight } from 'lucide-react'
+import { Calendar, Clock, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { MusicStyle, type SongHistorySummary } from '@/api/songs'
 import { formatDate, getTimeRemaining } from '@/lib/song-metadata-utils'

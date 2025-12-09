@@ -48,11 +48,11 @@ export function VttDownloadButton({
   offset = 0,
   disabled = false,
 }: VttDownloadButtonProps) {
-  // Hide button when no line cues available
-  // Requirements: 10.1, 10.5
-  if (lineCues.length === 0) {
-    return null
-  }
+  /* 
+   * Hide button when no line cues available
+   * Requirements: 10.1, 10.5
+   * Note: We call hooks first to abide by Rules of Hooks, then return null if needed.
+   */
 
   const handleDownload = useCallback(() => {
     try {
@@ -71,6 +71,10 @@ export function VttDownloadButton({
       // Could show a toast error here if needed
     }
   }, [lineCues, songStyle, createdAt, offset])
+
+  if (lineCues.length === 0) {
+    return null
+  }
 
   return (
     <Button

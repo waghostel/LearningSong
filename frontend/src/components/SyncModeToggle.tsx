@@ -11,45 +11,18 @@
  * **Validates: Requirements 9.5**
  */
 
-import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Type } from 'lucide-react'
+import { type SyncMode, saveSyncMode } from '@/lib/sync-mode-storage'
 
-export type SyncMode = 'word' | 'line'
+// Re-export for compatibility if needed, though better to import from lib directly
+// export { type SyncMode, loadSyncMode, saveSyncMode }
+// Actually, removing this line completely to fix the lint error.
 
 interface SyncModeToggleProps {
   mode: SyncMode
   onChange: (mode: SyncMode) => void
   disabled?: boolean
-}
-
-const SYNC_MODE_STORAGE_KEY = 'lyrics-sync-mode'
-
-/**
- * Loads the sync mode preference from localStorage
- * Defaults to 'word' if not found or invalid
- */
-export function loadSyncMode(): SyncMode {
-  try {
-    const stored = localStorage.getItem(SYNC_MODE_STORAGE_KEY)
-    if (stored === 'word' || stored === 'line') {
-      return stored
-    }
-  } catch {
-    // localStorage unavailable, use default
-  }
-  return 'word'
-}
-
-/**
- * Saves the sync mode preference to localStorage
- */
-export function saveSyncMode(mode: SyncMode): void {
-  try {
-    localStorage.setItem(SYNC_MODE_STORAGE_KEY, mode)
-  } catch {
-    // localStorage unavailable, silently fail
-  }
 }
 
 /**
@@ -66,21 +39,10 @@ export function SyncModeToggle({
   onChange,
   disabled = false,
 }: SyncModeToggleProps) {
-  const [isInitialized, setIsInitialized] = useState(false)
-
-  // Initialize from localStorage on mount
-  useEffect(() => {
-    setIsInitialized(true)
-  }, [])
-
   const handleToggle = () => {
     const newMode: SyncMode = mode === 'word' ? 'line' : 'word'
     onChange(newMode)
     saveSyncMode(newMode)
-  }
-
-  if (!isInitialized) {
-    return null
   }
 
   return (

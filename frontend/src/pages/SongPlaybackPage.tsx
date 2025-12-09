@@ -13,8 +13,10 @@ import { SongMetadata } from '@/components/SongMetadata'
 import { ShareButton } from '@/components/ShareButton'
 import { SongSwitcher } from '@/components/SongSwitcher'
 import { OffsetControl } from '@/components/OffsetControl'
-import { MarkerVisibilityToggle, loadMarkerVisibility } from '@/components/MarkerVisibilityToggle'
-import { SyncModeToggle, loadSyncMode, saveSyncMode, type SyncMode } from '@/components/SyncModeToggle'
+import { MarkerVisibilityToggle } from '@/components/MarkerVisibilityToggle'
+import { loadMarkerVisibility } from '@/lib/marker-visibility'
+import { SyncModeToggle } from '@/components/SyncModeToggle'
+import { loadSyncMode, saveSyncMode, type SyncMode } from '@/lib/sync-mode-storage'
 import { VttDownloadButton } from '@/components/VttDownloadButton'
 import { RateLimitIndicator } from '@/components/RateLimitIndicator'
 import { OfflineIndicator } from '@/components/OfflineIndicator'
@@ -23,6 +25,7 @@ import { RefreshCw, ArrowLeft, AlertCircle } from 'lucide-react'
 import { getTimeRemaining } from '@/lib/song-metadata-utils'
 import { mapErrorToUserFriendly } from '@/lib/error-mapping-utils'
 import { loadOffset, saveOffset } from '@/lib/offset-storage'
+
 import { hasMarkers } from '@/lib/section-marker-utils'
 import { aggregateWordsToLines } from '@/lib/vtt-generator'
 
@@ -130,10 +133,14 @@ export function SongPlaybackPage() {
   useEffect(() => {
     if (songId && !offsetLoaded) {
       const savedOffset = loadOffset(songId)
+      // We need to update state based on external storage when songId becomes available
+      // This causes a re-render which is expected for data synchronization
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOffset(savedOffset)
       setOffsetLoaded(true)
     }
   }, [songId, offsetLoaded])
+
 
   // Handle offset changes and persist to localStorage
   // Requirements: 2.3

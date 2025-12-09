@@ -26,6 +26,12 @@ export const generateLyrics = async (
   return apiClient.post<GenerateLyricsResponse>('/api/lyrics/generate', request)
 }
 
+export const regenerateLyrics = async (
+  request: GenerateLyricsRequest
+): Promise<GenerateLyricsResponse> => {
+  return apiClient.post<GenerateLyricsResponse>('/api/lyrics/regenerate', request)
+}
+
 export const getRateLimit = async (): Promise<RateLimitResponse> => {
   return apiClient.get<RateLimitResponse>('/api/lyrics/rate-limit')
 }

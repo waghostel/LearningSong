@@ -8,10 +8,16 @@ from educational content and checking user rate limits.
 import logging
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.models.lyrics import GenerateLyricsRequest, GenerateLyricsResponse
+from app.models.lyrics import GenerateLyricsRequest, RegenerateLyricsRequest, GenerateLyricsResponse
 from app.models.user import RateLimitResponse
 from app.core.auth import get_current_user
-from app.services.rate_limiter import check_rate_limit, get_rate_limit, increment_usage
+from app.services.rate_limiter import (
+    check_rate_limit,
+    get_rate_limit,
+    increment_usage,
+    check_regeneration_limit,
+    increment_regeneration_usage
+)
 from app.services.cache import generate_content_hash, check_lyrics_cache, store_lyrics_cache
 from app.services.ai_pipeline import LyricsPipeline
 from app.core.firebase import get_firestore_client
@@ -189,6 +195,137 @@ async def generate_lyrics(
             detail=f"Failed to generate lyrics: {str(e)}"
         )
 
+
+@router.post("/regenerate", response_model=GenerateLyricsResponse)
+async def regenerate_lyrics(
+    request: RegenerateLyricsRequest,
+    user_id: str = Depends(get_current_user)
+) -> GenerateLyricsResponse:
+    """
+    Regenerate song lyrics from educational content.
+    
+    This endpoint regenerates lyrics using the AI pipeline with a separate
+    rate limit counter from song generation. It allows users to get new
+    variations of lyrics without consuming their song generation quota.
+    
+    Args:
+        request: Request containing content and search_enabled flag
+        user_id: Authenticated user ID from Firebase token
+        
+    Returns:
+        GenerateLyricsResponse with lyrics, content_hash, cached flag, and processing_time
+        
+    Raises:
+        HTTPException: 429 if regeneration rate limit exceeded
+        HTTPException: 400 if content validation fails
+        HTTPException: 500 if pipeline execution fails
+        
+    Requirements: 1.1, 7.1
+    """
+    logger.info(
+        f"Regenerate lyrics request from user {user_id[:8]}...",
+        extra={
+            'extra_fields': {
+                'user_id': user_id,
+                'content_length': len(request.content),
+                'search_enabled': request.search_enabled,
+                'endpoint': 'regenerate_lyrics'
+            }
+        }
+    )
+    
+    try:
+        # Step 1: Check regeneration rate limit (independent from song generation)
+        await check_regeneration_limit(user_id)
+        
+        # Step 2: Generate content hash
+        content_hash = generate_content_hash(request.content)
+        
+        # Step 3: Execute AI pipeline (no cache check for regeneration - always generate fresh)
+        pipeline = LyricsPipeline()
+        result = await pipeline.execute(
+            content=request.content,
+            search_enabled=request.search_enabled
+        )
+        
+        logger.info(
+            f"Regeneration pipeline completed in {result['processing_time']:.2f}s",
+            extra={
+                'extra_fields': {
+                    'user_id': user_id,
+                    'content_hash': result['content_hash'][:16],
+                    'processing_time': round(result['processing_time'], 3),
+                    'lyrics_length': len(result['lyrics'])
+                }
+            }
+        )
+        
+        # Step 4: Store in lyrics history with regeneration flag
+        firestore_client = get_firestore_client()
+        from datetime import datetime, timezone
+        
+        history_ref = firestore_client.collection('lyrics_history').document()
+        history_ref.set({
+            'user_id': user_id,
+            'content_hash': result['content_hash'],
+            'lyrics': result['lyrics'],
+            'search_enabled': request.search_enabled,
+            'processing_time': result['processing_time'],
+            'created_at': datetime.now(timezone.utc),
+            'content_preview': request.content[:200],
+            'is_regeneration': True  # Flag to distinguish from original generation
+        })
+        
+        # Step 5: Increment regeneration usage (NOT song generation usage)
+        await increment_regeneration_usage(user_id)
+        
+        logger.info(
+            f"Successfully regenerated lyrics",
+            extra={
+                'extra_fields': {
+                    'user_id': user_id,
+                    'content_hash': result['content_hash'][:16],
+                    'success': True,
+                    'is_regeneration': True
+                }
+            }
+        )
+        
+        return GenerateLyricsResponse(**result)
+        
+    except HTTPException:
+        # Re-raise HTTP exceptions (like rate limit errors)
+        raise
+    except ValueError as e:
+        # Handle validation errors
+        logger.error(
+            f"Validation error during regeneration: {str(e)}",
+            extra={
+                'extra_fields': {
+                    'user_id': user_id,
+                    'error_type': 'validation',
+                    'error': str(e)
+                }
+            }
+        )
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        # Handle unexpected errors
+        logger.error(
+            f"Unexpected error regenerating lyrics: {str(e)}",
+            extra={
+                'extra_fields': {
+                    'user_id': user_id,
+                    'error_type': 'unexpected',
+                    'error': str(e)
+                }
+            },
+            exc_info=True
+        )
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to regenerate lyrics: {str(e)}"
+        )
 
 
 @router.get("/rate-limit", response_model=RateLimitResponse)

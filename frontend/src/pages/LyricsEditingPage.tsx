@@ -45,6 +45,8 @@ export function LyricsEditingPage() {
     songUrl,
     songVariations,
     primaryVariationIndex,
+    versions,
+    activeVersionId,
     reset
   } = useLyricsEditingStore()
   
@@ -105,8 +107,21 @@ export function LyricsEditingPage() {
   }, [generationStatus, songUrl, songId, sendNotification, navigate, editedLyrics, selectedStyle, songVariations, primaryVariationIndex])
 
   const handleGenerateSong = () => {
+    // Requirements 4.3, 5.5: Use active version's lyrics
+    // If versions exist, use the active version's edited lyrics (if present) or original lyrics
+    // Otherwise, fall back to editedLyrics from store
+    let lyricsToUse = editedLyrics
+    
+    if (versions.length > 0 && activeVersionId) {
+      const activeVersion = versions.find(v => v.id === activeVersionId)
+      if (activeVersion) {
+        // Use editedLyrics if present, otherwise use original lyrics
+        lyricsToUse = activeVersion.editedLyrics || activeVersion.lyrics
+      }
+    }
+    
     generate({
-      lyrics: editedLyrics,
+      lyrics: lyricsToUse,
       style: selectedStyle,
       content_hash: contentHash
     })

@@ -4,7 +4,6 @@
  * **Feature: song-playback-improvements**
  * **Validates: Requirements 14.1, 14.2, 14.3, 14.4, 14.5**
  */
-import * as React from 'react'
 import { cn } from '@/lib/utils'
 
 export interface MarkerVisibilityToggleProps {
@@ -14,34 +13,7 @@ export interface MarkerVisibilityToggleProps {
   className?: string
 }
 
-const STORAGE_KEY = 'lyrics-marker-visibility'
-
-/**
- * Load marker visibility preference from localStorage
- */
-export function loadMarkerVisibility(): boolean {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored !== null) {
-      return stored === 'true'
-    }
-  } catch (error) {
-    console.warn('Failed to load marker visibility preference:', error)
-  }
-  // Default to showing markers
-  return true
-}
-
-/**
- * Save marker visibility preference to localStorage
- */
-export function saveMarkerVisibility(showMarkers: boolean): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, String(showMarkers))
-  } catch (error) {
-    console.warn('Failed to save marker visibility preference:', error)
-  }
-}
+import { saveMarkerVisibility } from '@/lib/marker-visibility'
 
 /**
  * Toggle switch for showing/hiding section markers in lyrics display

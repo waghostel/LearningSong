@@ -33,6 +33,40 @@ class GenerateLyricsRequest(BaseModel):
         return v
 
 
+class RegenerateLyricsRequest(BaseModel):
+    """Request model for lyrics regeneration.
+    
+    This model is used when regenerating lyrics from existing content.
+    The regeneration uses a separate rate limit counter from song generation.
+    """
+    
+    content: str = Field(
+        ...,
+        description="Educational content to regenerate lyrics from",
+        max_length=100000  # ~10k words with average word length
+    )
+    search_enabled: bool = Field(
+        default=False,
+        description="Whether to enrich content with Google Search"
+    )
+    
+    @field_validator('content')
+    @classmethod
+    def validate_content(cls, v: str) -> str:
+        """Validate content is not empty and within word limit."""
+        if not v or not v.strip():
+            raise ValueError('Content cannot be empty')
+        
+        word_count = len(v.strip().split())
+        if word_count > 10000:
+            raise ValueError(
+                f'Content exceeds 10,000 word limit (current: {word_count} words). '
+                f'Please reduce the content length.'
+            )
+        
+        return v
+
+
 class GenerateLyricsResponse(BaseModel):
     """Response model for lyrics generation."""
     

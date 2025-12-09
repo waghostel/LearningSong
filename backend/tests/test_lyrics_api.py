@@ -290,3 +290,226 @@ class TestAuthenticationRequired:
         response = await client.get("/api/lyrics/rate-limit")
         
         assert response.status_code == 403
+
+
+class TestRegenerateLyricsEndpoint:
+    """Tests for POST /api/lyrics/regenerate endpoint.
+    
+    Requirements: 1.1, 1.4, 7.2
+    """
+    
+    @pytest.mark.asyncio
+    async def test_regenerate_lyrics_happy_path(
+        self,
+        client: AsyncClient,
+        mock_user_id: str,
+        sample_content: str,
+        sample_lyrics: str
+    ):
+        """Test successful lyrics regeneration with valid content."""
+        # Override authentication dependency
+        app.dependency_overrides[get_current_user] = lambda: mock_user_id
+        
+        # Mock services
+        with patch('app.api.lyrics.check_regeneration_limit', new_callable=AsyncMock):
+            mock_pipeline_result = {
+                'lyrics': sample_lyrics,
+                'content_hash': 'abc123hash',
+                'cached': False,
+                'processing_time': 12.5
+            }
+            with patch('app.api.lyrics.LyricsPipeline') as mock_pipeline_class:
+                mock_pipeline = MagicMock()
+                mock_pipeline.execute = AsyncMock(return_value=mock_pipeline_result)
+                mock_pipeline_class.return_value = mock_pipeline
+                
+                with patch('app.api.lyrics.get_firestore_client') as mock_firestore:
+                    mock_collection = MagicMock()
+                    mock_doc = MagicMock()
+                    mock_firestore.return_value.collection.return_value = mock_collection
+                    mock_collection.document.return_value = mock_doc
+                    
+                    with patch('app.api.lyrics.increment_regeneration_usage', new_callable=AsyncMock):
+                        response = await client.post(
+                            "/api/lyrics/regenerate",
+                            json={
+                                "content": sample_content,
+                                "search_enabled": False
+                            }
+                        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data['lyrics'] == sample_lyrics
+        assert data['content_hash'] == 'abc123hash'
+        assert data['cached'] is False
+        assert data['processing_time'] == 12.5
+    
+    @pytest.mark.asyncio
+    async def test_regenerate_lyrics_rate_limit_exceeded(
+        self,
+        client: AsyncClient,
+        mock_user_id: str,
+        sample_content: str
+    ):
+        """Test regeneration when rate limit is exceeded (429 error)."""
+        from fastapi import HTTPException
+        
+        app.dependency_overrides[get_current_user] = lambda: mock_user_id
+        
+        async def mock_check_regeneration_limit(user_id):
+            raise HTTPException(
+                status_code=429,
+                detail={
+                    'error': 'Regeneration limit exceeded',
+                    'message': 'You have reached your daily limit of 10 lyrics regenerations',
+                    'retry_after': 3600
+                }
+            )
+        
+        with patch('app.api.lyrics.check_regeneration_limit', side_effect=mock_check_regeneration_limit):
+            response = await client.post(
+                "/api/lyrics/regenerate",
+                json={
+                    "content": sample_content,
+                    "search_enabled": False
+                }
+            )
+        
+        assert response.status_code == 429
+    
+    @pytest.mark.asyncio
+    async def test_regenerate_lyrics_empty_content(
+        self,
+        client: AsyncClient,
+        mock_user_id: str
+    ):
+        """Test regeneration with empty content (400 error)."""
+        app.dependency_overrides[get_current_user] = lambda: mock_user_id
+        
+        response = await client.post(
+            "/api/lyrics/regenerate",
+            json={
+                "content": "",
+                "search_enabled": False
+            }
+        )
+        
+        assert response.status_code == 422
+    
+    @pytest.mark.asyncio
+    async def test_regenerate_lyrics_content_too_long(
+        self,
+        client: AsyncClient,
+        mock_user_id: str
+    ):
+        """Test regeneration with content exceeding word limit."""
+        app.dependency_overrides[get_current_user] = lambda: mock_user_id
+        
+        long_content = " ".join(["word"] * 10001)
+        
+        response = await client.post(
+            "/api/lyrics/regenerate",
+            json={
+                "content": long_content,
+                "search_enabled": False
+            }
+        )
+        
+        assert response.status_code == 422
+    
+    @pytest.mark.asyncio
+    async def test_regenerate_lyrics_pipeline_failure(
+        self,
+        client: AsyncClient,
+        mock_user_id: str,
+        sample_content: str
+    ):
+        """Test regeneration handling when AI pipeline fails (500 error)."""
+        app.dependency_overrides[get_current_user] = lambda: mock_user_id
+        
+        with patch('app.api.lyrics.check_regeneration_limit', new_callable=AsyncMock):
+            with patch('app.api.lyrics.LyricsPipeline') as mock_pipeline_class:
+                mock_pipeline = MagicMock()
+                mock_pipeline.execute = AsyncMock(side_effect=Exception("Pipeline execution failed"))
+                mock_pipeline_class.return_value = mock_pipeline
+                
+                response = await client.post(
+                    "/api/lyrics/regenerate",
+                    json={
+                        "content": sample_content,
+                        "search_enabled": False
+                    }
+                )
+        
+        assert response.status_code == 500
+        data = response.json()
+        assert "Failed to regenerate lyrics" in data['detail']
+    
+    @pytest.mark.asyncio
+    async def test_regenerate_lyrics_no_auth(
+        self,
+        client: AsyncClient,
+        sample_content: str
+    ):
+        """Test that regenerate endpoint requires authentication."""
+        response = await client.post(
+            "/api/lyrics/regenerate",
+            json={
+                "content": sample_content,
+                "search_enabled": False
+            }
+        )
+        
+        assert response.status_code == 403
+    
+    @pytest.mark.asyncio
+    async def test_regenerate_does_not_increment_song_usage(
+        self,
+        client: AsyncClient,
+        mock_user_id: str,
+        sample_content: str,
+        sample_lyrics: str
+    ):
+        """Test that regeneration increments regeneration usage, not song usage."""
+        app.dependency_overrides[get_current_user] = lambda: mock_user_id
+        
+        with patch('app.api.lyrics.check_regeneration_limit', new_callable=AsyncMock) as mock_check_regen:
+            mock_pipeline_result = {
+                'lyrics': sample_lyrics,
+                'content_hash': 'abc123hash',
+                'cached': False,
+                'processing_time': 10.0
+            }
+            with patch('app.api.lyrics.LyricsPipeline') as mock_pipeline_class:
+                mock_pipeline = MagicMock()
+                mock_pipeline.execute = AsyncMock(return_value=mock_pipeline_result)
+                mock_pipeline_class.return_value = mock_pipeline
+                
+                with patch('app.api.lyrics.get_firestore_client') as mock_firestore:
+                    mock_collection = MagicMock()
+                    mock_doc = MagicMock()
+                    mock_firestore.return_value.collection.return_value = mock_collection
+                    mock_collection.document.return_value = mock_doc
+                    
+                    with patch('app.api.lyrics.increment_regeneration_usage', new_callable=AsyncMock) as mock_incr_regen:
+                        with patch('app.api.lyrics.increment_usage', new_callable=AsyncMock) as mock_incr_song:
+                            response = await client.post(
+                                "/api/lyrics/regenerate",
+                                json={
+                                    "content": sample_content,
+                                    "search_enabled": False
+                                }
+                            )
+                            
+                            # Verify regeneration limit was checked
+                            mock_check_regen.assert_called_once_with(mock_user_id)
+                            
+                            # Verify regeneration usage was incremented
+                            mock_incr_regen.assert_called_once_with(mock_user_id)
+                            
+                            # Verify song usage was NOT incremented
+                            mock_incr_song.assert_not_called()
+        
+        assert response.status_code == 200
+

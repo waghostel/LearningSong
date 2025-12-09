@@ -1,7 +1,21 @@
 import * as React from 'react'
+import { useState } from 'react'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { useLyricsEditingStore } from '@/stores/lyricsEditingStore'
+import { useRegenerateLyrics } from '@/hooks/useRegenerateLyrics'
+import { VersionSelector } from '@/components/VersionSelector'
+import { RegenerationError } from '@/components/RegenerationError'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { cn } from '@/lib/utils'
 
 const MAX_CHARS = 3000
@@ -9,15 +23,39 @@ const WARNING_THRESHOLD = 2700
 const MIN_CHARS = 50
 
 export const LyricsEditor: React.FC = () => {
-  const { editedLyrics, setEditedLyrics } = useLyricsEditingStore()
+  const { 
+    editedLyrics, 
+    setEditedLyrics, 
+    activeVersionId, 
+    updateVersionEdits,
+    versions,
+    setActiveVersion,
+    deleteVersion,
+    isRegenerating,
+    regenerationError,
+  } = useLyricsEditingStore()
+  
+  // Get retry functionality from regeneration hook (Requirements: 1.4)
+  const { retry, canRetry, getErrorType, isRegenerating: isRetrying } = useRegenerateLyrics()
+  
+  // State for delete confirmation dialog (Requirements: 6.5)
+  const [versionToDelete, setVersionToDelete] = useState<string | null>(null)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   
   const charCount = editedLyrics.length
   const isWarning = charCount >= WARNING_THRESHOLD && charCount <= MAX_CHARS
   const isError = charCount > MAX_CHARS
   const isTooShort = charCount > 0 && charCount < MIN_CHARS
   
+  // Handle textarea change with edit tracking (Requirements: 5.1, 5.3)
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setEditedLyrics(e.target.value)
+    const newValue = e.target.value
+    setEditedLyrics(newValue)
+    
+    // Track edits to the active version if there is one
+    if (activeVersionId) {
+      updateVersionEdits(activeVersionId, newValue)
+    }
   }
   
   // Get status message for screen readers
@@ -36,9 +74,54 @@ export const LyricsEditor: React.FC = () => {
     return 'Edit your lyrics as needed. Undo/redo supported (Ctrl+Z/Ctrl+Y).'
   }
   
+  // Handle version selection (Requirements: 2.2, 2.4)
+  const handleVersionSelect = (versionId: string) => {
+    setActiveVersion(versionId)
+  }
+
+  // Handle version deletion request - show confirmation dialog (Requirements: 6.5)
+  const handleVersionDeleteRequest = (versionId: string) => {
+    setVersionToDelete(versionId)
+    setShowDeleteConfirm(true)
+  }
+
+  // Confirm version deletion (Requirements: 6.1, 6.2, 6.3)
+  const handleConfirmDelete = () => {
+    if (versionToDelete) {
+      deleteVersion(versionToDelete)
+    }
+    setShowDeleteConfirm(false)
+    setVersionToDelete(null)
+  }
+
+  // Cancel version deletion
+  const handleCancelDelete = () => {
+    setShowDeleteConfirm(false)
+    setVersionToDelete(null)
+  }
+  
   return (
+    <>
     <Card className="flex-1 flex flex-col min-h-0">
       <CardContent className="p-4 flex-1 flex flex-col min-h-0 gap-2">
+        {/* Version Selector positioned above lyrics textarea (Requirements: 6.4) */}
+        <VersionSelector
+          versions={versions}
+          activeVersionId={activeVersionId}
+          onVersionSelect={handleVersionSelect}
+          onVersionDelete={handleVersionDeleteRequest}
+          disabled={isRegenerating}
+        />
+        
+        {/* Regeneration Error Display (Requirements: 1.4, 7.2) */}
+        <RegenerationError
+          errorMessage={regenerationError}
+          errorType={getErrorType()}
+          canRetry={canRetry}
+          onRetry={retry}
+          isRetrying={isRetrying}
+        />
+        
         <div role="group" aria-labelledby="lyrics-editor-label" className="flex-1 flex flex-col min-h-0">
           <label 
             id="lyrics-editor-label" 
@@ -107,5 +190,24 @@ export const LyricsEditor: React.FC = () => {
         </div>
       </CardContent>
     </Card>
+    
+    {/* Delete confirmation dialog (Requirements: 6.5) */}
+    <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Version</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete this version? This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={handleCancelDelete}>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleConfirmDelete}>
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   )
 }

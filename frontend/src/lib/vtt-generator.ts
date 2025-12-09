@@ -66,7 +66,7 @@ function findMatchingWords(
 ): { words: AlignedWord[]; nextIndex: number } {
   const lineWords = extractWordsFromLine(lineText)
   const matchedWords: AlignedWord[] = []
-  let alignedIndex = startIndex
+  const alignedIndex = startIndex
 
   // Try to match each aligned word to line words
   for (let i = alignedIndex; i < alignedWords.length; i++) {
