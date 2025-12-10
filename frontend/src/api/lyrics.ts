@@ -6,6 +6,11 @@ export interface GenerateLyricsRequest {
   search_enabled: boolean
 }
 
+export interface RegenerateLyricsRequest extends GenerateLyricsRequest {
+  variation_counter?: number  // Which regeneration attempt (1, 2, 3, etc.)
+  previous_lyrics?: string    // Previous generated lyrics to avoid repeating
+}
+
 export interface GenerateLyricsResponse {
   lyrics: string
   content_hash: string
@@ -27,7 +32,7 @@ export const generateLyrics = async (
 }
 
 export const regenerateLyrics = async (
-  request: GenerateLyricsRequest
+  request: RegenerateLyricsRequest
 ): Promise<GenerateLyricsResponse> => {
   return apiClient.post<GenerateLyricsResponse>('/api/lyrics/regenerate', request)
 }

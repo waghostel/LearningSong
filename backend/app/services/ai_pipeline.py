@@ -25,16 +25,25 @@ class PipelineState(TypedDict):
     error: Optional[str]
     content_hash: str
     current_stage: str
+    variation_counter: int  # Which regeneration attempt (1, 2, 3, etc.)
+    previous_lyrics: str  # Previous generated lyrics to avoid repeating
 
 
 class LyricsPipeline:
     """LangGraph-based pipeline for converting educational content to lyrics."""
     
-    def __init__(self):
-        """Initialize the lyrics generation pipeline."""
-        self.llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.7)
+    def __init__(self, temperature: float = 0.7):
+        """
+        Initialize the lyrics generation pipeline.
+        
+        Args:
+            temperature: LLM temperature for creativity (0.0-1.0).
+                        Default 0.7 for balanced creativity.
+                        Use 0.9+ for regeneration to increase variation.
+        """
+        self.llm = ChatOpenAI(model="gpt-4o-mini", temperature=temperature)
         self.graph = self._build_graph()
-        logger.info("LyricsPipeline initialized")
+        logger.info(f"LyricsPipeline initialized with temperature={temperature}")
     
     def _build_graph(self) -> StateGraph:
         """Build the LangGraph state machine for lyrics generation."""
@@ -248,16 +257,28 @@ class LyricsPipeline:
             extra={
                 'extra_fields': {
                     'stage': 'summarize',
-                    'input_length': len(state["cleaned_text"])
+                    'input_length': len(state["cleaned_text"]),
+                    'variation_counter': state.get("variation_counter", 1)
                 }
             }
         )
         state["current_stage"] = "summarizing"
         
-        chain = SUMMARIZE_CONTENT_PROMPT | self.llm
+        # Use regeneration summarization prompt if variation counter > 1
+        if state.get("variation_counter", 1) > 1:
+            from app.prompts import REGENERATE_SUMMARIZE_PROMPT
+            chain = REGENERATE_SUMMARIZE_PROMPT | self.llm
+            prompt_vars = {
+                "content": state["cleaned_text"],
+                "variation_counter": state.get("variation_counter", 1)
+            }
+        else:
+            from app.prompts import SUMMARIZE_CONTENT_PROMPT
+            chain = SUMMARIZE_CONTENT_PROMPT | self.llm
+            prompt_vars = {"content": state["cleaned_text"]}
         
         try:
-            response = await chain.ainvoke({"content": state["cleaned_text"]})
+            response = await chain.ainvoke(prompt_vars)
             state["summary"] = response.content
             
             elapsed_time = time.time() - start_time
@@ -268,7 +289,8 @@ class LyricsPipeline:
                         'stage': 'summarize',
                         'execution_time': round(elapsed_time, 3),
                         'summary_length': len(state['summary']),
-                        'word_count': len(state['summary'].split())
+                        'word_count': len(state['summary'].split()),
+                        'variation_counter': state.get("variation_counter", 1)
                     }
                 }
             )
@@ -280,7 +302,8 @@ class LyricsPipeline:
                     'extra_fields': {
                         'stage': 'summarize',
                         'execution_time': round(elapsed_time, 3),
-                        'error': str(e)
+                        'error': str(e),
+                        'variation_counter': state.get("variation_counter", 1)
                     }
                 }
             )
@@ -364,16 +387,36 @@ class LyricsPipeline:
             extra={
                 'extra_fields': {
                     'stage': 'convert',
-                    'summary_length': len(state["summary"])
+                    'summary_length': len(state["summary"]),
+                    'variation_counter': state.get("variation_counter", 1),
+                    'has_previous_lyrics': bool(state.get("previous_lyrics"))
                 }
             }
         )
         state["current_stage"] = "converting"
         
-        chain = CONVERT_TO_LYRICS_PROMPT | self.llm
+        # Use regeneration prompt if variation counter is provided
+        if state.get("variation_counter", 1) > 1 or state.get("previous_lyrics"):
+            from app.prompts import REGENERATE_TO_LYRICS_PROMPT
+            
+            # Build previous context string
+            previous_context = ""
+            if state.get("previous_lyrics"):
+                previous_context = f"PATTERNS TO AVOID FROM PREVIOUS VERSION:\n{state['previous_lyrics'][:1000]}\n\nCreate something completely different."
+            
+            chain = REGENERATE_TO_LYRICS_PROMPT | self.llm
+            prompt_vars = {
+                "summary": state["summary"],
+                "variation_counter": state.get("variation_counter", 1),
+                "previous_context": previous_context
+            }
+        else:
+            from app.prompts import CONVERT_TO_LYRICS_PROMPT
+            chain = CONVERT_TO_LYRICS_PROMPT | self.llm
+            prompt_vars = {"summary": state["summary"]}
         
         try:
-            response = await chain.ainvoke({"summary": state["summary"]})
+            response = await chain.ainvoke(prompt_vars)
             state["lyrics"] = response.content
             
             # Generate content hash
@@ -390,7 +433,8 @@ class LyricsPipeline:
                         'execution_time': round(elapsed_time, 3),
                         'lyrics_length': len(state['lyrics']),
                         'word_count': len(state['lyrics'].split()),
-                        'content_hash': state["content_hash"][:16]
+                        'content_hash': state["content_hash"][:16],
+                        'variation_counter': state.get("variation_counter", 1)
                     }
                 }
             )
@@ -402,7 +446,8 @@ class LyricsPipeline:
                     'extra_fields': {
                         'stage': 'convert',
                         'execution_time': round(elapsed_time, 3),
-                        'error': str(e)
+                        'error': str(e),
+                        'variation_counter': state.get("variation_counter", 1)
                     }
                 }
             )
@@ -433,13 +478,21 @@ class LyricsPipeline:
         state["current_stage"] = "error"
         return state
     
-    async def execute(self, content: str, search_enabled: bool) -> dict:
+    async def execute(
+        self, 
+        content: str, 
+        search_enabled: bool,
+        variation_counter: int = 1,
+        previous_lyrics: str = ""
+    ) -> dict:
         """
         Execute the lyrics generation pipeline.
         
         Args:
             content: Educational content to convert to lyrics
             search_enabled: Whether to use Google Search grounding
+            variation_counter: Which regeneration attempt (1, 2, 3, etc.)
+            previous_lyrics: Previous generated lyrics to avoid repeating patterns
             
         Returns:
             Dictionary with lyrics, content_hash, cached flag, and processing_time
@@ -455,7 +508,9 @@ class LyricsPipeline:
                 'extra_fields': {
                     'search_enabled': search_enabled,
                     'content_length': len(content),
-                    'word_count': len(content.split())
+                    'word_count': len(content.split()),
+                    'variation_counter': variation_counter,
+                    'has_previous_lyrics': bool(previous_lyrics)
                 }
             }
         )
@@ -471,7 +526,9 @@ class LyricsPipeline:
             "lyrics": "",
             "error": None,
             "content_hash": "",
-            "current_stage": "initializing"
+            "current_stage": "initializing",
+            "variation_counter": variation_counter,
+            "previous_lyrics": previous_lyrics
         }
         
         try:

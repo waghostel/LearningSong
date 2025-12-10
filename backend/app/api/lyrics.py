@@ -242,10 +242,13 @@ async def regenerate_lyrics(
         content_hash = generate_content_hash(request.content)
         
         # Step 3: Execute AI pipeline (no cache check for regeneration - always generate fresh)
-        pipeline = LyricsPipeline()
+        # Use higher temperature (0.9) for regeneration to increase variation and creativity
+        pipeline = LyricsPipeline(temperature=0.9)
         result = await pipeline.execute(
             content=request.content,
-            search_enabled=request.search_enabled
+            search_enabled=request.search_enabled,
+            variation_counter=request.variation_counter,
+            previous_lyrics=request.previous_lyrics
         )
         
         logger.info(

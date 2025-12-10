@@ -49,6 +49,17 @@ class RegenerateLyricsRequest(BaseModel):
         default=False,
         description="Whether to enrich content with Google Search"
     )
+    variation_counter: int = Field(
+        default=1,
+        description="Which regeneration attempt this is (1st, 2nd, 3rd, etc.)",
+        ge=1,
+        le=10
+    )
+    previous_lyrics: str = Field(
+        default="",
+        description="Previous generated lyrics to avoid repeating patterns",
+        max_length=5000
+    )
     
     @field_validator('content')
     @classmethod

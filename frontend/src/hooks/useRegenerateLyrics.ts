@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
-import { regenerateLyrics, type GenerateLyricsRequest, type GenerateLyricsResponse } from '@/api/lyrics'
+import { regenerateLyrics, type RegenerateLyricsRequest, type GenerateLyricsResponse } from '@/api/lyrics'
 import { useLyricsEditingStore } from '@/stores/lyricsEditingStore'
 import { 
   showRateLimitError, 
@@ -19,6 +19,8 @@ import { classifyError, ErrorType, getErrorInfo } from '@/lib/error-utils'
  * - Handles network timeouts gracefully
  * - Logs errors to console for debugging
  * - Provides retry functionality on failure
+ * - Tracks variation counter for context-aware regeneration (Phase 2)
+ * - Passes previous lyrics to avoid repeating patterns (Phase 2)
  */
 export const useRegenerateLyrics = () => {
   const { 
@@ -26,9 +28,10 @@ export const useRegenerateLyrics = () => {
     failRegeneration, 
     startRegeneration,
     originalContent,
+    versions,
   } = useLyricsEditingStore()
 
-  const mutation = useMutation<GenerateLyricsResponse, Error, GenerateLyricsRequest>({
+  const mutation = useMutation<GenerateLyricsResponse, Error, RegenerateLyricsRequest>({
     mutationFn: regenerateLyrics,
     onMutate: () => {
       startRegeneration()
@@ -105,6 +108,20 @@ export const useRegenerateLyrics = () => {
   })
 
   /**
+   * Get the previous lyrics to pass to the backend
+   * Uses the most recent version's lyrics (or edited version if available)
+   */
+  const getPreviousLyrics = (): string => {
+    if (versions.length === 0) return ''
+    
+    // Get the most recent version
+    const lastVersion = versions[versions.length - 1]
+    
+    // Return edited lyrics if available, otherwise original lyrics
+    return lastVersion.editedLyrics || lastVersion.lyrics
+  }
+
+  /**
    * Retry the last regeneration request
    * Useful for network errors or transient failures
    */
@@ -115,19 +132,37 @@ export const useRegenerateLyrics = () => {
       return
     }
     
-    // console.log('[Regeneration] Retrying regeneration...')
+    // Calculate variation counter (number of versions + 1)
+    const variationCounter = versions.length + 1
+    const previousLyrics = getPreviousLyrics()
+    
+    // console.log('[Regeneration] Retrying regeneration...', { variationCounter, hasPreviousLyrics: !!previousLyrics })
     mutation.mutate({
       content: originalContent,
       search_enabled: false,
+      variation_counter: variationCounter,
+      previous_lyrics: previousLyrics,
     })
   }
 
   /**
    * Regenerate lyrics with the given content
+   * Automatically calculates variation counter and includes previous lyrics
    */
-  const regenerate = (request: GenerateLyricsRequest) => {
-    // console.log('[Regeneration] Starting regeneration with content hash:', contentHash)
-    mutation.mutate(request)
+  const regenerate = (request: RegenerateLyricsRequest) => {
+    // Calculate variation counter based on number of existing versions
+    const variationCounter = request.variation_counter || (versions.length + 1)
+    
+    // Get previous lyrics if not provided
+    const previousLyrics = request.previous_lyrics || getPreviousLyrics()
+    
+    // console.log('[Regeneration] Starting regeneration...', { variationCounter, hasPreviousLyrics: !!previousLyrics })
+    
+    mutation.mutate({
+      ...request,
+      variation_counter: variationCounter,
+      previous_lyrics: previousLyrics,
+    })
   }
 
   // Determine if retry is available based on error type
