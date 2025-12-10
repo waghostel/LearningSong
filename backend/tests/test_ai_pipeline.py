@@ -176,11 +176,13 @@ class TestPipelineNodes:
         
         mock_llm_response.content = "Key point 1: Python is readable\nKey point 2: Python is versatile"
         
-        with patch('app.services.ai_pipeline.ChatPromptTemplate') as mock_template:
-            mock_chain = MagicMock()
-            mock_chain.ainvoke = AsyncMock(return_value=mock_llm_response)
-            mock_template.from_messages.return_value.__or__ = MagicMock(return_value=mock_chain)
-            
+        # Create a mock chain that returns the expected response
+        mock_chain = MagicMock()
+        mock_chain.ainvoke = AsyncMock(return_value=mock_llm_response)
+        
+        # Patch the SUMMARIZE_CONTENT_PROMPT in the ai_pipeline module
+        with patch('app.services.ai_pipeline.SUMMARIZE_CONTENT_PROMPT') as mock_prompt:
+            mock_prompt.__or__ = MagicMock(return_value=mock_chain)
             result = await pipeline._summarize(state)
         
         assert result["current_stage"] == "summarizing"
@@ -203,11 +205,13 @@ class TestPipelineNodes:
             "current_stage": ""
         }
         
-        with patch('app.services.ai_pipeline.ChatPromptTemplate') as mock_template:
-            mock_chain = MagicMock()
-            mock_chain.ainvoke = AsyncMock(side_effect=Exception("LLM error"))
-            mock_template.from_messages.return_value.__or__ = MagicMock(return_value=mock_chain)
-            
+        # Create a mock chain that raises an exception
+        mock_chain = MagicMock()
+        mock_chain.ainvoke = AsyncMock(side_effect=Exception("LLM error"))
+        
+        # Patch the SUMMARIZE_CONTENT_PROMPT in the ai_pipeline module
+        with patch('app.services.ai_pipeline.SUMMARIZE_CONTENT_PROMPT') as mock_prompt:
+            mock_prompt.__or__ = MagicMock(return_value=mock_chain)
             result = await pipeline._summarize(state)
         
         assert result["error"] is not None
@@ -278,11 +282,13 @@ class TestPipelineNodes:
         
         mock_llm_response.content = "[Verse 1]\nLearning Python is fun\n[Chorus]\nCode all day long"
         
-        with patch('app.services.ai_pipeline.ChatPromptTemplate') as mock_template:
-            mock_chain = MagicMock()
-            mock_chain.ainvoke = AsyncMock(return_value=mock_llm_response)
-            mock_template.from_messages.return_value.__or__ = MagicMock(return_value=mock_chain)
-            
+        # Create a mock chain that returns the expected response
+        mock_chain = MagicMock()
+        mock_chain.ainvoke = AsyncMock(return_value=mock_llm_response)
+        
+        # Patch the CONVERT_TO_LYRICS_PROMPT in the ai_pipeline module
+        with patch('app.services.ai_pipeline.CONVERT_TO_LYRICS_PROMPT') as mock_prompt:
+            mock_prompt.__or__ = MagicMock(return_value=mock_chain)
             result = await pipeline._convert_to_lyrics(state)
         
         assert result["current_stage"] == "converting"
@@ -306,11 +312,13 @@ class TestPipelineNodes:
             "current_stage": ""
         }
         
-        with patch('app.services.ai_pipeline.ChatPromptTemplate') as mock_template:
-            mock_chain = MagicMock()
-            mock_chain.ainvoke = AsyncMock(side_effect=Exception("Conversion error"))
-            mock_template.from_messages.return_value.__or__ = MagicMock(return_value=mock_chain)
-            
+        # Create a mock chain that raises an exception
+        mock_chain = MagicMock()
+        mock_chain.ainvoke = AsyncMock(side_effect=Exception("Conversion error"))
+        
+        # Patch the CONVERT_TO_LYRICS_PROMPT in the ai_pipeline module
+        with patch('app.services.ai_pipeline.CONVERT_TO_LYRICS_PROMPT') as mock_prompt:
+            mock_prompt.__or__ = MagicMock(return_value=mock_chain)
             result = await pipeline._convert_to_lyrics(state)
         
         assert result["error"] is not None
@@ -346,11 +354,15 @@ class TestGraphExecution:
         """Test execute method without Google Search."""
         mock_llm_response.content = "Mocked lyrics output"
         
-        with patch('app.services.ai_pipeline.ChatPromptTemplate') as mock_template:
-            mock_chain = MagicMock()
-            mock_chain.ainvoke = AsyncMock(return_value=mock_llm_response)
-            mock_template.from_messages.return_value.__or__ = MagicMock(return_value=mock_chain)
-            
+        # Create a mock chain that returns the expected response
+        mock_chain = MagicMock()
+        mock_chain.ainvoke = AsyncMock(return_value=mock_llm_response)
+        
+        # Patch both prompts in the ai_pipeline module
+        with patch('app.services.ai_pipeline.SUMMARIZE_CONTENT_PROMPT') as mock_summarize, \
+             patch('app.services.ai_pipeline.CONVERT_TO_LYRICS_PROMPT') as mock_convert:
+            mock_summarize.__or__ = MagicMock(return_value=mock_chain)
+            mock_convert.__or__ = MagicMock(return_value=mock_chain)
             result = await pipeline.execute(sample_content, search_enabled=False)
         
         assert "lyrics" in result
@@ -369,13 +381,17 @@ class TestGraphExecution:
             return_value="Search results"
         )
         
-        with patch('app.services.ai_pipeline.get_search_service', return_value=mock_search_service):
-            with patch('app.services.ai_pipeline.ChatPromptTemplate') as mock_template:
-                mock_chain = MagicMock()
-                mock_chain.ainvoke = AsyncMock(return_value=mock_llm_response)
-                mock_template.from_messages.return_value.__or__ = MagicMock(return_value=mock_chain)
-                
-                result = await pipeline.execute(sample_content, search_enabled=True)
+        # Create a mock chain that returns the expected response
+        mock_chain = MagicMock()
+        mock_chain.ainvoke = AsyncMock(return_value=mock_llm_response)
+        
+        # Patch both prompts and the search service
+        with patch('app.services.ai_pipeline.get_search_service', return_value=mock_search_service), \
+             patch('app.services.ai_pipeline.SUMMARIZE_CONTENT_PROMPT') as mock_summarize, \
+             patch('app.services.ai_pipeline.CONVERT_TO_LYRICS_PROMPT') as mock_convert:
+            mock_summarize.__or__ = MagicMock(return_value=mock_chain)
+            mock_convert.__or__ = MagicMock(return_value=mock_chain)
+            result = await pipeline.execute(sample_content, search_enabled=True)
         
         assert "lyrics" in result
         assert result["cached"] is False
@@ -384,15 +400,17 @@ class TestGraphExecution:
     @pytest.mark.asyncio
     async def test_execute_with_error(self, pipeline, sample_content):
         """Test execute method with pipeline error."""
-        with patch('app.services.ai_pipeline.ChatPromptTemplate') as mock_template:
-            mock_chain = MagicMock()
-            mock_chain.ainvoke = AsyncMock(side_effect=Exception("Pipeline error"))
-            mock_template.from_messages.return_value.__or__ = MagicMock(return_value=mock_chain)
-            
+        # Create a mock chain that raises an exception
+        mock_chain = MagicMock()
+        mock_chain.ainvoke = AsyncMock(side_effect=Exception("Pipeline error"))
+        
+        # Patch the SUMMARIZE_CONTENT_PROMPT to cause an error in the summarize step
+        with patch('app.services.ai_pipeline.SUMMARIZE_CONTENT_PROMPT') as mock_prompt:
+            mock_prompt.__or__ = MagicMock(return_value=mock_chain)
             with pytest.raises(Exception) as exc_info:
                 await pipeline.execute(sample_content, search_enabled=False)
-            
-            assert "summarize" in str(exc_info.value).lower() or "error" in str(exc_info.value).lower()
+        
+        assert "summarize" in str(exc_info.value).lower() or "error" in str(exc_info.value).lower()
 
 
 class TestErrorHandling:

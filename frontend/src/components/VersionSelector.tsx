@@ -71,23 +71,61 @@ export const VersionSelector: React.FC<VersionSelectorProps> = ({
   onVersionDelete,
   disabled = false,
 }) => {
-  // Hide component when only one version or no versions exist (Requirements: 2.5)
-  if (versions.length <= 1) {
-    return null
-  }
-
+  const tabRefs = React.useRef<(HTMLButtonElement | null)[]>([])
+  
   // Sort versions chronologically by createdAt (oldest first) for display (Requirements: 8.1)
   const sortedVersions = [...versions].sort(
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
   )
+
+
+
+  const canDelete = versions.length > 1
+
+  const handleKeyDown = (e: React.KeyboardEvent, index: number, versionId: string) => {
+    switch (e.key) {
+      case 'ArrowLeft': {
+        e.preventDefault()
+        const prevIndex = (index - 1 + sortedVersions.length) % sortedVersions.length
+        tabRefs.current[prevIndex]?.focus()
+        break
+      }
+      case 'ArrowRight': {
+        e.preventDefault()
+        const nextIndex = (index + 1) % sortedVersions.length
+        tabRefs.current[nextIndex]?.focus()
+        break
+      }
+      case 'Home': {
+        e.preventDefault()
+        tabRefs.current[0]?.focus()
+        break
+      }
+      case 'End': {
+        e.preventDefault()
+        tabRefs.current[sortedVersions.length - 1]?.focus()
+        break
+      }
+      case 'Delete': {
+        if (canDelete && !disabled) {
+          e.preventDefault()
+          onVersionDelete(versionId)
+        }
+        break
+      }
+    }
+  }
+
+  // Hide component when only one version or no versions exist (Requirements: 2.5)
+  if (versions.length <= 1) {
+    return null
+  }
 
   // Calculate sequential version numbers based on chronological order (Requirements: 3.2)
   const getVersionNumber = (versionId: string): number => {
     const index = sortedVersions.findIndex((v) => v.id === versionId)
     return index + 1
   }
-
-  const canDelete = versions.length > 1
 
   return (
     <TooltipProvider>
@@ -96,11 +134,12 @@ export const VersionSelector: React.FC<VersionSelectorProps> = ({
         role="tablist"
         aria-label="Lyrics version selector"
         aria-live="polite"
+        aria-orientation="horizontal"
       >
         <span className="text-sm font-medium text-muted-foreground mr-1">
           Versions:
         </span>
-        {sortedVersions.map((version) => {
+        {sortedVersions.map((version, index) => {
           const isActive = version.id === activeVersionId
           const versionNumber = getVersionNumber(version.id)
           const relativeTime = formatRelativeTime(version.createdAt)
@@ -117,9 +156,15 @@ export const VersionSelector: React.FC<VersionSelectorProps> = ({
                     type="button"
                     role="tab"
                     id={`version-tab-${version.id}`}
+                    ref={(el) => {
+                      if (el) tabRefs.current[index] = el
+                    }}
                     aria-selected={isActive}
                     aria-controls={`version-panel-${version.id}`}
+                    aria-keyshortcuts="Delete"
+                    tabIndex={isActive ? 0 : -1}
                     onClick={() => onVersionSelect(version.id)}
+                    onKeyDown={(e) => handleKeyDown(e, index, version.id)}
                     disabled={disabled}
                     className={cn(
                       'inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-l-full transition-all',
@@ -178,6 +223,7 @@ export const VersionSelector: React.FC<VersionSelectorProps> = ({
                           : 'bg-muted/80 text-muted-foreground hover:bg-destructive/20 hover:text-destructive',
                         disabled && 'opacity-50 cursor-not-allowed'
                       )}
+                      tabIndex={-1}
                     >
                       <X className="h-3 w-3" />
                     </button>

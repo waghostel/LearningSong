@@ -6,7 +6,7 @@
  * **Validates: Requirements 9.5**
  */
 import * as fc from 'fast-check'
-import { loadSyncMode, saveSyncMode, type SyncMode } from '@/components/SyncModeToggle'
+import { loadSyncMode, saveSyncMode, type SyncMode } from '@/lib/sync-mode-storage'
 
 describe('SyncModeToggle Property Tests', () => {
   // Clear localStorage before each test

@@ -36,7 +36,7 @@ export const useRegenerateLyrics = () => {
     onSuccess: (data) => {
       completeRegeneration(data.lyrics)
       showSuccess('Lyrics regenerated successfully!')
-      // console.log('[Regeneration] Successfully created new lyrics version')
+      showSuccess('Lyrics regenerated successfully!')
     },
     onError: (error) => {
       // Log error to console for debugging (Requirements: 1.4)
@@ -44,6 +44,7 @@ export const useRegenerateLyrics = () => {
       
       // Parse error for specific handling
       let errorMessage = 'Failed to regenerate lyrics'
+
       let errorType: ErrorType = ErrorType.UNKNOWN
       
       if (error instanceof AxiosError) {
@@ -89,8 +90,10 @@ export const useRegenerateLyrics = () => {
             showError('Regeneration Failed', errorMessage)
         }
       } else if (error instanceof Error) {
-        errorMessage = error.message
-        errorType = classifyError(undefined, error.message)
+        if (error.message && error.message.trim() !== '') {
+          errorMessage = error.message
+        }
+        errorType = classifyError(undefined, errorMessage)
         showError('Regeneration Failed', errorMessage)
       } else {
         showError('Regeneration Failed', 'An unexpected error occurred')

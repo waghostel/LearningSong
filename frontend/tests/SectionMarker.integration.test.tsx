@@ -10,7 +10,7 @@ import { useSongPlaybackStore } from '@/stores/songPlaybackStore'
 import { useAuth } from '@/hooks/useAuth'
 import { useNetworkStatus } from '@/hooks/useNetworkStatus'
 import { MusicStyle } from '@/api/songs'
-import { loadMarkerVisibility, saveMarkerVisibility } from '@/components/MarkerVisibilityToggle'
+import { loadMarkerVisibility, saveMarkerVisibility } from '@/lib/marker-visibility'
 
 jest.mock('@/hooks/useAuth')
 jest.mock('@/hooks/useNetworkStatus')

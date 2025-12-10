@@ -6,6 +6,16 @@ import { useLyricsEditingStore } from '@/stores/lyricsEditingStore'
 // Mock the store
 jest.mock('@/stores/lyricsEditingStore')
 
+// Mock the useRegenerateLyrics hook to avoid QueryClient dependency
+jest.mock('@/hooks/useRegenerateLyrics', () => ({
+  useRegenerateLyrics: () => ({
+    retry: jest.fn(),
+    canRetry: false,
+    getErrorType: () => null,
+    isRegenerating: false,
+  }),
+}))
+
 describe('LyricsEditor Component', () => {
   const mockSetEditedLyrics = jest.fn()
   const mockUpdateVersionEdits = jest.fn()

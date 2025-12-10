@@ -272,10 +272,9 @@
   - Test song generation with different active versions
   - _Requirements: 4.3, 5.5_
 
-- [ ] 11. Add keyboard navigation and accessibility
+- [x] 11. Add keyboard navigation and accessibility
 
   - Implement arrow key navigation in VersionSelector
-
   - Add proper ARIA labels and roles to version selector
   - Add aria-live region for version change announcements
   - Ensure focus management after version deletion
@@ -283,17 +282,17 @@
   - Test with screen readers
   - _Requirements: 8.3, 8.4, 8.5_
 
-- [ ] 11.1 Write property test for keyboard navigation
+- [x] 11.1 Write property test for keyboard navigation
 
   - **Property 24: Keyboard navigation support**
   - **Validates: Requirements 8.3**
 
-- [ ] 11.2 Write property test for screen reader announcements
+- [x] 11.2 Write property test for screen reader announcements
 
   - **Property 25: Screen reader announcements**
   - **Validates: Requirements 8.5**
 
-- [ ] 11.3 Write unit tests for accessibility features
+- [x] 11.3 Write unit tests for accessibility features
 
   - Test arrow key navigation
   - Test ARIA attributes
@@ -360,23 +359,23 @@
   - Test version limit warning
   - _Requirements: 4.1_
 
-- [ ] 15. Checkpoint - Ensure all tests pass
+- [x] 15. Checkpoint - Ensure all tests pass
 
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 16. Integration testing and polish
+- [x] 16. Integration testing and polish
 
-  - Test complete flow: generate → regenerate → switch → edit → generate song
-  - Test session persistence across navigation
-  - Test rate limiting integration
-  - Verify accessibility with keyboard and screen reader
-  - Test error scenarios end-to-end
-  - Polish UI animations and transitions
+  - [x] Test complete flow: generate → regenerate → switch → edit → generate song
+  - [x] Test session persistence across navigation
+  - [x] Test rate limiting integration
+  - [x] Verify accessibility with keyboard and screen reader
+  - [x] Test error scenarios end-to-end
+  - [x] Polish UI animations and transitions
   - _Requirements: All_
 
-- [ ] 16.1 Write integration tests
-  - Test end-to-end version management flow
-  - Test session persistence
-  - Test rate limit integration
-  - Test accessibility features
+- [x] 16.1 Write integration tests
+  - [x] Test end-to-end version management flow
+  - [x] Test session persistence
+  - [x] Test rate limit integration
+  - [x] Test accessibility features
   - _Requirements: All_

@@ -13,6 +13,8 @@ import { ProgressTracker } from '@/components/ProgressTracker'
 import { RateLimitIndicator } from '@/components/RateLimitIndicator'
 import { OfflineIndicator } from '@/components/OfflineIndicator'
 import { PageNavigation } from '@/components/PageNavigation'
+import { RegenerateButton } from '@/components/RegenerateButton'
+import { useRegenerateLyrics } from '@/hooks/useRegenerateLyrics'
 import {
   Tooltip,
   TooltipContent,
@@ -62,6 +64,12 @@ export function LyricsEditingPage() {
     manualReconnect,
   } = useSongGeneration()
   
+  const { 
+    regenerate, 
+    isRegenerating: isLyricsRegenerating,
+    isRateLimited 
+  } = useRegenerateLyrics()
+  
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
   // Initialize store with data from navigation state
@@ -71,11 +79,16 @@ export function LyricsEditingPage() {
     if (state?.lyrics && state?.contentHash) {
       setOriginalLyrics(state.lyrics)
       setContentHash(state.contentHash)
-    } else if (!originalLyrics) {
-      // No lyrics data, redirect to home
+    }
+  }, [location.state, setOriginalLyrics, setContentHash])
+
+  // Redirect if no lyrics data available
+  useEffect(() => {
+    const state = location.state as LocationState | null
+    if (!originalLyrics && !state?.lyrics) {
       navigate('/', { replace: true })
     }
-  }, [location.state, navigate, originalLyrics, setOriginalLyrics, setContentHash])
+  }, [originalLyrics, location.state, navigate])
 
   // Track unsaved changes
   useEffect(() => {
@@ -286,12 +299,23 @@ export function LyricsEditingPage() {
               </section>
             )}
 
-            {/* Generate Button */}
-            <section aria-labelledby="generate-section-title">
-              <h3 id="generate-section-title" className="sr-only">Generate song section</h3>
+            {/* Action Buttons */}
+            <section aria-labelledby="actions-section-title" className="flex flex-col sm:flex-row gap-3 w-full">
+              <h3 id="actions-section-title" className="sr-only">Actions section</h3>
+              
+              <RegenerateButton 
+                onRegenerate={() => regenerate({ content: originalLyrics, search_enabled: false })}
+                isRegenerating={isLyricsRegenerating}
+                hasUnsavedEdits={hasUnsavedChanges}
+                isRateLimited={isRateLimited}
+                isOffline={!isOnline}
+                className="flex-1"
+              />
+
               <GenerateSongButton
                 onClick={handleGenerateSong}
                 isOffline={!isOnline}
+                className="flex-1"
               />
             </section>
           </div>

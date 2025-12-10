@@ -16,8 +16,26 @@
 import * as React from 'react'
 import { render, screen, fireEvent, act } from '@testing-library/react'
 import { renderHook } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { LyricsEditor } from '@/components/LyricsEditor'
 import { useLyricsEditingStore } from '@/stores/lyricsEditingStore'
+
+// Create a wrapper for components that need QueryClientProvider
+const createQueryWrapper = () => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+      mutations: {
+        retry: false,
+      },
+    },
+  })
+  return ({ children }: { children: React.ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  )
+}
 
 // Mock the AlertDialog components
 jest.mock('@/components/ui/alert-dialog', () => ({
@@ -98,7 +116,7 @@ describe('Version Switching Unit Tests', () => {
 
       const version1Id = storeResult.current.versions[0].id
 
-      render(<LyricsEditor />)
+      render(<LyricsEditor />, { wrapper: createQueryWrapper() })
 
       // Click version 1 tab
       const version1Tab = document.getElementById(`version-tab-${version1Id}`)
@@ -115,7 +133,7 @@ describe('Version Switching Unit Tests', () => {
 
       const version1Id = storeResult.current.versions[0].id
 
-      render(<LyricsEditor />)
+      render(<LyricsEditor />, { wrapper: createQueryWrapper() })
 
       // Initially should show version 2 (most recent)
       const textarea = screen.getByRole('textbox')
@@ -135,7 +153,7 @@ describe('Version Switching Unit Tests', () => {
       const version1Id = storeResult.current.versions[0].id
       const version2Id = storeResult.current.versions[1].id
 
-      render(<LyricsEditor />)
+      render(<LyricsEditor />, { wrapper: createQueryWrapper() })
 
       // Initially version 2 is active
       const version2Tab = document.getElementById(`version-tab-${version2Id}`)
@@ -161,7 +179,7 @@ describe('Version Switching Unit Tests', () => {
 
       const version1Id = storeResult.current.versions[0].id
 
-      render(<LyricsEditor />)
+      render(<LyricsEditor />, { wrapper: createQueryWrapper() })
 
       const textarea = screen.getByRole('textbox')
 
@@ -184,7 +202,7 @@ describe('Version Switching Unit Tests', () => {
       const version1Id = storeResult.current.versions[0].id
       const version2Id = storeResult.current.versions[1].id
 
-      render(<LyricsEditor />)
+      render(<LyricsEditor />, { wrapper: createQueryWrapper() })
 
       const textarea = screen.getByRole('textbox')
 
@@ -209,7 +227,7 @@ describe('Version Switching Unit Tests', () => {
       const version1Id = storeResult.current.versions[0].id
       const version2Id = storeResult.current.versions[1].id
 
-      render(<LyricsEditor />)
+      render(<LyricsEditor />, { wrapper: createQueryWrapper() })
 
       const textarea = screen.getByRole('textbox')
 
@@ -232,7 +250,7 @@ describe('Version Switching Unit Tests', () => {
 
       const version1Id = storeResult.current.versions[0].id
 
-      render(<LyricsEditor />)
+      render(<LyricsEditor />, { wrapper: createQueryWrapper() })
 
       // Switch to version 1 (unedited)
       const version1Tab = document.getElementById(`version-tab-${version1Id}`)
@@ -252,7 +270,7 @@ describe('Version Switching Unit Tests', () => {
         storeResult.current.updateVersionEdits(version1Id, 'Modified first content')
       })
 
-      render(<LyricsEditor />)
+      render(<LyricsEditor />, { wrapper: createQueryWrapper() })
 
       // Switch to version 1 (edited)
       const version1Tab = document.getElementById(`version-tab-${version1Id}`)
@@ -285,7 +303,7 @@ describe('Version Switching Unit Tests', () => {
       const version2Id = storeResult.current.versions[1].id
       const version3Id = storeResult.current.versions[2].id
 
-      render(<LyricsEditor />)
+      render(<LyricsEditor />, { wrapper: createQueryWrapper() })
 
       // Initially version 3 is active
       expect(storeResult.current.activeVersionId).toBe(version3Id)
@@ -311,7 +329,7 @@ describe('Version Switching Unit Tests', () => {
         storeResult.current.startRegeneration()
       })
 
-      render(<LyricsEditor />)
+      render(<LyricsEditor />, { wrapper: createQueryWrapper() })
 
       // Version tabs should be disabled
       const tabs = screen.getAllByRole('tab')
@@ -329,7 +347,7 @@ describe('Version Switching Unit Tests', () => {
       const version2Id = storeResult.current.versions[1].id
       const version3Id = storeResult.current.versions[2].id
 
-      render(<LyricsEditor />)
+      render(<LyricsEditor />, { wrapper: createQueryWrapper() })
 
       // Rapid switching
       fireEvent.click(document.getElementById(`version-tab-${version1Id}`)!)
@@ -348,7 +366,7 @@ describe('Version Switching Unit Tests', () => {
       const version1Id = storeResult.current.versions[0].id
       const version2Id = storeResult.current.versions[1].id
 
-      render(<LyricsEditor />)
+      render(<LyricsEditor />, { wrapper: createQueryWrapper() })
 
       // Switch to version 1 (with whitespace only)
       fireEvent.click(document.getElementById(`version-tab-${version1Id}`)!)

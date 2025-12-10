@@ -10,7 +10,7 @@ import { useSongPlaybackStore } from '@/stores/songPlaybackStore'
 import { useAuth } from '@/hooks/useAuth'
 import { useNetworkStatus } from '@/hooks/useNetworkStatus'
 import { MusicStyle } from '@/api/songs'
-import { saveSyncMode, loadSyncMode } from '@/components/SyncModeToggle'
+import { saveSyncMode, loadSyncMode } from '@/lib/sync-mode-storage'
 
 jest.mock('@/hooks/useAuth')
 jest.mock('@/hooks/useNetworkStatus')

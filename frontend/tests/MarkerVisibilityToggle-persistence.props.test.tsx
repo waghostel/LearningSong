@@ -6,7 +6,7 @@
  * **Validates: Requirements 14.4, 14.5**
  */
 import * as fc from 'fast-check'
-import { loadMarkerVisibility, saveMarkerVisibility } from '@/components/MarkerVisibilityToggle'
+import { loadMarkerVisibility, saveMarkerVisibility } from '@/lib/marker-visibility'
 
 describe('Marker Visibility Persistence Property Tests', () => {
   beforeEach(() => {

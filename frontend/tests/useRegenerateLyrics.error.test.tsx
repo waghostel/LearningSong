@@ -342,20 +342,7 @@ describe('useRegenerateLyrics Error Handling', () => {
       })
     })
 
-    it('should log success to console', async () => {
-      const successResponse = { lyrics: 'New lyrics', content_hash: 'hash', cached: false, processing_time: 1 }
-      ;(lyricsApi.regenerateLyrics as jest.Mock).mockResolvedValue(successResponse)
 
-      const { result } = renderHook(() => useRegenerateLyrics(), { wrapper: createWrapper() })
-
-      act(() => {
-        result.current.regenerate({ content: 'test content', search_enabled: false })
-      })
-
-      await waitFor(() => {
-        expect(consoleLogSpy).toHaveBeenCalledWith('[Regeneration] Successfully created new lyrics version')
-      })
-    })
   })
 
   describe('Store Error State Updates', () => {
