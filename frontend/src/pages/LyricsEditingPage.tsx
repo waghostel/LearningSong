@@ -26,6 +26,7 @@ import { HelpCircle } from 'lucide-react'
 interface LocationState {
   lyrics: string
   contentHash: string
+  originalContent?: string  // User's input text from Page A
 }
 
 export function LyricsEditingPage() {
@@ -42,6 +43,7 @@ export function LyricsEditingPage() {
     contentHash,
     setOriginalLyrics,
     setContentHash,
+    setOriginalContent,
     generationStatus,
     songId,
     songUrl,
@@ -79,8 +81,19 @@ export function LyricsEditingPage() {
     if (state?.lyrics && state?.contentHash) {
       setOriginalLyrics(state.lyrics)
       setContentHash(state.contentHash)
+      
+      // Store the original user content for regeneration (if provided)
+      if (state.originalContent) {
+        setOriginalContent(state.originalContent)
+      }
+      
+      // Create V1 if this is the first time we're loading these lyrics
+      // Only create version if we don't already have versions for this content
+      if (versions.length === 0) {
+        useLyricsEditingStore.getState().addVersion(state.lyrics)
+      }
     }
-  }, [location.state, setOriginalLyrics, setContentHash])
+  }, [location.state, setOriginalLyrics, setContentHash, setOriginalContent, versions.length])
 
   // Redirect if no lyrics data available
   useEffect(() => {
@@ -300,23 +313,27 @@ export function LyricsEditingPage() {
             )}
 
             {/* Action Buttons */}
-            <section aria-labelledby="actions-section-title" className="flex flex-col sm:flex-row gap-3 w-full">
+            <section aria-labelledby="actions-section-title" className="flex flex-col sm:flex-row gap-3 w-full sm:items-end sm:justify-between">
               <h3 id="actions-section-title" className="sr-only">Actions section</h3>
               
-              <RegenerateButton 
-                onRegenerate={() => regenerate({ content: originalLyrics, search_enabled: false })}
-                isRegenerating={isLyricsRegenerating}
-                hasUnsavedEdits={hasUnsavedChanges}
-                isRateLimited={isRateLimited}
-                isOffline={!isOnline}
-                className="flex-1"
-              />
+              <div className="flex-1 sm:flex-none">
+                <RegenerateButton 
+                  onRegenerate={() => regenerate({ content: originalLyrics, search_enabled: false })}
+                  isRegenerating={isLyricsRegenerating}
+                  hasUnsavedEdits={hasUnsavedChanges}
+                  isRateLimited={isRateLimited}
+                  isOffline={!isOnline}
+                  className="sm:w-auto"
+                />
+              </div>
 
-              <GenerateSongButton
-                onClick={handleGenerateSong}
-                isOffline={!isOnline}
-                className="flex-1"
-              />
+              <div className="flex-1 sm:flex-none">
+                <GenerateSongButton
+                  onClick={handleGenerateSong}
+                  isOffline={!isOnline}
+                  className="sm:w-auto"
+                />
+              </div>
             </section>
           </div>
         </div>

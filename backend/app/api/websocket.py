@@ -227,6 +227,14 @@ async def poll_and_broadcast(task_id: str) -> None:
                         "status": generation_status.value,
                         "progress": suno_status.progress,
                         "song_url": suno_status.song_url,
+                        "variations": [
+                            {
+                                "audio_url": v.audio_url,
+                                "audio_id": v.audio_id,
+                                "variation_index": v.variation_index,
+                            }
+                            for v in suno_status.variations
+                        ],
                         "error": suno_status.error,
                     }
                     
@@ -240,6 +248,14 @@ async def poll_and_broadcast(task_id: str) -> None:
                         progress=suno_status.progress,
                         song_url=suno_status.song_url,
                         error=suno_status.error,
+                        variations=[
+                            {
+                                "audio_url": v.audio_url,
+                                "audio_id": v.audio_id,
+                                "variation_index": v.variation_index,
+                            }
+                            for v in suno_status.variations
+                        ],
                     )
                     
                     logger.info(
@@ -459,6 +475,14 @@ async def subscribe(sid: str, data: dict):
             "status": task_data.get("status", GenerationStatus.QUEUED.value),
             "progress": task_data.get("progress", 0),
             "song_url": task_data.get("song_url"),
+            "variations": [
+                {
+                    "audio_url": v.get("audio_url"),
+                    "audio_id": v.get("audio_id"),
+                    "variation_index": v.get("variation_index"),
+                }
+                for v in task_data.get("variations", [])
+            ],
             "error": task_data.get("error"),
         }
         await send_status_to_client(sid, current_status)

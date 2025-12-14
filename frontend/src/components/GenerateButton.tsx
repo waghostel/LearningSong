@@ -18,11 +18,12 @@ export function GenerateButton() {
       navigate('/lyrics-edit', { 
         state: { 
           lyrics: lyricsData.lyrics,
-          contentHash: lyricsData.content_hash
+          contentHash: lyricsData.content_hash,
+          originalContent: content  // Pass original user content for regeneration
         } 
       })
     }
-  }, [isSuccess, lyricsData, navigate])
+  }, [isSuccess, lyricsData, navigate, content])
 
   // Calculate word count
   const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0

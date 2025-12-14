@@ -61,7 +61,7 @@ export const GenerateSongButton: React.FC<GenerateSongButtonProps> = ({
   const descriptionId = 'generate-song-description'
   
   return (
-    <div className="space-y-2" role="group" aria-labelledby={buttonId}>
+    <div className="space-y-2 flex flex-col items-end" role="group" aria-labelledby={buttonId}>
       <Button
         ref={buttonRef}
         id={buttonId}
@@ -98,7 +98,7 @@ export const GenerateSongButton: React.FC<GenerateSongButtonProps> = ({
       
       <p 
         id={descriptionId}
-        className="text-xs text-center text-muted-foreground"
+        className="text-xs text-right text-muted-foreground"
         aria-live="polite"
       >
         {!isGenerating && (

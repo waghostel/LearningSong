@@ -115,9 +115,9 @@ export const RegenerateButton: React.FC<RegenerateButtonProps> = ({
           id={buttonId}
           onClick={handleClick}
           disabled={isDisabled}
-          variant="outline"
           className={cn(
             'w-full',
+            'bg-blue-600 hover:bg-blue-700 text-white',
             'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
             className
           )}
@@ -147,7 +147,7 @@ export const RegenerateButton: React.FC<RegenerateButtonProps> = ({
 
         <p
           id={descriptionId}
-          className="text-xs text-center text-muted-foreground"
+          className="text-xs text-left text-muted-foreground"
           aria-live="polite"
         >
           {!isRegenerating && (

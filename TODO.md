@@ -1,0 +1,1 @@
+[ ] Increate the lyric generation variation
