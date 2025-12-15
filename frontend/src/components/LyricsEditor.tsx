@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { useLyricsEditingStore } from '@/stores/lyricsEditingStore'
@@ -41,6 +41,9 @@ export const LyricsEditor: React.FC = () => {
   // State for delete confirmation dialog (Requirements: 6.5)
   const [versionToDelete, setVersionToDelete] = useState<string | null>(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  
+  // Force re-render when active version changes to fix rendering bug
+  // The key prop on the Textarea ensures it re-renders with new lyrics
   
   const charCount = editedLyrics.length
   const isWarning = charCount >= WARNING_THRESHOLD && charCount <= MAX_CHARS
@@ -132,6 +135,7 @@ export const LyricsEditor: React.FC = () => {
           </label>
         
         <Textarea
+          key={`lyrics-editor-${activeVersionId}`}
           id="lyrics-editor"
           value={editedLyrics}
           onChange={handleChange}

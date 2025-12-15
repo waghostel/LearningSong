@@ -25,7 +25,8 @@
         "click",
         "press_key",
         "emulate",
-        "resize_page"
+        "resize_page",
+        "fill_form"
       ],
       "disabledTools": []
     }

@@ -37,8 +37,8 @@ export const useRegenerateLyrics = () => {
       startRegeneration()
     },
     onSuccess: (data) => {
+      // console.log('[Regeneration] Success!', { lyricsLength: data.lyrics.length, processingTime: data.processing_time })
       completeRegeneration(data.lyrics)
-      showSuccess('Lyrics regenerated successfully!')
       showSuccess('Lyrics regenerated successfully!')
     },
     onError: (error) => {
@@ -156,7 +156,7 @@ export const useRegenerateLyrics = () => {
     // Get previous lyrics if not provided
     const previousLyrics = request.previous_lyrics || getPreviousLyrics()
     
-    // console.log('[Regeneration] Starting regeneration...', { variationCounter, hasPreviousLyrics: !!previousLyrics })
+      // console.log('[Regeneration] Starting regeneration...', { variationCounter, hasPreviousLyrics: !!previousLyrics })
     
     mutation.mutate({
       ...request,

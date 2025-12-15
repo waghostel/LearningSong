@@ -318,7 +318,12 @@ export function LyricsEditingPage() {
               
               <div className="flex-1 sm:flex-none">
                 <RegenerateButton 
-                  onRegenerate={() => regenerate({ content: originalLyrics, search_enabled: false })}
+                  onRegenerate={() => {
+                    regenerate({ 
+                      content: useLyricsEditingStore.getState().originalContent || originalLyrics, 
+                      search_enabled: false 
+                    })
+                  }}
                   isRegenerating={isLyricsRegenerating}
                   hasUnsavedEdits={hasUnsavedChanges}
                   isRateLimited={isRateLimited}

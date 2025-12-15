@@ -318,6 +318,7 @@ export const useLyricsEditingStore = create<LyricsEditingState>()(
       
       completeRegeneration: (lyrics: string) => {
         const state = get()
+        
         const newVersion: LyricsVersion = {
           id: generateUUID(),
           lyrics,

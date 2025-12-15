@@ -229,7 +229,10 @@ async def regenerate_lyrics(
                 'user_id': user_id,
                 'content_length': len(request.content),
                 'search_enabled': request.search_enabled,
-                'endpoint': 'regenerate_lyrics'
+                'endpoint': 'regenerate_lyrics',
+                'variation_counter': request.variation_counter,
+                'has_previous_lyrics': bool(request.previous_lyrics),
+                'content_preview': request.content[:100] + "..." if len(request.content) > 100 else request.content
             }
         }
     )
@@ -258,7 +261,9 @@ async def regenerate_lyrics(
                     'user_id': user_id,
                     'content_hash': result['content_hash'][:16],
                     'processing_time': round(result['processing_time'], 3),
-                    'lyrics_length': len(result['lyrics'])
+                    'lyrics_length': len(result['lyrics']),
+                    'variation_counter': request.variation_counter,
+                    'lyrics_preview': result['lyrics'][:100] + "..." if len(result['lyrics']) > 100 else result['lyrics']
                 }
             }
         )
