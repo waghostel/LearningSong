@@ -1,20 +1,8 @@
-/**
- * Line-level lyrics display component with clickable navigation
- * 
- * Renders lyrics line by line with line-level timestamps, allowing users to:
- * - See lyrics highlighted line by line during playback
- * - Click on any line to seek to that position
- * - Auto-scroll to keep current line visible
- * - View section markers with distinct styling
- * 
- * **Feature: song-playback-improvements**
- * **Validates: Requirements 9.1, 9.2, 9.3, 8.1, 8.4**
- */
-
-import { useEffect, useRef, useMemo } from 'react'
+import * as React from 'react'
+import { cn } from '@/lib/utils'
 import type { LineCue } from '@/lib/vtt-generator'
 
-interface LineLyricsDisplayProps {
+export interface LineLyricsDisplayProps {
   lineCues: LineCue[]
   currentTime: number
   onLineClick: (startTime: number) => void
@@ -22,28 +10,14 @@ interface LineLyricsDisplayProps {
   offset?: number
 }
 
+const AUTO_SCROLL_DISABLE_DURATION = 5000 // 5 seconds
+
 /**
- * Finds the index of the current line based on playback time
- * Returns the line where startTime <= currentTime < endTime,
- * or the most recently passed line if between lines
+ * Displays lyrics with line-by-line highlighting synchronization
+ * 
+ * **Feature: song-playback-improvements**
+ * **Validates: Requirements 1.1, 1.3, 1.4, 1.5**
  */
-function findCurrentLineIndex(
-  lineCues: LineCue[],
-  currentTime: number,
-  offset: number = 0
-): number {
-  const adjustedTime = currentTime + offset / 1000
-
-  // Find the line that contains the current time
-  for (let i = lineCues.length - 1; i >= 0; i--) {
-    if (lineCues[i].startTime <= adjustedTime) {
-      return i
-    }
-  }
-
-  return -1
-}
-
 export function LineLyricsDisplay({
   lineCues,
   currentTime,
@@ -51,43 +25,96 @@ export function LineLyricsDisplay({
   showMarkers = true,
   offset = 0,
 }: LineLyricsDisplayProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const currentLineRef = useRef<HTMLDivElement>(null)
+  const containerRef = React.useRef<HTMLDivElement>(null)
+  const lineRefs = React.useRef<(HTMLDivElement | null)[]>([])
+  
+  const [autoScrollEnabled, setAutoScrollEnabled] = React.useState(true)
+  const autoScrollTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isAutoScrollingRef = React.useRef(false)
 
-  // Find current line index
-  const currentLineIndex = useMemo(
-    () => findCurrentLineIndex(lineCues, currentTime, offset),
-    [lineCues, currentTime, offset]
-  )
+  // Apply offset to current time (convert ms to seconds)
+  const adjustedTime = currentTime + (offset / 1000)
 
-  // Auto-scroll to current line
-  useEffect(() => {
-    if (currentLineRef.current && containerRef.current) {
-      const container = containerRef.current
-      const currentLine = currentLineRef.current
+  // Find the currently active line
+  // A line is active if adjustedTime >= start && adjustedTime < end
+  // Or if it's the last line and we're past start
+  const currentLineIndex = React.useMemo(() => {
+    // If we have no lines, return -1
+    if (lineCues.length === 0) return -1
+    
+    // Find the first line where time is within bounds
+    const idx = lineCues.findIndex(cue => {
+      // If marker is hidden, it can't be current (conceptually)
+      if (cue.isMarker && !showMarkers) return false
+      return adjustedTime >= cue.startTime && adjustedTime < cue.endTime
+    })
 
-      // Scroll to keep current line in view (centered if possible)
-      const containerHeight = container.clientHeight
-      const lineTop = currentLine.offsetTop
-      const lineHeight = currentLine.clientHeight
+    if (idx !== -1) return idx
 
-      const scrollTop = lineTop - containerHeight / 2 + lineHeight / 2
-      container.scrollTop = Math.max(0, scrollTop)
+    // Fallback: if we are between lines, we might want to highlight upcoming?
+    // Or just highlight nothing.
+    // However, if we are past the last line, maybe keep last line active?
+    // Let's stick to strict timing for now.
+    
+    // If we are past the start of the last line and it hasn't ended adequately?
+    // For now, strict range check.
+    return -1
+  }, [lineCues, adjustedTime, showMarkers])
+
+  // Reset refs when lineCues change
+  React.useEffect(() => {
+    lineRefs.current = lineRefs.current.slice(0, lineCues.length)
+  }, [lineCues.length])
+
+  // Handle manual scroll interaction
+  const handleScroll = React.useCallback(() => {
+    if (isAutoScrollingRef.current) return
+
+    setAutoScrollEnabled(false)
+    
+    if (autoScrollTimeoutRef.current) {
+      clearTimeout(autoScrollTimeoutRef.current)
     }
-  }, [currentLineIndex])
 
-  // Filter lines based on showMarkers setting
-  const displayLines = useMemo(() => {
-    if (showMarkers) {
-      return lineCues
+    autoScrollTimeoutRef.current = setTimeout(() => {
+      setAutoScrollEnabled(true)
+    }, AUTO_SCROLL_DISABLE_DURATION)
+  }, [])
+
+  // Auto-scroll effect
+  React.useEffect(() => {
+    if (!autoScrollEnabled || currentLineIndex === -1) return
+
+    const currentEl = lineRefs.current[currentLineIndex]
+    if (currentEl && containerRef.current) {
+      isAutoScrollingRef.current = true
+      currentEl.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
+      setTimeout(() => {
+        isAutoScrollingRef.current = false
+      }, 500)
     }
-    return lineCues.filter(cue => !cue.isMarker)
-  }, [lineCues, showMarkers])
+  }, [currentLineIndex, autoScrollEnabled])
 
-  if (displayLines.length === 0) {
+  // Clean up timeout
+  React.useEffect(() => {
+    return () => {
+      if (autoScrollTimeoutRef.current) {
+        clearTimeout(autoScrollTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  if (lineCues.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full text-gray-500">
-        <p>No lyrics available</p>
+      <div 
+        className="p-4 rounded-lg border bg-card text-muted-foreground text-center"
+        role="region"
+        aria-label="Lyrics display"
+      >
+        No lyrics lines available
       </div>
     )
   }
@@ -95,60 +122,60 @@ export function LineLyricsDisplay({
   return (
     <div
       ref={containerRef}
-      className="h-full overflow-y-auto px-4 py-6 space-y-2"
+      className={cn(
+        'p-4 rounded-lg border bg-card',
+        'max-h-[400px] overflow-y-auto',
+        'scroll-smooth'
+      )}
       role="region"
-      aria-label="Lyrics display"
+      aria-label="Line-by-line lyrics display"
+      onScroll={handleScroll}
     >
-      {displayLines.map((cue, index) => {
-        const isCurrentLine = currentLineIndex === lineCues.indexOf(cue)
-        const isCurrent = isCurrentLine && !cue.isMarker
+      <div className="space-y-4">
+        {lineCues.map((cue, index) => {
+          if (cue.isMarker && !showMarkers) return null
 
-        return (
-          <div
-            key={cue.lineIndex}
-            ref={isCurrent ? currentLineRef : null}
-            onClick={() => {
-              if (!cue.isMarker) {
-                onLineClick(cue.startTime)
-              }
-            }}
-            className={`
-              transition-all duration-200 px-3 py-2 rounded-lg cursor-pointer
-              ${
-                cue.isMarker
-                  ? 'text-gray-400 text-sm italic font-medium'
-                  : isCurrent
-                    ? 'bg-blue-100 text-blue-900 font-semibold text-lg'
-                    : 'text-gray-700 hover:bg-gray-100'
-              }
-            `}
-            role={cue.isMarker ? 'doc-subtitle' : 'button'}
-            tabIndex={cue.isMarker ? -1 : 0}
-            onKeyDown={(e) => {
-              if (!cue.isMarker && (e.key === 'Enter' || e.key === ' ')) {
-                e.preventDefault()
-                onLineClick(cue.startTime)
-              }
-            }}
-            aria-label={
-              cue.isMarker
-                ? `Section: ${cue.text}`
-                : `Line ${index + 1}: ${cue.text}. Click to seek to ${formatTime(cue.startTime)}`
-            }
-          >
-            {cue.text}
-          </div>
-        )
-      })}
+          const isCurrent = index === currentLineIndex
+          const isPast = !isCurrent && cue.endTime <= adjustedTime
+          const isFuture = !isCurrent && !isPast
+
+          return (
+            <div
+              key={index}
+              ref={(el) => {
+                lineRefs.current[index] = el
+              }}
+              onClick={() => onLineClick(cue.startTime)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  onLineClick(cue.startTime)
+                }
+              }}
+              tabIndex={0}
+              role="button"
+              aria-current={isCurrent ? 'time' : undefined}
+              className={cn(
+                'p-2 rounded-md transition-all duration-300 cursor-pointer',
+                'text-lg leading-snug',
+                cue.isMarker && 'font-bold text-muted-foreground text-sm uppercase tracking-wider bg-muted/30',
+                isCurrent && !cue.isMarker && 'bg-primary/15 font-medium text-foreground scale-[1.02] shadow-sm ring-1 ring-primary/20',
+                isPast && !cue.isMarker && 'text-muted-foreground opacity-80',
+                isFuture && !cue.isMarker && 'text-muted-foreground',
+                // Hover effect
+                'hover:bg-muted/80'
+              )}
+            >
+              {cue.text}
+            </div>
+          )
+        })}
+      </div>
+      
+      {/* Screen reader live region */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {currentLineIndex !== -1 ? `Now singing: ${lineCues[currentLineIndex].text}` : ''}
+      </div>
     </div>
   )
-}
-
-/**
- * Formats time in MM:SS format for accessibility labels
- */
-function formatTime(seconds: number): string {
-  const minutes = Math.floor(seconds / 60)
-  const secs = Math.floor(seconds % 60)
-  return `${minutes}:${secs.toString().padStart(2, '0')}`
 }

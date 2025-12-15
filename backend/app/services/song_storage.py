@@ -341,18 +341,92 @@ async def get_user_tasks(user_id: str, limit: int = 10) -> list[dict]:
     """
     firestore_client = get_firestore_client()
     
-    tasks_ref = (
-        firestore_client.collection(SONGS_COLLECTION)
-        .where("user_id", "==", user_id)
-        .order_by("created_at", direction="DESCENDING")
-        .limit(limit)
-    )
+    try:
+        # Try optimized query with composite index first
+        tasks_ref = (
+            firestore_client.collection(SONGS_COLLECTION)
+            .where("user_id", "==", user_id)
+            .order_by("created_at", direction="DESCENDING")
+            .limit(limit)
+        )
+        
+        tasks = []
+        for doc in tasks_ref.stream():
+            task_data = doc.to_dict()
+            task_data = _migrate_task_schema(task_data, doc.id)
+            tasks.append(task_data)
+        
+        return tasks
+        
+    except Exception as e:
+        # Fallback: query without order_by, sort in Python
+        # This handles missing composite index gracefully
+        logger.warning(
+            f"Firestore composite index query failed, using fallback: {str(e)}",
+            extra={
+                "extra_fields": {
+                    "user_id": user_id,
+                    "error": str(e),
+                    "operation": "get_user_tasks",
+                }
+            },
+        )
+        
+        tasks_ref = (
+            firestore_client.collection(SONGS_COLLECTION)
+            .where("user_id", "==", user_id)
+            .limit(limit * 2)  # Fetch more to ensure we get newest after sorting
+        )
+        
+        tasks = []
+        for doc in tasks_ref.stream():
+            task_data = doc.to_dict()
+            task_data = _migrate_task_schema(task_data, doc.id)
+            tasks.append(task_data)
+        
+        # Sort by created_at in Python (newest first)
+        tasks.sort(
+            key=lambda x: x.get('created_at', datetime.min.replace(tzinfo=timezone.utc)),
+            reverse=True
+        )
+        
+        return tasks[:limit]
+
+
+def _migrate_task_schema(task_data: dict, task_id: str) -> dict:
+    """
+    Apply backward compatibility migration for task schema.
     
-    tasks = []
-    for doc in tasks_ref.stream():
-        tasks.append(doc.to_dict())
+    Migrates old song_url schema to new variations schema.
     
-    return tasks
+    Args:
+        task_data: The task document data
+        task_id: The task ID (for logging purposes)
+        
+    Returns:
+        dict: Migrated task data
+    """
+    if "variations" not in task_data or not task_data["variations"]:
+        song_url = task_data.get("song_url")
+        audio_id = task_data.get("audio_id")
+        
+        if song_url and audio_id:
+            task_data["variations"] = [
+                {
+                    "audio_url": song_url,
+                    "audio_id": audio_id,
+                    "variation_index": 0,
+                }
+            ]
+            task_data["primary_variation_index"] = 0
+        else:
+            task_data["variations"] = []
+            task_data["primary_variation_index"] = 0
+    
+    if "primary_variation_index" not in task_data:
+        task_data["primary_variation_index"] = 0
+    
+    return task_data
 
 
 async def verify_task_ownership(task_id: str, user_id: str) -> bool:

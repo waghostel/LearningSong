@@ -19,6 +19,8 @@ import {
   aggregateWordsToLines,
   formatVttTimestamp,
   generateVttContent,
+  normalizeText,
+  generateVttFilename,
   type LineCue,
 } from '@/lib/vtt-generator'
 import type { AlignedWord } from '@/types/lyrics'
@@ -176,6 +178,126 @@ describe('VTT Generator Property Tests', () => {
             for (let i = 0; i < lineCues.length - 1; i++) {
               expect(lineCues[i].startTime).toBeLessThanOrEqual(lineCues[i + 1].startTime)
             }
+          }
+        ),
+        { numRuns: 50 }
+      )
+    })
+  })
+
+  /**
+   * **Feature: song-playback-improvements, Property 9: Word split handling in matching**
+   * **Validates: Requirements 3.1, 1.2, 3.2**
+   * 
+   * For any line containing words that are split in the aligned words data
+   * (e.g., "we're" -> "we", "re"), the matching algorithm should correctly
+   * combine split words to match the original line content.
+   */
+  describe('Property 9: Word split handling in matching', () => {
+    it('should correctly match words even when split in aligned data', () => {
+      fc.assert(
+        fc.property(
+          fc.array(
+            fc.record({
+              word: fc.string({ minLength: 2, maxLength: 10 }).filter(s => /^[a-zA-Z]+$/.test(s)),
+              // Split into 1, 2, or 3 parts
+              splits: fc.integer({ min: 1, max: 3 })
+            }),
+            { minLength: 1, maxLength: 5 }
+          ),
+          (items) => {
+            // Create original line text
+            const lineText = items.map(i => i.word).join(' ')
+            
+            // Create aligned words by splitting the original words
+            const alignedWords: AlignedWord[] = []
+            let currentTime = 0
+            
+            items.forEach(item => {
+              // Simple chunking logic
+              const partSize = Math.ceil(item.word.length / item.splits)
+              
+              for(let i = 0; i < item.word.length; i += partSize) {
+                const part = item.word.slice(i, i + partSize)
+                alignedWords.push({
+                  word: part,
+                  startS: currentTime,
+                  endS: currentTime + 0.1,
+                  success: true,
+                  palign: 0
+                })
+                currentTime += 0.2
+              }
+            })
+            
+            const lineCues = aggregateWordsToLines(alignedWords, lineText)
+            
+            // Should produce exactly one line cue
+            expect(lineCues.length).toBe(1)
+            // Text should match normalized input
+            expect(lineCues[0].text).toBe(normalizeText(lineText))
+            // Start time should be first word start
+            expect(lineCues[0].startTime).toBeCloseTo(0)
+            // End time should be last word end
+            expect(lineCues[0].endTime).toBeCloseTo(alignedWords[alignedWords.length - 1].endS)
+          }
+        ),
+        { numRuns: 50 }
+      )
+    })
+  })
+
+  /**
+   * **Feature: song-playback-improvements, Property 10: Graceful handling of unmatchable lines**
+   * **Validates: Requirements 3.5**
+   * 
+   * For any lyrics containing lines that cannot be matched to aligned words,
+   * the aggregation process should skip those lines and continue processing.
+   */
+  describe('Property 10: Graceful handling of unmatchable lines', () => {
+    it('should skip lines that use words not present in aligned words', () => {
+      fc.assert(
+        fc.property(
+          sortedAlignedWordsArbitrary(1, 5),
+          (alignedWords) => {
+            const validLine = alignedWords.map(w => w.word).join(' ')
+            const impossibleLine = 'Supercalifragilisticexpialidocious'
+            
+            // Inject impossible line in middle
+            const mixedLyrics = `${validLine}\n${impossibleLine}\n${validLine}`
+            
+            // Should generate exactly 2 cues (dup of validLine)
+            // Note: Reuse of aligned words for multiple lines isn't typical, 
+            // but if we reuse the same text, we might match the same words?
+            // Actually aggregateWords consumption advances the index.
+            // So 2nd validLine won't match anything because words are consumed.
+            // So we expect:
+            // 1. First validLine matches aligned words. Index advances to end.
+            // 2. impossibleLine matches nothing.
+            // 3. Second validLine matches nothing (index at end).
+            // Result: 1 line cue.
+            
+            const lineCues = aggregateWordsToLines(alignedWords, mixedLyrics)
+            
+            expect(lineCues.length).toBe(1)
+            expect(lineCues[0].text).toBe(normalizeText(validLine))
+          }
+        ),
+        { numRuns: 50 }
+      )
+    })
+
+    it('should handle completely disjoint lyrics and aligned words', () => {
+      fc.assert(
+        fc.property(
+          sortedAlignedWordsArbitrary(1, 5),
+          fc.string({ minLength: 5 }).filter(s => !s.includes(' ')),
+          (alignedWords, randomWord) => {
+            // Ensure random word is not in aligned words
+            if (alignedWords.some(w => w.word.includes(randomWord))) return
+            
+            const lineCues = aggregateWordsToLines(alignedWords, randomWord)
+            expect(lineCues).toEqual([])
           }
         ),
         { numRuns: 50 }

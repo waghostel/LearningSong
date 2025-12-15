@@ -16,6 +16,9 @@ import { isSectionMarker } from './section-marker-utils'
 /**
  * Represents a line of lyrics with timing information
  */
+/**
+ * Represents a line of lyrics with timing information
+ */
 export interface LineCue {
   lineIndex: number           // 0-based index
   text: string                // Full line text
@@ -26,33 +29,43 @@ export interface LineCue {
 
 /**
  * Normalizes text by trimming and removing extra whitespace
- * Used for matching edited lyrics lines to aligned words
+ * Used for display text in LineCue
  */
-function normalizeText(text: string): string {
+export function normalizeText(text: string): string {
   return text.trim().replace(/\s+/g, ' ')
 }
 
 /**
- * Extracts words from a line of text, handling word splits
+ * Normalizes text for matching purposes
+ * Removes punctuation, lowercases, and handles Unicode characters
+ * 
+ * @param text - Text to normalize
+ * @returns Normalized text string
+ */
+export function normalizeForMatching(text: string): string {
+  const normalized = text.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '')
+  return normalized.length > 0 ? normalized : text.toLowerCase().trim()
+}
+
+/**
+ * Extracts words from a line of text
  * 
  * @param lineText - A single line of lyrics text
- * @returns Array of normalized words
- * 
- * @example
- * ```ts
- * extractWordsFromLine("In the world of science")
- * // ["In", "the", "world", "of", "science"]
- * ```
+ * @returns Array of words
  */
 function extractWordsFromLine(lineText: string): string[] {
-  return normalizeText(lineText)
+  // Add spaces around common punctuation to ensure they are treated as separate tokens
+  // but preserve them for matching if needed.
+  // We explicitly avoid splitting apostrophes to keep contractions like "don't" together.
+  const spaced = lineText.replace(/([!?.,;:"()[\]])/g, ' $1 ')
+  return normalizeText(spaced)
     .split(/\s+/)
     .filter(word => word.length > 0)
 }
 
 /**
  * Finds matching aligned words for a line of edited lyrics
- * Handles word splits (e.g., "we're" → "we'" + "re")
+ * Robustly handles word splits (e.g., "we're" → "we" + "re") and punctuation
  * 
  * @param lineText - A single line from edited lyrics
  * @param alignedWords - All aligned words from Suno API
@@ -64,51 +77,103 @@ function findMatchingWords(
   alignedWords: AlignedWord[],
   startIndex: number
 ): { words: AlignedWord[]; nextIndex: number } {
-  const lineWords = extractWordsFromLine(lineText)
+  // Prepare line tokens for matching
+  const lineTokens = extractWordsFromLine(lineText)
+    .map(normalizeForMatching)
+    .filter(t => t.length > 0)
+    
   const matchedWords: AlignedWord[] = []
-  const alignedIndex = startIndex
+  let nextIndex = startIndex
+  let currentTokenIdx = 0
 
-  // Try to match each aligned word to line words
-  for (let i = alignedIndex; i < alignedWords.length; i++) {
+  // Iterate through aligned words starting from key index
+  for (let i = startIndex; i < alignedWords.length; i++) {
     const alignedWord = alignedWords[i]
-    const alignedWordNorm = normalizeText(alignedWord.word)
-    const alignedLower = alignedWordNorm.toLowerCase()
+    const alignedNorm = normalizeForMatching(alignedWord.word)
 
-    // Try to find this aligned word in the remaining line words
-    let found = false
-    for (let j = 0; j < lineWords.length; j++) {
-      const lineWord = lineWords[j]
-      const lineLower = lineWord.toLowerCase()
-
-      // Exact match
-      if (lineLower === alignedLower) {
-        matchedWords.push(alignedWord)
-        lineWords.splice(j, 1)
-        found = true
-        break
-      }
-      // Aligned word is part of line word (word split case)
-      else if (lineLower.includes(alignedLower)) {
-        matchedWords.push(alignedWord)
-        // Remove the matched part from the line word
-        const idx = lineLower.indexOf(alignedLower)
-        lineWords[j] = lineWord.slice(0, idx) + lineWord.slice(idx + alignedWordNorm.length)
-        if (lineWords[j].length === 0) {
-          lineWords.splice(j, 1)
-        }
-        found = true
-        break
-      }
+    // Skip aligned words that normalize to empty string (just punctuation/whitespace)
+    // But include them in the match to preserve timing continuity
+    if (alignedNorm.length === 0) {
+      matchedWords.push(alignedWord)
+      nextIndex = i + 1
+      continue
     }
 
-    if (!found) {
-      // If we can't find a match, stop here
+    // Stop if we've matched all line tokens
+    if (currentTokenIdx >= lineTokens.length) {
+      break
+    }
+
+    const lineToken = lineTokens[currentTokenIdx]
+
+    // Case 1: Exact match
+    if (lineToken === alignedNorm) {
+      matchedWords.push(alignedWord)
+      currentTokenIdx++
+      nextIndex = i + 1
+    }
+    // Case 2: Aligned word is a prefix of line token (Split word case)
+    // E.g. line="we're" (norm="were"), aligned="we", then "re"
+    else if (lineToken.startsWith(alignedNorm)) {
+      matchedWords.push(alignedWord)
+      // Update the current token to be the remainder
+      lineTokens[currentTokenIdx] = lineToken.slice(alignedNorm.length)
+      nextIndex = i + 1
+    }
+    // Case 3: Line token is a prefix of aligned word (Merge word case)
+    // E.g. line="Word", "Word" (from "Word Word"), aligned="WordWord" (e.g. from NBSP)
+    else if (alignedNorm.startsWith(lineToken)) {
+      let combined = lineToken
+      let offset = 1
+      let merged = false
+
+      // Look ahead to combine tokens
+      while (currentTokenIdx + offset < lineTokens.length) {
+        combined += lineTokens[currentTokenIdx + offset]
+        
+        if (combined === alignedNorm) {
+          matchedWords.push(alignedWord)
+          currentTokenIdx += offset + 1
+          nextIndex = i + 1
+          merged = true
+          break
+        }
+        
+        // If combined string is no longer a prefix, stop trying
+        if (!alignedNorm.startsWith(combined)) {
+          break
+        }
+        offset++
+      }
+
+      if (merged) {
+        continue
+      }
+
+      // If merge failed, check skip logic below
+    }
+    // Case 3: Mismatch
+    else {
+      // Check if we can skip this aligned word.
+      // If it is purely punctuation (stripped to empty by strict normalization)
+      // and didn't match the line token, we include it as part of the match sequence
+      // (assuming it's noise/punctuation associated with the flow) and continue.
+      const strictNorm = alignedWord.word.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '')
+      if (strictNorm.length === 0) {
+        matchedWords.push(alignedWord)
+        nextIndex = i + 1
+        continue
+      }
+
+      // If we encounter a real mismatch (content word), we stop matching for this line.
       break
     }
   }
 
-  return { words: matchedWords, nextIndex: startIndex + matchedWords.length }
+  return { words: matchedWords, nextIndex: matchedWords.length > 0 ? nextIndex : startIndex }
 }
+
+
 
 /**
  * Aggregates word-level timestamps into line-level timestamps
@@ -298,6 +363,13 @@ export function downloadVttFile(content: string, filename: string): void {
  */
 export function generateVttFilename(style: string, createdAt: Date): string {
   const dateStr = createdAt.toISOString().split('T')[0]
-  const styleStr = style.toLowerCase().replace(/\s+/g, '-')
-  return `song-${styleStr}-${dateStr}.vtt`
+  // Normalize style: lowercase, replace non-alphanumeric with hyphens, collapse hyphens, trim start/end hyphens
+  const styleStr = style.toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+  
+  // Fallback if style becomes empty
+  const finalStyle = styleStr.length > 0 ? styleStr : 'unknown'
+  
+  return `song-${finalStyle}-${dateStr}.vtt`
 }
