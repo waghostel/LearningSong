@@ -37,7 +37,8 @@ const nonMarkerArbitrary = (): fc.Arbitrary<string> =>
 /**
  * Generator for AlignedWord with section marker
  */
-const markerWordArbitrary = (startTime: number): fc.Arbitrary<AlignedWord> =>
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _markerWordArbitrary = (startTime: number): fc.Arbitrary<AlignedWord> =>
   fc.record({
     word: sectionMarkerArbitrary(),
     duration: fc.float({ min: Math.fround(0.1), max: 2 }),
@@ -54,7 +55,8 @@ const markerWordArbitrary = (startTime: number): fc.Arbitrary<AlignedWord> =>
 /**
  * Generator for AlignedWord with regular lyric
  */
-const lyricWordArbitrary = (startTime: number): fc.Arbitrary<AlignedWord> =>
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _lyricWordArbitrary = (startTime: number): fc.Arbitrary<AlignedWord> =>
   fc.record({
     word: nonMarkerArbitrary(),
     duration: fc.float({ min: Math.fround(0.1), max: 2 }),

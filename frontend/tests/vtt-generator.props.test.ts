@@ -26,7 +26,8 @@ import type { AlignedWord } from '@/types/lyrics'
 /**
  * Generator for a valid AlignedWord with proper timing constraints
  */
-const alignedWordArbitrary = (minStart: number = 0): fc.Arbitrary<AlignedWord> =>
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _alignedWordArbitrary = (minStart: number = 0): fc.Arbitrary<AlignedWord> =>
   fc.record({
     word: fc.string({ minLength: 1, maxLength: 20 }),
     startS: fc.integer({ min: Math.ceil(minStart), max: 300 }),
@@ -82,7 +83,8 @@ const sortedAlignedWordsArbitrary = (minLength: number = 1, maxLength: number = 
 /**
  * Generator for lyrics text with multiple lines
  */
-const lyricsTextArbitrary = (minLines: number = 1, maxLines: number = 10): fc.Arbitrary<string> =>
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _lyricsTextArbitrary = (minLines: number = 1, maxLines: number = 10): fc.Arbitrary<string> =>
   fc.array(
     fc.string({ minLength: 1, maxLength: 50 }),
     { minLength: minLines, maxLength: maxLines }

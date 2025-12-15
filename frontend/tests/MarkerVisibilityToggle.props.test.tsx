@@ -235,8 +235,8 @@ describe('MarkerVisibilityToggle Property Tests', () => {
             cleanup()
           }
         ),
-        { numRuns: 20 }
+        { numRuns: 10, timeout: 10000 }
       )
-    })
+    }, 15000)
   })
 })

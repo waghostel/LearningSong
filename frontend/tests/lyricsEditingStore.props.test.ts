@@ -21,7 +21,8 @@ const versionArbitrary: fc.Arbitrary<LyricsVersion> = fc.record({
   editedLyrics: fc.option(lyricsArbitrary, { nil: undefined }),
 })
 
-const versionsArrayArbitrary = fc.array(versionArbitrary, { minLength: 1, maxLength: 8 })
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _versionsArrayArbitrary = fc.array(versionArbitrary, { minLength: 1, maxLength: 8 })
 
 describe('LyricsEditingStore Property Tests', () => {
   beforeEach(() => {

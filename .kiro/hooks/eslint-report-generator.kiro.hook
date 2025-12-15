@@ -1,13 +1,16 @@
 {
   "enabled": true,
   "name": "ESLint Report Generator",
-  "description": "Runs ESLint on the entire codebase, saves raw output to ./temp folder, then generates a formatted checklist report in ./report/lint-checking/ with timestamp. The report groups issues by file path and prioritizes files with errors (Urgent) over warnings (Low Risk).",
+  "description": "Runs ESLint and Oxlint on the frontend codebase, generates a TODO checklist report in ./report/lint-checking/ with timestamp. Issues are grouped by file and sorted by priority (errors first, warnings last).",
   "version": "1",
   "when": {
     "type": "userTriggered"
   },
   "then": {
     "type": "runCommand",
-    "command": "cd frontend && pnpm lint-report"
-  }
+    "command": "pnpm lint-todo",
+    "cwd": "frontend"
+  },
+  "workspaceFolderName": "LearningSong",
+  "shortName": "eslint-report-generator"
 }

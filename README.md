@@ -51,6 +51,7 @@ Create music based on learning material
    ```bash
    pnpm lint          # Fast linting with oxlint
    pnpm lint:eslint   # Comprehensive linting with ESLint
+   pnpm lint-todo     # Generate lint TODO report (errors first, warnings last)
    ```
 
 7. Run tests:
@@ -270,6 +271,7 @@ pnpm build         # Build for production
 pnpm preview       # Preview production build
 pnpm lint          # Run oxlint (fast)
 pnpm lint:eslint   # Run ESLint (comprehensive)
+pnpm lint-todo     # Generate lint TODO checklist report
 pnpm test          # Run Jest tests
 ```
 

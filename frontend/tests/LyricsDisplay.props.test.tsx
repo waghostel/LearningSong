@@ -4,7 +4,7 @@
  * **Validates: Requirements 11.5**
  */
 
-import { render, screen } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import { LyricsDisplay } from '@/components/LyricsDisplay'
 import type { AlignedWord } from '@/types/lyrics'
 import fc from 'fast-check'

@@ -26,38 +26,52 @@ const textOutputFile = path.join(tempDir, `frontend-test-output-${timestamp}.txt
 
 console.log('Running frontend tests...\n');
 
+let testsPassed = true;
+let combinedOutput = '';
+
 try {
   // Run tests and capture output
+  // Jest with --json outputs JSON to stdout, but when tests fail it exits non-zero
   const output = execSync(
-    'pnpm test --ci --coverage --json',
+    'pnpm test --ci --coverage --json 2>&1',
     {
       cwd: path.join(__dirname, '..', 'frontend'),
       encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'pipe']
+      maxBuffer: 50 * 1024 * 1024, // 50MB buffer for large test outputs
     }
   );
   
-  // Save outputs
-  fs.writeFileSync(textOutputFile, output);
-  
-  // Try to extract JSON from output
-  try {
-    const jsonMatch = output.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      fs.writeFileSync(jsonOutputFile, jsonMatch[0]);
-    }
-  } catch (e) {
-    console.warn('Could not extract JSON from test output');
-  }
-  
+  combinedOutput = output;
   console.log('✅ Tests completed successfully\n');
   
 } catch (error) {
   // Tests failed, but we still want to generate a report
-  const output = error.stdout || error.stderr || error.message;
-  fs.writeFileSync(textOutputFile, output);
+  // Combine stdout and stderr - Jest outputs JSON to stdout even on failure
+  testsPassed = false;
+  combinedOutput = (error.stdout || '') + (error.stderr || '');
+  
+  if (!combinedOutput) {
+    combinedOutput = error.message || 'Unknown error';
+  }
   
   console.log('⚠️  Some tests failed\n');
+}
+
+// Save the combined output
+fs.writeFileSync(textOutputFile, combinedOutput);
+
+// Try to extract JSON from output (Jest outputs a single JSON object)
+try {
+  // Look for Jest JSON output - it starts with {"numFailedTestSuites" or similar
+  const jsonMatch = combinedOutput.match(/\{[\s\S]*"numFailedTestSuites"[\s\S]*\}/);
+  if (jsonMatch) {
+    // Validate it's proper JSON before saving
+    JSON.parse(jsonMatch[0]);
+    fs.writeFileSync(jsonOutputFile, jsonMatch[0]);
+    console.log('📊 JSON test results extracted\n');
+  }
+} catch (e) {
+  console.warn('Could not extract JSON from test output:', e.message);
 }
 
 // Generate the report

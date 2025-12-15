@@ -14,8 +14,9 @@
  */
 
 import * as React from 'react'
-import { render, screen, fireEvent, act } from '@testing-library/react'
+import { render, screen, fireEvent, act, waitFor } from '@testing-library/react'
 import { renderHook } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { LyricsEditor } from '@/components/LyricsEditor'
 import { useLyricsEditingStore } from '@/stores/lyricsEditingStore'
@@ -128,23 +129,29 @@ describe('Version Switching Unit Tests', () => {
       expect(storeResult.current.activeVersionId).toBe(version1Id)
     })
 
-    it('should update textarea content when switching versions', () => {
+    it('should update textarea content when switching versions', async () => {
+      const user = userEvent.setup()
       const storeResult = setupWithVersions(['First version lyrics', 'Second version lyrics'])
 
       const version1Id = storeResult.current.versions[0].id
+      const version2Id = storeResult.current.versions[1].id
 
       render(<LyricsEditor />, { wrapper: createQueryWrapper() })
 
       // Initially should show version 2 (most recent)
       const textarea = screen.getByRole('textbox')
       expect(textarea).toHaveValue('Second version lyrics')
+      expect(storeResult.current.activeVersionId).toBe(version2Id)
 
-      // Click version 1 tab
+      // Click version 1 tab using userEvent for more realistic interaction
       const version1Tab = document.getElementById(`version-tab-${version1Id}`)
-      fireEvent.click(version1Tab!)
+      await user.click(version1Tab!)
 
-      // Textarea should now show version 1 content
-      expect(textarea).toHaveValue('First version lyrics')
+      // Wait for the textarea value to update
+      await waitFor(() => {
+        const updatedTextarea = screen.getByRole('textbox')
+        expect(updatedTextarea).toHaveValue('First version lyrics')
+      }, { timeout: 5000 })
     })
 
     it('should highlight active version tab', () => {

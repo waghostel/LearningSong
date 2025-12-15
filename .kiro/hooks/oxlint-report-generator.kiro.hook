@@ -7,7 +7,9 @@
     "type": "userTriggered"
   },
   "then": {
-    "type": "runCommand",
-    "command": "cd frontend && pnpm oxlint-report"
-  }
+    "type": "askAgent",
+    "prompt": "cd frontend && pnpm oxlint-report"
+  },
+  "workspaceFolderName": "LearningSong",
+  "shortName": "oxlint-report-generator"
 }

@@ -7,7 +7,9 @@
     "type": "userTriggered"
   },
   "then": {
-    "type": "runCommand",
-    "command": "node scripts/run-frontend-test-report.js"
-  }
+    "type": "askAgent",
+    "prompt": "pnpm test-report"
+  },
+  "workspaceFolderName": "LearningSong",
+  "shortName": "frontend-test-report"
 }

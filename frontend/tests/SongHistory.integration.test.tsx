@@ -95,7 +95,8 @@ describe('Song History Navigation Integration Tests', () => {
   })
 
   it('navigates to playback page when song is clicked', async () => {
-    const user = userEvent.setup()
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _user = userEvent.setup()
     
     mockedGetSongHistory.mockResolvedValueOnce(mockSongHistory)
     

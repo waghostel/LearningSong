@@ -8,7 +8,7 @@
 import React from 'react'
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { AxiosError, AxiosResponse } from 'axios'
+import { AxiosError, AxiosResponse, type AxiosRequestConfig } from 'axios'
 import { useRegenerateLyrics } from '@/hooks/useRegenerateLyrics'
 import { useLyricsEditingStore } from '@/stores/lyricsEditingStore'
 import * as lyricsApi from '@/api/lyrics'
@@ -49,7 +49,7 @@ const createAxiosError = (status: number, message: string = 'Error', detail?: st
     data: { detail, retry_after: retryAfter },
     statusText: 'Error',
     headers: {},
-    config: {} as any,
+    config: {} as AxiosRequestConfig,
   } as AxiosResponse
   return error
 }

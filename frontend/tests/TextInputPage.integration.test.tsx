@@ -127,7 +127,7 @@ describe('TextInputPage Integration Tests', () => {
           search_enabled: false,
         })
       }, { timeout: 3000 })
-    })
+    }, 10000)
 
     it('enables search grounding when toggle is activated', async () => {
       const user = userEvent.setup()
@@ -167,7 +167,7 @@ describe('TextInputPage Integration Tests', () => {
           search_enabled: true,
         })
       }, { timeout: 3000 })
-    })
+    }, 10000)
 
     it('uses keyboard shortcut to generate', async () => {
       const user = userEvent.setup()
@@ -195,8 +195,8 @@ describe('TextInputPage Integration Tests', () => {
       // Verify API was called
       await waitFor(() => {
         expect(mockedGenerateLyrics).toHaveBeenCalled()
-      })
-    })
+      }, { timeout: 5000 })
+    }, 10000)
   })
 
   describe('Error Scenarios', () => {

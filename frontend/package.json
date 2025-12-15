@@ -10,10 +10,13 @@
     "lint:eslint": "eslint .",
     "lint-report": "node ../scripts/run-eslint-report.js",
     "oxlint-report": "node ../scripts/run-oxlint-report.js",
+    "lint-todo": "node ../scripts/generate-lint-todo.js",
     "preview": "vite preview",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "test-report": "node ../scripts/run-frontend-test-report.js",
+    "backend-test-report": "node ../scripts/run-backend-test-report.js"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.15",

@@ -32,7 +32,8 @@ function findCurrentLineIndex(
 /**
  * Generator for a valid LineCue with proper timing constraints
  */
-const lineCueArbitrary = (minStart: number = 0): fc.Arbitrary<LineCue> =>
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _lineCueArbitrary = (minStart: number = 0): fc.Arbitrary<LineCue> =>
   fc.record({
     lineIndex: fc.integer({ min: 0, max: 100 }),
     text: fc.string({ minLength: 1, maxLength: 100 }),
@@ -333,7 +334,7 @@ describe('LineLyricsDisplay Property Tests', () => {
       fc.assert(
         fc.property(
           sortedLineCuesArbitrary(1, 10),
-          (lineCues) => {
+          (_lineCues) => {
             // Create a marker line
             const markerLine: LineCue = {
               lineIndex: 0,

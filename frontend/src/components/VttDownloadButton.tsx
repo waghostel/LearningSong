@@ -48,12 +48,6 @@ export function VttDownloadButton({
   offset = 0,
   disabled = false,
 }: VttDownloadButtonProps) {
-  /* 
-   * Hide button when no line cues available
-   * Requirements: 10.1, 10.5
-   * Note: We call hooks first to abide by Rules of Hooks, then return null if needed.
-   */
-
   const handleDownload = useCallback(() => {
     try {
       // Generate VTT content with offset applied
@@ -72,6 +66,10 @@ export function VttDownloadButton({
     }
   }, [lineCues, songStyle, createdAt, offset])
 
+  /* 
+   * Hide button when no line cues available
+   * Requirements: 10.1, 10.5
+   */
   if (lineCues.length === 0) {
     return null
   }

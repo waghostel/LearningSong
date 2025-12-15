@@ -138,21 +138,51 @@ if (testResults) {
   report += `## Summary\n\n`;
   report += `Test output captured from Jest.\n\n`;
   
-  // Try to extract basic info from text
-  const passMatch = textOutput.match(/Tests:\s+(\d+)\s+passed/);
-  const failMatch = textOutput.match(/(\d+)\s+failed/);
-  const totalMatch = textOutput.match(/(\d+)\s+total/);
+  // Try to extract basic info from text - Jest outputs various formats
+  const passMatch = textOutput.match(/Tests:\s+(\d+)\s+passed/i);
+  const failMatch = textOutput.match(/Tests:.*?(\d+)\s+failed/i) || textOutput.match(/(\d+)\s+failed/i);
+  const totalMatch = textOutput.match(/Tests:.*?(\d+)\s+total/i) || textOutput.match(/(\d+)\s+total/i);
+  const suitesFailMatch = textOutput.match(/Test Suites:.*?(\d+)\s+failed/i);
   
   if (totalMatch) report += `- Total Tests: ${totalMatch[1]}\n`;
-  if (passMatch) report += `- Passed: ${passMatch[1]}\n`;
-  if (failMatch) report += `- Failed: ${failMatch[1]}\n`;
+  if (passMatch) report += `- Passed: ${passMatch[1]} ✅\n`;
+  if (failMatch) report += `- Failed: ${failMatch[1]} ❌\n`;
+  if (suitesFailMatch) report += `- Failed Suites: ${suitesFailMatch[1]}\n`;
   
   report += `\n`;
   
-  if (failMatch && parseInt(failMatch[1]) > 0) {
+  // Check for failures in various ways
+  const hasFailures = (failMatch && parseInt(failMatch[1]) > 0) || 
+                      (suitesFailMatch && parseInt(suitesFailMatch[1]) > 0) ||
+                      textOutput.includes('FAIL ') ||
+                      textOutput.includes('✕');
+  
+  if (hasFailures) {
     report += `## 🚨 URGENT - Test Failures Detected\n\n`;
-    report += `Please review the full test output for details.\n\n`;
-    report += `\`\`\`\n${textOutput.slice(0, 2000)}\n\`\`\`\n`;
+    report += `Please review the test output below for details.\n\n`;
+    
+    // Extract failure details - look for FAIL lines and error messages
+    const failureLines = textOutput.split('\n').filter(line => 
+      line.includes('FAIL ') || 
+      line.includes('✕') || 
+      line.includes('Error:') ||
+      line.includes('Expected') ||
+      line.includes('Received')
+    ).slice(0, 50); // Limit to first 50 relevant lines
+    
+    if (failureLines.length > 0) {
+      report += `### Failure Details\n\n`;
+      report += `\`\`\`\n${failureLines.join('\n')}\n\`\`\`\n\n`;
+    }
+    
+    report += `### Full Output (truncated)\n\n`;
+    report += `\`\`\`\n${textOutput.slice(0, 3000)}\n\`\`\`\n`;
+  } else if (!passMatch && !failMatch && !totalMatch) {
+    // No test results found at all
+    report += `## ⚠️ Could Not Parse Test Results\n\n`;
+    report += `The test output did not contain recognizable Jest results.\n\n`;
+    report += `### Raw Output\n\n`;
+    report += `\`\`\`\n${textOutput.slice(0, 3000)}\n\`\`\`\n`;
   } else {
     report += `## ✅ All Tests Passed!\n\n`;
   }

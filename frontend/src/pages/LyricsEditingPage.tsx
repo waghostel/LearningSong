@@ -93,7 +93,7 @@ export function LyricsEditingPage() {
         useLyricsEditingStore.getState().addVersion(state.lyrics)
       }
     }
-  }, [location.state, setOriginalLyrics, setContentHash, setOriginalContent, versions.length])
+  }, [location.state, setOriginalLyrics, setContentHash, setOriginalContent]) // Removed versions.length to prevent reset on version change
 
   // Redirect if no lyrics data available
   useEffect(() => {

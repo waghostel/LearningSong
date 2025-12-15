@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { useLyricsEditingStore } from '@/stores/lyricsEditingStore'
@@ -60,6 +60,8 @@ export const LyricsEditor: React.FC = () => {
       updateVersionEdits(activeVersionId, newValue)
     }
   }
+
+
   
   // Get status message for screen readers
   const getStatusMessage = () => {

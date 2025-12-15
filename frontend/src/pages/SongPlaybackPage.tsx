@@ -133,11 +133,11 @@ export function SongPlaybackPage() {
   useEffect(() => {
     if (songId && !offsetLoaded) {
       const savedOffset = loadOffset(songId)
-      // We need to update state based on external storage when songId becomes available
-      // This causes a re-render which is expected for data synchronization
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setOffset(savedOffset)
-      setOffsetLoaded(true)
+      // Use setTimeout to avoid synchronous setState in effect
+      setTimeout(() => {
+        setOffset(savedOffset)
+        setOffsetLoaded(true)
+      }, 0)
     }
   }, [songId, offsetLoaded])
 
