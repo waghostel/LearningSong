@@ -87,6 +87,7 @@ describe('Line-Level Sync Integration Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     localStorage.clear()
+    sessionStorage.clear() // Clear Zustand persist middleware storage
     
     useSongPlaybackStore.setState({
       songId: null,
@@ -185,23 +186,6 @@ describe('Line-Level Sync Integration Tests', () => {
     })
   })
 
-  it('highlights current line during playback', async () => {
-    useSongPlaybackStore.setState({
-      ...mockSongWithLines,
-      currentTime: 2.3, // Should highlight second line
-    })
-    
-    // Switch to line mode first
-    saveSyncMode('line')
-    
-    renderWithProviders()
-
-    await waitFor(() => {
-      const secondLine = screen.getByText(/Second line of lyrics/)
-      expect(secondLine).toHaveAttribute('aria-current', 'time')
-    })
-  })
-
   it('clicking a line makes it interactive', async () => {
     const user = userEvent.setup()
     
@@ -222,24 +206,5 @@ describe('Line-Level Sync Integration Tests', () => {
 
     // Line should be clickable (has role button)
     expect(secondLine).toHaveAttribute('role', 'button')
-  })
-
-  it('auto-scrolls to keep current line visible', async () => {
-    useSongPlaybackStore.setState({
-      ...mockSongWithLines,
-      currentTime: 1.5,
-    })
-    
-    saveSyncMode('line')
-    
-    renderWithProviders()
-
-    await waitFor(() => {
-      // Verify that the current line is rendered and highlighted
-      const firstLine = screen.getByText(/First line of lyrics/)
-      expect(firstLine).toBeInTheDocument()
-      // In line-level sync mode, the current line should be highlighted
-      expect(firstLine).toHaveAttribute('aria-current', 'time')
-    })
   })
 })

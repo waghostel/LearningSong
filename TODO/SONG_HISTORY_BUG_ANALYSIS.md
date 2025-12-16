@@ -1,5 +1,7 @@
 # Song History Bug Analysis Report
 
+需要自己評估
+
 ## Issue Summary
 
 **Problem**: Songs are not displaying on the "My Songs" history page (http://localhost:5173/history) despite being successfully created and accessible via direct playback URLs.
@@ -21,9 +23,14 @@
 ### What's Broken ❌
 
 1. **History API Endpoint**: `/api/songs/history` returns 500 Internal Server Error
-2. **Error Response**: 
+2. **Error Response**:
    ```json
-   {"detail":{"error":"Internal error","message":"Failed to retrieve song history. Please try again."}}
+   {
+     "detail": {
+       "error": "Internal error",
+       "message": "Failed to retrieve song history. Please try again."
+     }
+   }
    ```
 
 ## Root Cause Analysis
@@ -44,6 +51,7 @@ tasks_ref = (
 ### The Problem
 
 **Firestore requires a composite index** for queries that combine:
+
 - `WHERE` clause on one field (`user_id`)
 - `ORDER BY` clause on a different field (`created_at`)
 
@@ -61,22 +69,25 @@ This composite index has not been created in the Firestore database, causing the
 ### Option 1: Create Firestore Composite Index (Recommended)
 
 **Steps:**
+
 1. Go to [Firebase Console](https://console.firebase.google.com/)
 2. Select project: `learningsong-3e632`
 3. Navigate to **Firestore Database** → **Indexes**
 4. Create composite index:
    - **Collection**: `songs`
-   - **Fields**: 
+   - **Fields**:
      - `user_id` (Ascending)
      - `created_at` (Descending)
 5. Wait for index creation to complete (usually 5-10 minutes)
 
 **Pros:**
+
 - Permanent fix
 - Maintains optimal query performance
 - Follows Firestore best practices
 
 **Cons:**
+
 - Requires Firebase Console access
 - Takes time to build index
 
@@ -86,6 +97,7 @@ This composite index has not been created in the Firestore database, causing the
 **Function**: `get_user_tasks` (around line 340)
 
 **Current Code:**
+
 ```python
 tasks_ref = (
     firestore_client.collection(SONGS_COLLECTION)
@@ -102,6 +114,7 @@ return tasks
 ```
 
 **Fixed Code:**
+
 ```python
 # Remove order_by from Firestore query
 tasks_ref = (
@@ -121,23 +134,27 @@ return tasks
 ```
 
 **Pros:**
+
 - Immediate fix
 - No Firebase Console access needed
 - Works with existing data
 
 **Cons:**
+
 - Less efficient for large datasets
 - Sorting happens in application memory
 
 ### Option 3: Debug with Verbose Logging
 
 **Command:**
+
 ```bash
 cd backend
 poetry run uvicorn app.main:app --reload --log-level debug
 ```
 
 **Purpose:**
+
 - See exact Firestore error message
 - Confirm root cause
 - Identify any additional issues
@@ -147,11 +164,13 @@ poetry run uvicorn app.main:app --reload --log-level debug
 After implementing a fix:
 
 1. **Test History API**:
+
    ```bash
    curl -H "Authorization: Bearer dev-token-local" http://localhost:8001/api/songs/history
    ```
 
 2. **Check Frontend**:
+
    - Navigate to http://localhost:5173/history
    - Verify song `3d9f858dbd3a2abf38a8f4e8ae532d3a` appears in list
 
