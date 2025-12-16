@@ -1,0 +1,280 @@
+  console.log
+    DEBUG LineLyricsDisplay { currentTime: 2.3, offset: 0, len: 3 }
+
+      at LineLyricsDisplay (src/components/LineLyricsDisplay.tsx:28:11)
+
+  console.log
+    DEBUG LineLyricsDisplay Index {
+      currentLineIndex: 1,
+      cue: {
+        lineIndex: 1,
+        text: 'Second line of lyrics',
+        startTime: 2,
+        endTime: 2.8,
+        isMarker: false
+      }
+    }
+
+      at LineLyricsDisplay (src/components/LineLyricsDisplay.tsx:65:11)
+
+  console.log
+    DEBUG LineLyricsDisplay { currentTime: 2.3, offset: 0, len: 3 }
+
+      at LineLyricsDisplay (src/components/LineLyricsDisplay.tsx:28:11)
+
+  console.log
+    DEBUG LineLyricsDisplay Index {
+      currentLineIndex: 1,
+      cue: {
+        lineIndex: 1,
+        text: 'Second line of lyrics',
+        startTime: 2,
+        endTime: 2.8,
+        isMarker: false
+      }
+    }
+
+      at LineLyricsDisplay (src/components/LineLyricsDisplay.tsx:65:11)
+
+  console.log
+    DEBUG LineLyricsDisplay { currentTime: 2.3, offset: 0, len: 3 }
+
+      at LineLyricsDisplay (src/components/LineLyricsDisplay.tsx:28:11)
+
+  console.log
+    DEBUG LineLyricsDisplay Index {
+      currentLineIndex: 1,
+      cue: {
+        lineIndex: 1,
+        text: 'Second line of lyrics',
+        startTime: 2,
+        endTime: 2.8,
+        isMarker: false
+      }
+    }
+
+      at LineLyricsDisplay (src/components/LineLyricsDisplay.tsx:65:11)
+
+  console.log
+    DEBUG LineLyricsDisplay { currentTime: 2.3, offset: 0, len: 3 }
+
+      at LineLyricsDisplay (src/components/LineLyricsDisplay.tsx:28:11)
+
+  console.log
+    DEBUG LineLyricsDisplay Index {
+      currentLineIndex: 1,
+      cue: {
+        lineIndex: 1,
+        text: 'Second line of lyrics',
+        startTime: 2,
+        endTime: 2.8,
+        isMarker: false
+      }
+    }
+
+      at LineLyricsDisplay (src/components/LineLyricsDisplay.tsx:65:11)
+
+FAIL tests/LineLevelSync.integration.test.tsx
+  Line-Level Sync Integration Tests
+    ? highlights current line during playback (1318 ms)
+    ??skipped displays sync mode toggle when line cues are available
+    ??skipped switches between word and line sync modes
+    ??skipped persists sync mode preference to localStorage
+    ??skipped restores sync mode preference on page load
+    ??skipped clicking a line makes it interactive
+    ??skipped auto-scrolls to keep current line visible
+
+  ??Line-Level Sync Integration Tests ??highlights current line during playback
+
+    Found multiple elements with the text: /Second line of lyrics/
+
+    Here are the matching elements:
+
+    Ignored nodes: comments, script, style
+    <div
+      aria-current="time"
+      aria-describedby="current-line-description"
+      aria-label="Lyric line: Second line of lyrics. Click to seek to 0:02"
+      class="p-2 rounded-md transition-all duration-300 cursor-pointer text-lg leading-snug focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary/15 font-medium text-foreground scale-[1.02] shadow-sm ring-1 ring-primary/20 hover:bg-muted/80"
+      role="button"
+      tabindex="0"
+    >
+      Second line of lyrics
+    </div>
+
+    Ignored nodes: comments, script, style
+    <div
+      aria-atomic="true"
+      aria-live="polite"
+      class="sr-only"
+    >
+      Now singing: Second line of lyrics
+    </div>
+
+    (If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+    Ignored nodes: comments, script, style
+    <body>
+      <div>
+        <div
+          class="min-h-screen bg-background"
+        >
+          <nav
+            aria-label="Skip links"
+            class="sr-only focus-within:not-sr-only"
+          >
+            <a
+              class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              href="#main-content"
+            >
+              Skip to main content
+            </a>
+            <a
+              class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-48 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              href="#audio-player"
+            >
+              Skip to audio player
+            </a>
+          </nav>
+          <header
+            class="border-b"
+            role="banner"
+          >
+            <div
+              class="container mx-auto px-4 py-6"
+            >
+              <div
+                class="flex items-center justify-between"
+              >
+                <div
+                  class="text-left"
+                >
+                  <h1
+                    class="text-3xl font-bold tracking-tight"
+                  >
+                    LearningSong
+                  </h1>
+                  <p
+                    class="text-muted-foreground mt-1"
+                  >
+                    Your song is ready to play
+                  </p>
+                </div>
+                <div
+                  class="flex items-center gap-4"
+                >
+                  <nav
+                    aria-label="Main navigation"
+                    class="flex items-center gap-1 sm:gap-2"
+                  >
+                    <a
+                      aria-current="page"
+                      class="px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm rounded-md transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground font-medium"
+                      data-discover="true"
+                      href="/"
+                    >
+                      <span
+                        class="hidden sm:inline"
+                      >
+                        Text Input
+                      </span>
+                      <span
+                        class="sm:hidden"
+                      >
+                        Input
+                      </span>
+                    </a>
+                    <a
+                      class="px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm rounded-md transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-muted-foreground"
+                      data-discover="true"
+                      href="/lyrics-edit"
+                    >
+                      <span
+                        class="hidden sm:inline"
+                      >
+                        Lyrics Editing
+                      </span>
+                      <span
+                        class="sm:hidden"
+                      >
+                        Lyrics
+                      </span>
+                    </a>
+                    <a
+                      class="px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm rounded-md transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-muted-foreground"
+                      data-discover="true"
+                      href="/playback"
+                    >
+                      <span
+                        class="hidden sm:inline"
+                      >
+                        Song Playback
+                      </span>
+                      <span
+                        class="sm:hidden"
+                      >
+                        Playback
+                      </span>
+                    </a>
+                    <a
+                      class="px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm rounded-md transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-muted-foreground"
+                      data-discover="true"
+                      href="/history"
+                    >
+                      <span
+                        class="hidden sm:inline"
+                      >
+                        My Songs
+                      </span>
+                      <span
+                        class="sm:hidden"
+                      >
+                        Songs
+                      </span>
+                    </a>
+                  </nav>
+                  <div
+                    aria-atomic="true"
+                    aria-live="polite"
+                    class="space-y-1"
+                    role="status"
+                  >
+                    <div
+                      class="flex items-center space-x-2 text-sm font-medium text-green-700 dark:text-green-500"
+                    >
+                      <span
+                        aria-label="3 of 3 songs remaining today"
+                      >
+                        ? 
+                        3
+                        /
+                        3
+                         songs remaining today
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </header>
+          <main...
+
+      197 |     renderWithProviders()
+      198 |
+    > 199 |     await waitFor(() => {
+          |                  ^
+      200 |       const secondLine = screen.getByText(/Second line of lyrics/)
+      201 |       try {
+      202 |         expect(secondLine).toHaveAttribute('aria-current', 'time')
+
+      at waitForWrapper (node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/wait-for.js:163:27)
+      at tests/LineLevelSync.integration.test.tsx:199:18
+      at tests/LineLevelSync.integration.test.tsx:8:71
+      at __awaiter (tests/LineLevelSync.integration.test.tsx:4:12)
+      at Object.<anonymous> (tests/LineLevelSync.integration.test.tsx:188:60)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 6 skipped, 7 total
+Snapshots:   0 total
+Time:        5.413 s, estimated 11 s
+Ran all test suites matching tests/LineLevelSync.integration.test.tsx with tests matching "highlights current line".

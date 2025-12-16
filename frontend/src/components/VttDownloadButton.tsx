@@ -82,10 +82,14 @@ export function VttDownloadButton({
       disabled={disabled}
       className="focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       aria-label="Download lyrics as VTT subtitle file"
+      aria-describedby="vtt-download-description"
       title="Download VTT subtitle file with line-level timestamps"
     >
       <Download className="mr-2 h-4 w-4" aria-hidden="true" />
       Download VTT
+      <span id="vtt-download-description" className="sr-only">
+        Downloads a WebVTT subtitle file containing synchronized lyrics with timestamps for use in video players and accessibility tools
+      </span>
     </Button>
   )
 }

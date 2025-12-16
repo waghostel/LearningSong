@@ -18,6 +18,25 @@ jest.mock('@/hooks/useNetworkStatus')
 const mockedUseAuth = useAuth as jest.MockedFunction<typeof useAuth>
 const mockedUseNetworkStatus = useNetworkStatus as jest.MockedFunction<typeof useNetworkStatus>
 
+jest.mock('@/hooks/useLyrics', () => ({
+  useRateLimit: () => ({
+    data: { remaining: 3, total_limit: 3, reset_time: Date.now() + 10000 },
+    isLoading: false,
+    error: null
+  }),
+  useGenerateLyrics: () => ({ mutate: jest.fn() }),
+}))
+
+jest.mock('@/hooks/useSongSwitcher', () => ({
+  useSongSwitcher: () => ({
+    activeIndex: 0,
+    isLoading: false,
+    error: null,
+    switchVariation: jest.fn(),
+    clearError: jest.fn(),
+  }),
+}))
+
 Element.prototype.scrollIntoView = jest.fn()
 
 const renderWithProviders = (initialPath: string = '/playback/song-123') => {
@@ -179,7 +198,7 @@ describe('Line-Level Sync Integration Tests', () => {
 
     await waitFor(() => {
       const secondLine = screen.getByText(/Second line of lyrics/)
-      expect(secondLine).toHaveClass('bg-blue-100')
+      expect(secondLine).toHaveAttribute('aria-current', 'time')
     })
   })
 
@@ -220,7 +239,7 @@ describe('Line-Level Sync Integration Tests', () => {
       const firstLine = screen.getByText(/First line of lyrics/)
       expect(firstLine).toBeInTheDocument()
       // In line-level sync mode, the current line should be highlighted
-      expect(firstLine).toHaveClass('bg-blue-100')
+      expect(firstLine).toHaveAttribute('aria-current', 'time')
     })
   })
 })

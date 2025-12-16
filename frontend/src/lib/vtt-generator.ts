@@ -32,6 +32,9 @@ export interface LineCue {
  * Used for display text in LineCue
  */
 export function normalizeText(text: string): string {
+  if (!text || typeof text !== 'string') {
+    return String(text || '').trim().replace(/\s+/g, ' ')
+  }
   return text.trim().replace(/\s+/g, ' ')
 }
 
@@ -43,6 +46,9 @@ export function normalizeText(text: string): string {
  * @returns Normalized text string
  */
 export function normalizeForMatching(text: string): string {
+  if (!text || typeof text !== 'string') {
+    return ''
+  }
   const normalized = text.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '')
   return normalized.length > 0 ? normalized : text.toLowerCase().trim()
 }
@@ -200,6 +206,15 @@ export function aggregateWordsToLines(
   alignedWords: AlignedWord[],
   editedLyrics: string
 ): LineCue[] {
+  // Handle null/undefined inputs gracefully (Property 17)
+  if (!alignedWords || !Array.isArray(alignedWords) || alignedWords.length === 0) {
+    return []
+  }
+  
+  if (!editedLyrics || typeof editedLyrics !== 'string') {
+    return []
+  }
+
   const lineCues: LineCue[] = []
   const lyricsLines = editedLyrics.split('\n')
   let alignedIndex = 0
@@ -227,11 +242,15 @@ export function aggregateWordsToLines(
       const startTime = matchedWords[0].startS
       const endTime = matchedWords[matchedWords.length - 1].endS
 
+      // Ensure timestamps are valid (Property 15: Non-negative timestamp enforcement)
+      const validStartTime = Math.max(0, startTime)
+      const validEndTime = Math.max(validStartTime, endTime)
+
       lineCues.push({
         lineIndex: lineCues.length,
         text: normalizeText(lineText),
-        startTime,
-        endTime,
+        startTime: validStartTime,
+        endTime: validEndTime,
         isMarker,
       })
 
@@ -260,10 +279,18 @@ export function aggregateWordsToLines(
  * ```
  */
 export function formatVttTimestamp(seconds: number): string {
-  // Extract milliseconds before flooring
-  const milliseconds = Math.round((seconds % 1) * 1000) % 1000
-  const totalSeconds = Math.floor(seconds)
+  // Handle invalid inputs gracefully
+  if (!Number.isFinite(seconds) || seconds < 0) {
+    return '00:00.000'
+  }
 
+  // Convert to milliseconds first to avoid floating point precision issues
+  const totalMilliseconds = Math.round(seconds * 1000)
+  
+  // Extract components from total milliseconds
+  const milliseconds = totalMilliseconds % 1000
+  const totalSeconds = Math.floor(totalMilliseconds / 1000)
+  
   const hours = Math.floor(totalSeconds / 3600)
   const minutes = Math.floor((totalSeconds % 3600) / 60)
   const secs = totalSeconds % 60
@@ -272,6 +299,7 @@ export function formatVttTimestamp(seconds: number): string {
     return String(num).padStart(length, '0')
   }
 
+  // WebVTT format: MM:SS.mmm or HH:MM:SS.mmm
   const timeStr = hours > 0
     ? `${pad(hours)}:${pad(minutes)}:${pad(secs)}.${pad(milliseconds, 3)}`
     : `${pad(minutes)}:${pad(secs)}.${pad(milliseconds, 3)}`
@@ -280,16 +308,98 @@ export function formatVttTimestamp(seconds: number): string {
 }
 
 /**
+ * Validates that a timestamp string conforms to WebVTT format
+ * 
+ * @param timestamp - Timestamp string to validate
+ * @returns True if the timestamp is valid WebVTT format
+ * 
+ * **Feature: vtt-download-enhancement**
+ * **Validates: Requirements 5.1, 5.4**
+ * 
+ * @example
+ * ```ts
+ * validateVttTimestamp('01:23.456') // true
+ * validateVttTimestamp('01:23:45.678') // true
+ * validateVttTimestamp('invalid') // false
+ * ```
+ */
+export function validateVttTimestamp(timestamp: string): boolean {
+  if (typeof timestamp !== 'string') {
+    return false
+  }
+
+  // WebVTT timestamp pattern: MM:SS.mmm or HH:MM:SS.mmm
+  const vttPattern = /^(\d{2}:)?\d{2}:\d{2}\.\d{3}$/
+  
+  if (!vttPattern.test(timestamp)) {
+    return false
+  }
+
+  // Additional validation: check that time components are in valid ranges
+  const parts = timestamp.split(':')
+  const lastPart = parts[parts.length - 1] // SS.mmm
+  const [seconds, milliseconds] = lastPart.split('.')
+  
+  const secondsNum = parseInt(seconds, 10)
+  const millisecondsNum = parseInt(milliseconds, 10)
+  
+  // Seconds should be 0-59, milliseconds should be 0-999
+  if (secondsNum < 0 || secondsNum > 59) {
+    return false
+  }
+  
+  if (millisecondsNum < 0 || millisecondsNum > 999) {
+    return false
+  }
+  
+  // Validate minutes based on format
+  if (parts.length === 3) {
+    // HH:MM:SS.mmm format - validate both hours and minutes
+    const minutesNum = parseInt(parts[1], 10)
+    if (minutesNum < 0 || minutesNum > 59) {
+      return false
+    }
+  } else if (parts.length === 2) {
+    // MM:SS.mmm format - validate minutes (first part)
+    const minutesNum = parseInt(parts[0], 10)
+    if (minutesNum < 0 || minutesNum > 59) {
+      return false
+    }
+  }
+  
+  return true
+}
+
+/**
+ * Clamps a value to be non-negative (>= 0)
+ * Used to ensure timestamps never go negative when offsets are applied
+ * 
+ * @param value - The value to clamp
+ * @returns The value clamped to be >= 0
+ * 
+ * **Feature: vtt-download-enhancement, Property 15: Non-negative timestamp enforcement**
+ * **Validates: Requirements 5.5**
+ */
+export function clampToNonNegative(value: number): number {
+  if (!Number.isFinite(value)) {
+    return 0
+  }
+  return Math.max(0, value)
+}
+
+/**
  * Generates VTT file content from line cues
  * 
  * Excludes section markers from the VTT output.
  * Applies offset to all timestamps if provided.
+ * Ensures all timestamps are non-negative (clamped to 0 if offset would make them negative).
  * 
  * @param lineCues - Array of line cues with timing information
  * @param offset - Optional offset in milliseconds to apply to timestamps
  * @returns VTT file content as a string
  * 
- * **Validates: Requirements 7.5, 7.6**
+ * **Feature: vtt-download-enhancement, Property 15: Non-negative timestamp enforcement**
+ * **Validates: Requirements 5.5, 7.5, 7.6**
  * 
  * @example
  * ```ts
@@ -298,17 +408,36 @@ export function formatVttTimestamp(seconds: number): string {
  * ```
  */
 export function generateVttContent(lineCues: LineCue[], offset: number = 0): string {
+  // Handle malformed input gracefully (Property 17)
+  if (!lineCues || !Array.isArray(lineCues)) {
+    return 'WEBVTT\n\n'
+  }
+
   const offsetSeconds = offset / 1000
   const lines: string[] = ['WEBVTT', '']
 
   for (const cue of lineCues) {
+    // Skip null/undefined cues (Property 17)
+    if (!cue || typeof cue !== 'object') {
+      continue
+    }
+
     // Skip section markers in VTT output
     if (cue.isMarker) {
       continue
     }
 
-    const startTime = formatVttTimestamp(cue.startTime + offsetSeconds)
-    const endTime = formatVttTimestamp(cue.endTime + offsetSeconds)
+    // Skip cues with invalid or missing data
+    if (typeof cue.startTime !== 'number' || typeof cue.endTime !== 'number' || typeof cue.text !== 'string') {
+      continue
+    }
+
+    // Clamp timestamps to non-negative values (Property 15)
+    const adjustedStart = clampToNonNegative(cue.startTime + offsetSeconds)
+    const adjustedEnd = clampToNonNegative(cue.endTime + offsetSeconds)
+
+    const startTime = formatVttTimestamp(adjustedStart)
+    const endTime = formatVttTimestamp(adjustedEnd)
 
     lines.push(`${startTime} --> ${endTime}`)
     lines.push(cue.text)
@@ -333,19 +462,39 @@ export function generateVttContent(lineCues: LineCue[], offset: number = 0): str
  * ```
  */
 export function downloadVttFile(content: string, filename: string): void {
-  const blob = new Blob([content], { type: 'text/vtt;charset=utf-8' })
-  const link = document.createElement('a')
-  const url = URL.createObjectURL(blob)
+  try {
+    // Handle invalid content gracefully (Property 17)
+    const safeContent = String(content || 'WEBVTT\n\n')
+    const safeFilename = String(filename || 'download.vtt')
 
-  link.setAttribute('href', url)
-  link.setAttribute('download', filename)
-  link.style.visibility = 'hidden'
+    // Check for browser support
+    if (typeof Blob === 'undefined' || typeof URL === 'undefined' || !URL.createObjectURL) {
+      console.warn('Browser does not support file download')
+      return
+    }
 
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
+    if (!document || !document.createElement || !document.body) {
+      console.warn('DOM not available for file download')
+      return
+    }
 
-  URL.revokeObjectURL(url)
+    const blob = new Blob([safeContent], { type: 'text/vtt;charset=utf-8' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+
+    link.setAttribute('href', url)
+    link.setAttribute('download', safeFilename)
+    link.style.visibility = 'hidden'
+
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+
+    URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('Failed to download VTT file:', error)
+    // Graceful degradation - could show user a text area with content
+  }
 }
 
 /**
@@ -362,7 +511,16 @@ export function downloadVttFile(content: string, filename: string): void {
  * ```
  */
 export function generateVttFilename(style: string, createdAt: Date): string {
-  const dateStr = createdAt.toISOString().split('T')[0]
+  // Handle invalid date gracefully (Property 17: Error handling)
+  let dateStr = 'unknown-date'
+  try {
+    if (createdAt && !isNaN(createdAt.getTime())) {
+      dateStr = createdAt.toISOString().split('T')[0]
+    }
+  } catch {
+    // Fall back to unknown-date if toISOString fails
+  }
+  
   // Normalize style: lowercase, replace non-alphanumeric with hyphens, collapse hyphens, trim start/end hyphens
   const styleStr = style.toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')

@@ -155,9 +155,11 @@ export function LineLyricsDisplay({
               tabIndex={0}
               role="button"
               aria-current={isCurrent ? 'time' : undefined}
+              aria-label={`${cue.isMarker ? 'Section marker' : 'Lyric line'}: ${cue.text}. Click to seek to ${Math.floor(cue.startTime / 60)}:${String(Math.floor(cue.startTime % 60)).padStart(2, '0')}`}
+              aria-describedby={isCurrent ? 'current-line-description' : undefined}
               className={cn(
                 'p-2 rounded-md transition-all duration-300 cursor-pointer',
-                'text-lg leading-snug',
+                'text-lg leading-snug focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                 cue.isMarker && 'font-bold text-muted-foreground text-sm uppercase tracking-wider bg-muted/30',
                 isCurrent && !cue.isMarker && 'bg-primary/15 font-medium text-foreground scale-[1.02] shadow-sm ring-1 ring-primary/20',
                 isPast && !cue.isMarker && 'text-muted-foreground opacity-80',
@@ -176,6 +178,13 @@ export function LineLyricsDisplay({
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {currentLineIndex !== -1 ? `Now singing: ${lineCues[currentLineIndex].text}` : ''}
       </div>
+      
+      {/* Additional description for current line */}
+      {currentLineIndex !== -1 && (
+        <div id="current-line-description" className="sr-only">
+          Currently highlighted line {currentLineIndex + 1} of {lineCues.filter(cue => !cue.isMarker || showMarkers).length}
+        </div>
+      )}
     </div>
   )
 }
