@@ -1,250 +1,398 @@
-FAIL tests/vtt-generator.props.test.ts
-  VTT Generator Property Tests
-    Property 13: Line aggregation timestamp bounds
-      ??should use first word startS as line startTime (33 ms)
-      ? should use last word endS as line endTime (48 ms)
-      ??should have startTime less than or equal to endTime for all lines (22 ms)
-      ??should preserve line order with increasing timestamps (16 ms)
-    Property 9: Word split handling in matching
-      ??should correctly match words even when split in aligned data (26 ms)
-    Property 10: Graceful handling of unmatchable lines
-      ? should skip lines that use words not present in aligned words (42 ms)
-      ? should handle completely disjoint lyrics and aligned words (38 ms)
-    Property 24: Line aggregation completeness
-      ? should create line cues for all non-empty lyrics lines (7 ms)
-      ??should skip empty lines in lyrics (9 ms)
-      ??should have valid timestamps for all line cues (31 ms)
-      ??should handle empty aligned words gracefully (1 ms)
-      ??should handle empty lyrics gracefully (9 ms)
-    Property 14: VTT timestamp format
-      ??should format timestamps in correct VTT format (10 ms)
-      ??should include milliseconds with exactly 3 digits (22 ms)
-      ??should format zero seconds correctly (1 ms)
-      ??should format sub-second values correctly (4 ms)
-      ??should format minute-level values correctly (4 ms)
-      ??should handle large timestamps with hours (1 ms)
-    Property 15: VTT download visibility
-      ??should generate VTT content when line cues exist (11 ms)
-      ??should generate minimal VTT for empty line cues (1 ms)
-      ??should exclude section markers from VTT output (1 ms)
-      ??should apply offset to timestamps in VTT output
-    VTT content generation
-      ??should generate valid VTT structure (7 ms)
-      ??should handle offset application correctly (8 ms)
-    Property 5: VTT generation produces valid WebVTT format
-      ??should always start with WEBVTT header (20 ms)
-      ??should contain properly formatted timestamp lines for non-marker cues (34 ms)
-      ??should have cue text following each timestamp line (36 ms)
-      ??should produce valid VTT even with empty line cues array
-      ??should produce valid VTT when all cues are markers (11 ms)
-    Property 6: Section markers excluded from VTT output
-      ??should never include marker text in VTT output (30 ms)
-      ??should include all non-marker text in VTT output (32 ms)
-      ??should have correct count of timestamp lines (excluding markers) (15 ms)
-      ??should produce empty VTT body when all cues are markers (28 ms)
-    Property 7: Offset application to all timestamps
-      ??should apply positive offset to all timestamps (56 ms)
-      ??should apply negative offset to all timestamps (43 ms)
-      ??should apply zero offset without changing timestamps (6 ms)
-      ??should preserve cue duration when offset is applied (10 ms)
 
-  ??VTT Generator Property Tests ??Property 13: Line aggregation timestamp bounds ??should use last word endS as line endTime
+> frontend@0.0.0 test C:\Users\Cheney\Documents\Github\LearningSong\frontend
+> jest "tests/LineLevelSync.integration.test.tsx"
 
-    Property failed after 7 tests
-    { seed: -956109301, path: "6:1:1:1:1:1:1:1:1:1:1:1:3:2:2:5:6:5:5:5:5:5:5:5:5:5:5:5:5:5", endOnFailure: true }
-    Counterexample: [[{"word":"!","startS":0,"endS":0.1,"success":true,"palign":0},{"word":"!0","startS":0.1,"endS":0.2,"success":true,"palign":0},{"word":"!","startS":0.2,"endS":0.30000000000000004,"success":true,"palign":0}]]
-    Shrunk 29 time(s)
+FAIL tests/LineLevelSync.integration.test.tsx
+  Line-Level Sync Integration Tests
+    √ displays sync mode toggle when line cues are available (180 ms)
+    √ switches between word and line sync modes (315 ms)
+    √ persists sync mode preference to localStorage (197 ms)
+    √ restores sync mode preference on page load (87 ms)
+    √ clicking a line makes it interactive (138 ms)
+    × renders lines in line sync mode during playback (1106 ms)
+    × calls scrollIntoView when lines are rendered in line sync mode (1090 ms)
 
-    Hint: Enable verbose mode in order to have the list of all failing values encountered during the run
+  ● Line-Level Sync Integration Tests › renders lines in line sync mode during playback
 
-      125 |
-      126 |     it('should use last word endS as line endTime', () => {
-    > 127 |       fc.assert(
-          |          ^
-      128 |         fc.property(
-      129 |           sortedAlignedWordsArbitrary(1, 5),
-      130 |           (alignedWords) => {
+    Found multiple elements with the text: /Second line of lyrics/
 
-      at buildError (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/utils/RunDetailsFormatter.js:162:19)
-      at throwIfFailed (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/utils/RunDetailsFormatter.js:171:11)
-      at reportRunDetails (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/utils/RunDetailsFormatter.js:184:16)
-      at Object.assert (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/Runner.js:65:52)
-      at Object.<anonymous> (tests/vtt-generator.props.test.ts:127:10)
+    Here are the matching elements:
 
-    Cause:
-    expect(received).toBeCloseTo(expected, precision)
+    Ignored nodes: comments, script, style
+    [36m<div[39m
+      [33maria-current[39m=[32m"time"[39m
+      [33maria-describedby[39m=[32m"current-line-description"[39m
+      [33maria-label[39m=[32m"Lyric line: Second line of lyrics. Click to seek to 0:02"[39m
+      [33mclass[39m=[32m"p-2 rounded-md transition-all duration-300 cursor-pointer text-lg leading-snug focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary/15 font-medium text-foreground scale-[1.02] shadow-sm ring-1 ring-primary/20 hover:bg-muted/80"[39m
+      [33mrole[39m=[32m"button"[39m
+      [33mtabindex[39m=[32m"0"[39m
+    [36m>[39m
+      [0mSecond line of lyrics[0m
+    [36m</div>[39m
 
-    Expected: 0.30000000000000004
-    Received: 0.1
+    Ignored nodes: comments, script, style
+    [36m<div[39m
+      [33maria-atomic[39m=[32m"true"[39m
+      [33maria-live[39m=[32m"polite"[39m
+      [33mclass[39m=[32m"sr-only"[39m
+    [36m>[39m
+      [0mNow singing: Second line of lyrics[0m
+    [36m</div>[39m
 
-    Expected precision:    5
-    Expected difference: < 0.000005
-    Received difference:   0.20000000000000004
+    (If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
 
-      142 |               const lastCue = lineCues[lineCues.length - 1]
-      143 |               // Last cue's endTime should match last word's endS
-    > 144 |               expect(lastCue.endTime).toBeCloseTo(cleanWords[cleanWords.length - 1].endS, 5)
-          |                                       ^
-      145 |             }
-      146 |           }
-      147 |         ),
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"min-h-screen bg-background"[39m
+        [36m>[39m
+          [36m<nav[39m
+            [33maria-label[39m=[32m"Skip links"[39m
+            [33mclass[39m=[32m"sr-only focus-within:not-sr-only"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:ring-2 focus:ring-ring focus:ring-offset-2"[39m
+              [33mhref[39m=[32m"#main-content"[39m
+            [36m>[39m
+              [0mSkip to main content[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-48 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:ring-2 focus:ring-ring focus:ring-offset-2"[39m
+              [33mhref[39m=[32m"#audio-player"[39m
+            [36m>[39m
+              [0mSkip to audio player[0m
+            [36m</a>[39m
+          [36m</nav>[39m
+          [36m<header[39m
+            [33mclass[39m=[32m"border-b"[39m
+            [33mrole[39m=[32m"banner"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"container mx-auto px-4 py-6"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex items-center justify-between"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"text-left"[39m
+                [36m>[39m
+                  [36m<h1[39m
+                    [33mclass[39m=[32m"text-3xl font-bold tracking-tight"[39m
+                  [36m>[39m
+                    [0mLearningSong[0m
+                  [36m</h1>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-muted-foreground mt-1"[39m
+                  [36m>[39m
+                    [0mYour song is ready to play[0m
+                  [36m</p>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex items-center gap-4"[39m
+                [36m>[39m
+                  [36m<nav[39m
+                    [33maria-label[39m=[32m"Main navigation"[39m
+                    [33mclass[39m=[32m"flex items-center gap-1 sm:gap-2"[39m
+                  [36m>[39m
+                    [36m<a[39m
+                      [33maria-current[39m=[32m"page"[39m
+                      [33mclass[39m=[32m"px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm rounded-md transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground font-medium"[39m
+                      [33mdata-discover[39m=[32m"true"[39m
+                      [33mhref[39m=[32m"/"[39m
+                    [36m>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"hidden sm:inline"[39m
+                      [36m>[39m
+                        [0mText Input[0m
+                      [36m</span>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"sm:hidden"[39m
+                      [36m>[39m
+                        [0mInput[0m
+                      [36m</span>[39m
+                    [36m</a>[39m
+                    [36m<a[39m
+                      [33mclass[39m=[32m"px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm rounded-md transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-muted-foreground"[39m
+                      [33mdata-discover[39m=[32m"true"[39m
+                      [33mhref[39m=[32m"/lyrics-edit"[39m
+                    [36m>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"hidden sm:inline"[39m
+                      [36m>[39m
+                        [0mLyrics Editing[0m
+                      [36m</span>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"sm:hidden"[39m
+                      [36m>[39m
+                        [0mLyrics[0m
+                      [36m</span>[39m
+                    [36m</a>[39m
+                    [36m<a[39m
+                      [33mclass[39m=[32m"px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm rounded-md transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-muted-foreground"[39m
+                      [33mdata-discover[39m=[32m"true"[39m
+                      [33mhref[39m=[32m"/playback"[39m
+                    [36m>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"hidden sm:inline"[39m
+                      [36m>[39m
+                        [0mSong Playback[0m
+                      [36m</span>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"sm:hidden"[39m
+                      [36m>[39m
+                        [0mPlayback[0m
+                      [36m</span>[39m
+                    [36m</a>[39m
+                    [36m<a[39m
+                      [33mclass[39m=[32m"px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm rounded-md transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-muted-foreground"[39m
+                      [33mdata-discover[39m=[32m"true"[39m
+                      [33mhref[39m=[32m"/history"[39m
+                    [36m>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"hidden sm:inline"[39m
+                      [36m>[39m
+                        [0mMy Songs[0m
+                      [36m</span>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"sm:hidden"[39m
+                      [36m>[39m
+                        [0mSongs[0m
+                      [36m</span>[39m
+                    [36m</a>[39m
+                  [36m</nav>[39m
+                  [36m<div[39m
+                    [33maria-atomic[39m=[32m"true"[39m
+                    [33maria-live[39m=[32m"polite"[39m
+                    [33mclass[39m=[32m"space-y-1"[39m
+                    [33mrole[39m=[32m"status"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"flex items-center space-x-2 text-sm font-medium text-green-700 dark:text-green-500"[39m
+                    [36m>[39m
+                      [36m<span[39m
+                        [33maria-label[39m=[32m"3 of 3 songs remaining today"[39m
+                      [36m>[39m
+                        [0m🎵 [0m
+                        [0m3[0m
+                        [0m/[0m
+                        [0m3[0m
+                        [0m songs remaining today[0m
+                      [36m</span>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+          [36m</header>[39m
+          [36m<main[39m...
 
-      at tests/vtt-generator.props.test.ts:144:39
-      at Property.predicate (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/property/Property.js:17:86)
-      at Property.run (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/property/Property.generic.js:46:33)
-      at runIt (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/Runner.js:18:30)
-      at check (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/Runner.js:58:11)
-      at Object.assert (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/Runner.js:61:17)
-      at Object.<anonymous> (tests/vtt-generator.props.test.ts:127:10)
+    [0m [90m 214 |[39m     renderWithProviders()
+     [90m 215 |[39m
+    [31m[1m>[22m[39m[90m 216 |[39m     [36mawait[39m waitFor(() [33m=>[39m {
+     [90m     |[39m                  [31m[1m^[22m[39m
+     [90m 217 |[39m       [36mconst[39m secondLine [33m=[39m screen[33m.[39mgetByText([35m/Second line of lyrics/[39m)
+     [90m 218 |[39m       expect(secondLine)[33m.[39mtoBeInTheDocument()
+     [90m 219 |[39m       expect(secondLine)[33m.[39mtoHaveAttribute([32m'aria-current'[39m[33m,[39m [32m'time'[39m)[0m
 
-  ??VTT Generator Property Tests ??Property 10: Graceful handling of unmatchable lines ??should skip lines that use words not present in aligned words
+      at waitForWrapper (node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/wait-for.js:163:27)
+      at tests/LineLevelSync.integration.test.tsx:216:18
+      at tests/LineLevelSync.integration.test.tsx:8:71
+      at __awaiter (tests/LineLevelSync.integration.test.tsx:4:12)
+      at Object.<anonymous> (tests/LineLevelSync.integration.test.tsx:210:68)
 
-    Property failed after 2 tests
-    { seed: 301430915, path: "1:1:0:5:11:9:10:10:8:8:8:8:8:8:8:8:8:8:8:8:8:8", endOnFailure: true }
-    Counterexample: [[{"word":"?A","startS":0,"endS":0.1,"success":true,"palign":0},{"word":"!","startS":0.1,"endS":0.2,"success":true,"palign":0}]]
-    Shrunk 21 time(s)
+  ● Line-Level Sync Integration Tests › calls scrollIntoView when lines are rendered in line sync mode
 
-    Hint: Enable verbose mode in order to have the list of all failing values encountered during the run
+    Found multiple elements with the text: /First line of lyrics/
 
-      257 |   describe('Property 10: Graceful handling of unmatchable lines', () => {
-      258 |     it('should skip lines that use words not present in aligned words', () => {
-    > 259 |       fc.assert(
-          |          ^
-      260 |         fc.property(
-      261 |           sortedAlignedWordsArbitrary(1, 5),
-      262 |           (alignedWords) => {
+    Here are the matching elements:
 
-      at buildError (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/utils/RunDetailsFormatter.js:162:19)
-      at throwIfFailed (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/utils/RunDetailsFormatter.js:171:11)
-      at reportRunDetails (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/utils/RunDetailsFormatter.js:184:16)
-      at Object.assert (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/Runner.js:65:52)
-      at Object.<anonymous> (tests/vtt-generator.props.test.ts:259:10)
+    Ignored nodes: comments, script, style
+    [36m<div[39m
+      [33maria-current[39m=[32m"time"[39m
+      [33maria-describedby[39m=[32m"current-line-description"[39m
+      [33maria-label[39m=[32m"Lyric line: First line of lyrics. Click to seek to 0:01"[39m
+      [33mclass[39m=[32m"p-2 rounded-md transition-all duration-300 cursor-pointer text-lg leading-snug focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary/15 font-medium text-foreground scale-[1.02] shadow-sm ring-1 ring-primary/20 hover:bg-muted/80"[39m
+      [33mrole[39m=[32m"button"[39m
+      [33mtabindex[39m=[32m"0"[39m
+    [36m>[39m
+      [0mFirst line of lyrics[0m
+    [36m</div>[39m
 
-    Cause:
-    expect(received).toBe(expected) // Object.is equality
+    Ignored nodes: comments, script, style
+    [36m<div[39m
+      [33maria-atomic[39m=[32m"true"[39m
+      [33maria-live[39m=[32m"polite"[39m
+      [33mclass[39m=[32m"sr-only"[39m
+    [36m>[39m
+      [0mNow singing: First line of lyrics[0m
+    [36m</div>[39m
 
-    Expected: 1
-    Received: 0
+    (If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
 
-      280 |             const lineCues = aggregateWordsToLines(alignedWords, mixedLyrics)
-      281 |             
-    > 282 |             expect(lineCues.length).toBe(1)
-          |                                     ^
-      283 |             expect(lineCues[0].text).toBe(normalizeText(validLine))
-      284 |           }
-      285 |         ),
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"min-h-screen bg-background"[39m
+        [36m>[39m
+          [36m<nav[39m
+            [33maria-label[39m=[32m"Skip links"[39m
+            [33mclass[39m=[32m"sr-only focus-within:not-sr-only"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:ring-2 focus:ring-ring focus:ring-offset-2"[39m
+              [33mhref[39m=[32m"#main-content"[39m
+            [36m>[39m
+              [0mSkip to main content[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-48 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:ring-2 focus:ring-ring focus:ring-offset-2"[39m
+              [33mhref[39m=[32m"#audio-player"[39m
+            [36m>[39m
+              [0mSkip to audio player[0m
+            [36m</a>[39m
+          [36m</nav>[39m
+          [36m<header[39m
+            [33mclass[39m=[32m"border-b"[39m
+            [33mrole[39m=[32m"banner"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"container mx-auto px-4 py-6"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex items-center justify-between"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"text-left"[39m
+                [36m>[39m
+                  [36m<h1[39m
+                    [33mclass[39m=[32m"text-3xl font-bold tracking-tight"[39m
+                  [36m>[39m
+                    [0mLearningSong[0m
+                  [36m</h1>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-muted-foreground mt-1"[39m
+                  [36m>[39m
+                    [0mYour song is ready to play[0m
+                  [36m</p>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex items-center gap-4"[39m
+                [36m>[39m
+                  [36m<nav[39m
+                    [33maria-label[39m=[32m"Main navigation"[39m
+                    [33mclass[39m=[32m"flex items-center gap-1 sm:gap-2"[39m
+                  [36m>[39m
+                    [36m<a[39m
+                      [33maria-current[39m=[32m"page"[39m
+                      [33mclass[39m=[32m"px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm rounded-md transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground font-medium"[39m
+                      [33mdata-discover[39m=[32m"true"[39m
+                      [33mhref[39m=[32m"/"[39m
+                    [36m>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"hidden sm:inline"[39m
+                      [36m>[39m
+                        [0mText Input[0m
+                      [36m</span>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"sm:hidden"[39m
+                      [36m>[39m
+                        [0mInput[0m
+                      [36m</span>[39m
+                    [36m</a>[39m
+                    [36m<a[39m
+                      [33mclass[39m=[32m"px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm rounded-md transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-muted-foreground"[39m
+                      [33mdata-discover[39m=[32m"true"[39m
+                      [33mhref[39m=[32m"/lyrics-edit"[39m
+                    [36m>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"hidden sm:inline"[39m
+                      [36m>[39m
+                        [0mLyrics Editing[0m
+                      [36m</span>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"sm:hidden"[39m
+                      [36m>[39m
+                        [0mLyrics[0m
+                      [36m</span>[39m
+                    [36m</a>[39m
+                    [36m<a[39m
+                      [33mclass[39m=[32m"px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm rounded-md transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-muted-foreground"[39m
+                      [33mdata-discover[39m=[32m"true"[39m
+                      [33mhref[39m=[32m"/playback"[39m
+                    [36m>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"hidden sm:inline"[39m
+                      [36m>[39m
+                        [0mSong Playback[0m
+                      [36m</span>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"sm:hidden"[39m
+                      [36m>[39m
+                        [0mPlayback[0m
+                      [36m</span>[39m
+                    [36m</a>[39m
+                    [36m<a[39m
+                      [33mclass[39m=[32m"px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm rounded-md transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-muted-foreground"[39m
+                      [33mdata-discover[39m=[32m"true"[39m
+                      [33mhref[39m=[32m"/history"[39m
+                    [36m>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"hidden sm:inline"[39m
+                      [36m>[39m
+                        [0mMy Songs[0m
+                      [36m</span>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"sm:hidden"[39m
+                      [36m>[39m
+                        [0mSongs[0m
+                      [36m</span>[39m
+                    [36m</a>[39m
+                  [36m</nav>[39m
+                  [36m<div[39m
+                    [33maria-atomic[39m=[32m"true"[39m
+                    [33maria-live[39m=[32m"polite"[39m
+                    [33mclass[39m=[32m"space-y-1"[39m
+                    [33mrole[39m=[32m"status"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"flex items-center space-x-2 text-sm font-medium text-green-700 dark:text-green-500"[39m
+                    [36m>[39m
+                      [36m<span[39m
+                        [33maria-label[39m=[32m"3 of 3 songs remaining today"[39m
+                      [36m>[39m
+                        [0m🎵 [0m
+                        [0m3[0m
+                        [0m/[0m
+                        [0m3[0m
+                        [0m songs remaining today[0m
+                      [36m</span>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+          [36m</header>[39m
+          [36m<main[39m...
 
-      at tests/vtt-generator.props.test.ts:282:37
-      at Property.predicate (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/property/Property.js:17:86)
-      at Property.run (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/property/Property.generic.js:46:33)
-      at runIt (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/Runner.js:18:30)
-      at check (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/Runner.js:58:11)
-      at Object.assert (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/Runner.js:61:17)
-      at Object.<anonymous> (tests/vtt-generator.props.test.ts:259:10)
+    [0m [90m 233 |[39m     renderWithProviders()
+     [90m 234 |[39m
+    [31m[1m>[22m[39m[90m 235 |[39m     [36mawait[39m waitFor(() [33m=>[39m {
+     [90m     |[39m                  [31m[1m^[22m[39m
+     [90m 236 |[39m       expect(screen[33m.[39mgetByText([35m/First line of lyrics/[39m))[33m.[39mtoBeInTheDocument()
+     [90m 237 |[39m     })
+     [90m 238 |[39m[0m
 
-  ??VTT Generator Property Tests ??Property 10: Graceful handling of unmatchable lines ??should handle completely disjoint lyrics and aligned words
-
-    Property failed after 3 tests
-    { seed: -522784192, path: "2:2:1:3:1:2:2:2:2:2:2:2:2:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0", endOnFailure: true }
-    Counterexample: [[{"word":"!","startS":0,"endS":0.1,"success":true,"palign":0}],"!!!!!"]
-    Shrunk 49 time(s)
-
-    Hint: Enable verbose mode in order to have the list of all failing values encountered during the run
-
-      289 |
-      290 |     it('should handle completely disjoint lyrics and aligned words', () => {
-    > 291 |       fc.assert(
-          |          ^
-      292 |         fc.property(
-      293 |           sortedAlignedWordsArbitrary(1, 5),
-      294 |           fc.string({ minLength: 5 }).filter(s => !s.includes(' ')),
-
-      at buildError (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/utils/RunDetailsFormatter.js:162:19)
-      at throwIfFailed (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/utils/RunDetailsFormatter.js:171:11)
-      at reportRunDetails (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/utils/RunDetailsFormatter.js:184:16)
-      at Object.assert (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/Runner.js:65:52)
-      at Object.<anonymous> (tests/vtt-generator.props.test.ts:291:10)
-
-    Cause:
-    expect(received).toEqual(expected) // deep equality
-
-    - Expected  - 1
-    + Received  + 9
-
-    - Array []
-    + Array [
-    +   Object {
-    +     "endTime": 0.1,
-    +     "isMarker": false,
-    +     "lineIndex": 0,
-    +     "startTime": 0,
-    +     "text": "!!!!!",
-    +   },
-    + ]
-
-      298 |             
-      299 |             const lineCues = aggregateWordsToLines(alignedWords, randomWord)
-    > 300 |             expect(lineCues).toEqual([])
-          |                              ^
-      301 |           }
-      302 |         ),
-      303 |         { numRuns: 50 }
-
-      at tests/vtt-generator.props.test.ts:300:30
-      at Property.predicate (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/property/Property.js:17:86)
-      at Property.run (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/property/Property.generic.js:46:33)
-      at runIt (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/Runner.js:18:30)
-      at check (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/Runner.js:58:11)
-      at Object.assert (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/Runner.js:61:17)
-      at Object.<anonymous> (tests/vtt-generator.props.test.ts:291:10)
-
-  ??VTT Generator Property Tests ??Property 24: Line aggregation completeness ??should create line cues for all non-empty lyrics lines
-
-    Property failed after 2 tests
-    { seed: 1659767789, path: "1:0:1:0:0:5:9:6:6", endOnFailure: true }
-    Counterexample: [[{"word":".0","startS":0,"endS":0.1,"success":true,"palign":0}]]
-    Shrunk 8 time(s)
-
-    Hint: Enable verbose mode in order to have the list of all failing values encountered during the run
-
-      315 |   describe('Property 24: Line aggregation completeness', () => {
-      316 |     it('should create line cues for all non-empty lyrics lines', () => {
-    > 317 |       fc.assert(
-          |          ^
-      318 |         fc.property(
-      319 |           sortedAlignedWordsArbitrary(1, 10),
-      320 |           (alignedWords) => {
-
-      at buildError (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/utils/RunDetailsFormatter.js:162:19)
-      at throwIfFailed (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/utils/RunDetailsFormatter.js:171:11)
-      at reportRunDetails (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/utils/RunDetailsFormatter.js:184:16)
-      at Object.assert (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/Runner.js:65:52)
-      at Object.<anonymous> (tests/vtt-generator.props.test.ts:317:10)
-
-    Cause:
-    expect(received).toBeGreaterThan(expected)
-
-    Expected: > 0
-    Received:   0
-
-      329 |             
-      330 |             // Should have at least one line cue for non-empty lyrics
-    > 331 |             expect(lineCues.length).toBeGreaterThan(0)
-          |                                     ^
-      332 |           }
-      333 |         ),
-      334 |         { numRuns: 50 }
-
-      at tests/vtt-generator.props.test.ts:331:37
-      at Property.predicate (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/property/Property.js:17:86)
-      at Property.run (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/property/Property.generic.js:46:33)
-      at runIt (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/Runner.js:18:30)
-      at check (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/Runner.js:58:11)
-      at Object.assert (node_modules/.pnpm/fast-check@4.3.0/node_modules/fast-check/lib/cjs/check/runner/Runner.js:61:17)
-      at Object.<anonymous> (tests/vtt-generator.props.test.ts:317:10)
+      at waitForWrapper (node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/wait-for.js:163:27)
+      at tests/LineLevelSync.integration.test.tsx:235:18
+      at tests/LineLevelSync.integration.test.tsx:8:71
+      at __awaiter (tests/LineLevelSync.integration.test.tsx:4:12)
+      at Object.<anonymous> (tests/LineLevelSync.integration.test.tsx:226:83)
 
 Test Suites: 1 failed, 1 total
-Tests:       4 failed, 33 passed, 37 total
+Tests:       2 failed, 5 passed, 7 total
 Snapshots:   0 total
-Time:        3.697 s, estimated 4 s
-Ran all test suites matching tests/vtt-generator.props.test.ts.
+Time:        6.396 s
+Ran all test suites matching tests/LineLevelSync.integration.test.tsx.
+ ELIFECYCLE  Test failed. See above for more details.

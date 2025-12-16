@@ -1,0 +1,19 @@
+
+> frontend@0.0.0 test C:\Users\Cheney\Documents\Github\LearningSong\frontend
+> jest "tests/LineLevelSync.integration.test.tsx"
+
+PASS tests/LineLevelSync.integration.test.tsx (6.022 s)
+  Line-Level Sync Integration Tests
+    √ displays sync mode toggle when line cues are available (190 ms)
+    √ switches between word and line sync modes (308 ms)
+    √ persists sync mode preference to localStorage (211 ms)
+    √ restores sync mode preference on page load (104 ms)
+    √ clicking a line makes it interactive (143 ms)
+    √ renders lines in line sync mode during playback (85 ms)
+    √ calls scrollIntoView when lines are rendered in line sync mode (134 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       7 passed, 7 total
+Snapshots:   0 total
+Time:        7.434 s
+Ran all test suites matching tests/LineLevelSync.integration.test.tsx.

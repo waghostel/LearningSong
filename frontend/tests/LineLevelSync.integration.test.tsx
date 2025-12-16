@@ -207,4 +207,42 @@ describe('Line-Level Sync Integration Tests', () => {
     // Line should be clickable (has role button)
     expect(secondLine).toHaveAttribute('role', 'button')
   })
+  it('renders lines in line sync mode during playback', async () => {
+    localStorage.setItem("lyrics-sync-mode", "line")
+    useSongPlaybackStore.setState({ ...mockSongWithLines, currentTime: 2.3 })
+    renderWithProviders()
+
+    await waitFor(() => {
+      // Use getAllByText because there is a visible line AND a live region announcing the line
+      const secondLines = screen.getAllByText(/Second line of lyrics/)
+      const activeLine = secondLines.find(el => el.getAttribute('role') === 'button')
+      
+      expect(activeLine).toBeInTheDocument()
+      expect(activeLine).toHaveAttribute('aria-current', 'time')
+      
+      const firstLines = screen.getAllByText(/First line of lyrics/)
+      const inactiveLine = firstLines.find(el => el.getAttribute('role') === 'button')
+      expect(inactiveLine).toBeInTheDocument()
+      expect(inactiveLine).not.toHaveAttribute('aria-current')
+    })
+  })
+
+  it('calls scrollIntoView when lines are rendered in line sync mode', async () => {
+    localStorage.setItem("lyrics-sync-mode", "line")
+    useSongPlaybackStore.setState({ ...mockSongWithLines, currentTime: 1.5 })
+    renderWithProviders()
+
+    await waitFor(() => {
+      // Just check that we have at least one valid line element rendered
+      const firstLines = screen.getAllByText(/First line of lyrics/)
+      expect(firstLines.length).toBeGreaterThan(0)
+    })
+
+    await waitFor(() => {
+      expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith(expect.objectContaining({
+        behavior: 'smooth',
+        block: 'center'
+      }))
+    })
+  })
 })
